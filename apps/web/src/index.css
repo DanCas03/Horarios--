@@ -1,1 +1,48 @@
 @import "@horaios/ui/globals.css";
+@import "tailwindcss";
+
+@theme {
+	--color-ucab-green: #006838;
+	--color-ucab-gold: #c5a646;
+	--color-ucab-dark: #003b1f;
+	--color-unimet-blue: #003366;
+	--color-unimet-gold: #c8a951;
+	--color-unimet-dark: #001a33;
+	--color-primary: #1e3a5f;
+	--color-primary-light: #2d5f8a;
+	--color-primary-dark: #0f2640;
+	--color-accent: #f59e0b;
+	--color-surface: #f8fafc;
+	--color-surface-dark: #1e293b;
+}
+
+body {
+	font-family: "Inter", system-ui, -apple-system, sans-serif;
+	background-color: var(--color-surface);
+	margin: 0;
+}
+
+* {
+	transition-property:
+		background-color, border-color, color, fill, stroke, opacity, box-shadow,
+		transform;
+	transition-duration: 150ms;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #94a3b8;
+	border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #64748b;
+}

@@ -9,16 +9,14 @@ services:
     container_name: guia_estudiantil_backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     # Carga las variables de entorno desde el archivo .env en la carpeta backend
     env_file:
       - ./backend/.env
     # Reinicia el contenedor automáticamente si falla
     restart: "no"
-    # (Opcional) Si quisieras usar una base de datos local en Docker en lugar de Atlas:
-    # environment:
-    #   - MONGODB_URI=mongodb://mongodb:27017/guia_estudiantil
-    # depends_on:
-    #   - mongodb
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   # Servicio del Frontend (React + Nginx)
   frontend:

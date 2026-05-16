@@ -1,3 +1,3 @@
 {
-  "extends": "@horaios/config/tsconfig.base.json"
+	"extends": "@horaios/config/tsconfig.base.json"
 }
