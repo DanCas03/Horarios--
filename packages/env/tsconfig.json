@@ -1,0 +1,3 @@
+{
+  "extends": "@horaios/config/tsconfig.base.json"
+}
