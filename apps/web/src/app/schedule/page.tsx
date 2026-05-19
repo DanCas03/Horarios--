@@ -5,7 +5,6 @@ import {
 	Calendar,
 	CheckCircle2,
 	ChevronDown,
-	ChevronUp,
 	Loader2,
 	MapPin,
 	Plus,
@@ -16,6 +15,7 @@ import {
 import { useEffect, useState } from "react";
 import { parseApiError, schedulesAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
+import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -248,36 +248,38 @@ function ScheduleContent() {
 	if (loading) {
 		return (
 			<div className="flex justify-center py-20">
-				<div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-			</div>
+			<div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+		</div>
 		);
 	}
 
 	return (
-		<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+		<div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 			{/* Header */}
-			<div className="mb-8 flex items-center justify-between">
+			<div className="mb-10 flex items-center justify-between">
 				<div>
-					<h1 className="flex items-center gap-3 font-extrabold text-3xl text-gray-900">
-						<Calendar className="h-8 w-8 text-primary" />
+					<h1 className="flex items-center gap-4 font-extrabold text-4xl text-gray-900 tracking-tight">
+						<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+							<Calendar className="h-6 w-6 text-primary" />
+						</div>
 						Horarios
 					</h1>
-					<p className="mt-1 text-gray-500">
+					<p className="mt-3 text-gray-500 font-medium">
 						Gestiona tu horario actual y planifica los próximos períodos
 					</p>
 				</div>
 			</div>
 
 			{/* Tabs */}
-			<div className="mb-6 flex gap-2">
+			<div className="mb-8 flex gap-3 p-1.5 bg-white/50 backdrop-blur-md border border-white/60 rounded-2xl w-fit shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
 				{(["tentative", "current"] as const).map((tab) => (
 					<button
 						key={tab}
 						onClick={() => setActiveTab(tab)}
-						className={`rounded-lg px-5 py-2.5 font-medium text-sm transition-colors ${
+						className={`rounded-xl px-6 py-2.5 font-semibold text-sm transition-all duration-300 ${
 							activeTab === tab
-								? "bg-primary text-white shadow-sm"
-								: "border border-gray-100 bg-white text-gray-600 shadow-sm hover:bg-gray-50"
+								? "bg-white text-primary shadow-sm ring-1 ring-black/5"
+								: "text-gray-500 hover:text-gray-900 hover:bg-white/50"
 						}`}
 					>
 						{tab === "tentative"
@@ -287,14 +289,15 @@ function ScheduleContent() {
 				))}
 			</div>
 
+
 			{/* ═══════════════════════════════════════════════════════════════════════
           TENTATIVE TAB
       ════════════════════════════════════════════════════════════════════════ */}
 			{activeTab === "tentative" && (
-				<div className="space-y-6">
+				<div key="tentative-tab" className="tab-content space-y-6">
 					{/* Subject selection panel */}
 					{available.length > 0 ? (
-						<div className="rounded-2xl bg-white p-6 shadow-md">
+						<div className="rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm">
 							<div className="mb-4 flex items-center justify-between">
 								<div>
 									<h3 className="font-bold text-gray-900">
@@ -394,7 +397,7 @@ function ScheduleContent() {
 									<button
 										onClick={saveTentative}
 										disabled={savingTentative || selected.size === 0}
-										className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-sm text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
+										className="group flex items-center gap-2.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 									>
 										{savingTentative ? (
 											<Loader2 size={14} className="animate-spin" />
@@ -409,7 +412,7 @@ function ScheduleContent() {
 							</div>
 						</div>
 					) : user?.career_id ? (
-						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-md">
+						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 ring-1 ring-black/5 shadow-sm">
 							<BookMarked className="mx-auto mb-3 h-12 w-12 opacity-40" />
 							<p className="font-medium">No hay materias disponibles</p>
 							<p className="mt-1 text-sm">
@@ -417,7 +420,7 @@ function ScheduleContent() {
 							</p>
 						</div>
 					) : (
-						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-md">
+						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 ring-1 ring-black/5 shadow-sm">
 							<BookMarked className="mx-auto mb-3 h-12 w-12 opacity-40" />
 							<p className="font-medium">Configura tu carrera primero</p>
 							<p className="mt-1 text-sm">
@@ -455,12 +458,12 @@ function ScheduleContent() {
           CURRENT SCHEDULE TAB
       ════════════════════════════════════════════════════════════════════════ */}
 			{activeTab === "current" && (
-				<div className="space-y-6">
+				<div key="current-tab" className="tab-content space-y-6">
 					{/* Add new schedule button */}
 					<div className="flex justify-end">
 						<button
 							onClick={() => setShowCurrentForm(!showCurrentForm)}
-							className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-medium text-sm text-white hover:bg-primary-light"
+							className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] hover:-translate-y-0.5 active:scale-95"
 						>
 							{showCurrentForm ? <X size={16} /> : <Plus size={16} />}
 							{showCurrentForm ? "Cancelar" : "Registrar horario actual"}
@@ -469,7 +472,7 @@ function ScheduleContent() {
 
 					{/* New schedule form */}
 					{showCurrentForm && (
-						<div className="rounded-2xl bg-white p-6 shadow-md">
+						<div className="panel-enter rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm">
 							<h3 className="mb-4 font-bold text-gray-900">Nuevo Horario</h3>
 
 							{currentError && (
@@ -519,7 +522,7 @@ function ScheduleContent() {
 								<button
 									onClick={saveCurrentSchedule}
 									disabled={savingCurrent}
-									className="ml-auto flex items-center gap-2 rounded-lg bg-primary px-4 py-2 font-medium text-sm text-white hover:bg-primary-light disabled:opacity-50"
+									className="group ml-auto flex items-center gap-2.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:opacity-50"
 								>
 									{savingCurrent ? (
 										<Loader2 size={14} className="animate-spin" />
@@ -547,12 +550,12 @@ function ScheduleContent() {
 								/>
 							))
 						: !showCurrentForm && (
-								<div className="rounded-2xl bg-white p-12 text-center shadow-md">
+								<div className="rounded-2xl bg-white p-12 text-center ring-1 ring-black/5 shadow-sm">
 									<Calendar className="mx-auto mb-4 h-16 w-16 text-gray-300" />
-									<h3 className="mb-2 font-bold text-gray-900 text-xl">
+									<h3 className="mb-2 font-bold text-gray-900 text-xl tracking-tight">
 										Sin horario actual
 									</h3>
-									<p className="mb-6 text-gray-500">
+									<p className="mb-6 text-gray-500 font-medium">
 										Registra los bloques de tus clases de este período para
 										verlos en la grilla.
 									</p>
@@ -579,7 +582,7 @@ function TentativeScheduleCard({
 	deleting: boolean;
 }) {
 	return (
-		<div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+		<div className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
 			<div className="flex items-center gap-3 px-5 py-3.5">
 				<button
 					onClick={onToggle}
@@ -595,11 +598,10 @@ function TentativeScheduleCard({
 							{schedule.tentative_subjects.length !== 1 ? "s" : ""}
 						</span>
 					</div>
-					{isExpanded ? (
-						<ChevronUp size={16} className="ml-auto text-gray-400" />
-					) : (
-						<ChevronDown size={16} className="ml-auto text-gray-400" />
-					)}
+					<ChevronDown
+						size={16}
+						className={`ml-auto text-gray-400 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isExpanded ? "rotate-180" : "rotate-0"}`}
+					/>
 				</button>
 				<button
 					onClick={onDelete}
@@ -614,13 +616,13 @@ function TentativeScheduleCard({
 				</button>
 			</div>
 
-			{isExpanded && (
-				<div className="border-gray-50 border-t px-5 pb-4">
+			<SmoothAccordion isOpen={isExpanded}>
+				<div className="accordion-content border-gray-50 border-t px-5 pb-5 pt-1">
 					<div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3">
 						{schedule.tentative_subjects.map((ts, i) => (
 							<div
 								key={i}
-								className="flex items-center gap-2 rounded-lg bg-primary/5 p-2.5"
+								className="flex items-center gap-2 rounded-xl bg-primary/[0.04] p-3 ring-1 ring-primary/8"
 							>
 								<CheckCircle2
 									size={14}
@@ -636,7 +638,7 @@ function TentativeScheduleCard({
 						))}
 					</div>
 				</div>
-			)}
+			</SmoothAccordion>
 		</div>
 	);
 }
@@ -678,7 +680,7 @@ function CurrentScheduleCard({
 	].filter((d) => schedule.blocks.some((b) => b.day === d));
 
 	return (
-		<div className="overflow-hidden rounded-2xl bg-white shadow-md">
+		<div className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
 			<div className="flex items-center gap-3 px-6 py-4">
 				<button
 					onClick={onToggle}
@@ -694,11 +696,10 @@ function CurrentScheduleCard({
 							{schedule.blocks.length !== 1 ? "s" : ""}
 						</span>
 					</div>
-					{isExpanded ? (
-						<ChevronUp size={16} className="ml-auto text-gray-400" />
-					) : (
-						<ChevronDown size={16} className="ml-auto text-gray-400" />
-					)}
+					<ChevronDown
+						size={16}
+						className={`ml-auto text-gray-400 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isExpanded ? "rotate-180" : "rotate-0"}`}
+					/>
 				</button>
 				<button
 					onClick={onDelete}
@@ -713,8 +714,8 @@ function CurrentScheduleCard({
 				</button>
 			</div>
 
-			{isExpanded && schedule.blocks.length > 0 && (
-				<div className="border-gray-100 border-t px-6 pb-5">
+			<SmoothAccordion isOpen={isExpanded && schedule.blocks.length > 0}>
+				<div className="accordion-content border-gray-100 border-t px-6 pb-5 pt-1">
 					<div className="mt-4 overflow-x-auto">
 						<div style={{ minWidth: `${activeDays.length * 120 + 60}px` }}>
 							{/* Header */}
@@ -811,7 +812,7 @@ function CurrentScheduleCard({
 						</div>
 					</div>
 				</div>
-			)}
+			</SmoothAccordion>
 		</div>
 	);
 }

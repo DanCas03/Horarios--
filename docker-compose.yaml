@@ -4,9 +4,16 @@ services:
     build:
       context: .
       dockerfile: ./apps/web/Dockerfile
+      args:
+        # Debe ser localhost: el cliente axios corre en el navegador, no dentro de Docker
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+        DATABASE_URL: ${DATABASE_URL}
+        BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+        BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+        CORS_ORIGIN: ${CORS_ORIGIN}
     restart: always
-    environment:
-      - NEXT_PUBLIC_API_URL=http://backend:8000/
+    env_file:
+      - .env
     ports:
       - 3000:3000
     networks:
@@ -34,4 +41,3 @@ services:
 # with each other, by using their container name as a hostname
 networks:
   app_network:
-    external: true

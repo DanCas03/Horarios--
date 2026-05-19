@@ -86,193 +86,202 @@ export default function RegisterPage() {
 		}
 	};
 
+	const inputClass = "w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3.5 pr-4 pl-11 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08] hover:border-gray-200";
+	const selectClass = "w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08] hover:border-gray-200 appearance-none disabled:opacity-50 disabled:cursor-not-allowed";
+	const labelClass = "mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400";
+
 	return (
-		<div className="flex min-h-[calc(100vh-12rem)] items-center justify-center px-4 py-12">
-			<div className="w-full max-w-md">
-				<div className="mb-8 text-center">
-					<GraduationCap className="mx-auto mb-4 h-12 w-12 text-primary" />
-					<h1 className="font-extrabold text-3xl text-gray-900">
+		<div className="relative flex min-h-[100dvh] items-center justify-center px-4 py-24 overflow-hidden">
+			{/* Ambient background */}
+			<div className="pointer-events-none absolute inset-0">
+				<div className="absolute top-1/3 right-1/4 h-[500px] w-[500px] rounded-full bg-accent/15 blur-[100px]" />
+				<div className="absolute bottom-0 left-1/4 h-[400px] w-[400px] rounded-full bg-primary-light/20 blur-[90px]" />
+			</div>
+
+			<div className="relative w-full max-w-lg z-10">
+				{/* Header */}
+				<div className="mb-10 text-center">
+					{/* Double-bezel logo */}
+					<div className="mx-auto mb-8 w-fit p-2 rounded-[1.5rem] bg-black/[0.04] ring-1 ring-black/8">
+						<div className="flex h-16 w-16 items-center justify-center rounded-[calc(1.5rem-0.5rem)] bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] ring-1 ring-black/5">
+							<GraduationCap className="h-8 w-8 text-accent" />
+						</div>
+					</div>
+
+					<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm">
+						<span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">
+							Registro Gratuito
+						</span>
+					</div>
+					<h1 className="font-extrabold text-4xl tracking-tighter text-gray-900">
 						Crear Cuenta
 					</h1>
-					<p className="mt-2 text-gray-500">Únete a la comunidad estudiantil</p>
+					<p className="mt-3 text-gray-400 font-medium">Únete a la comunidad estudiantil</p>
 				</div>
 
-				<form
-					onSubmit={handleSubmit}
-					className="space-y-5 rounded-2xl bg-white p-8 shadow-xl"
-				>
-					{error && (
-						<div className="flex items-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-red-700 text-sm">
-							<AlertCircle size={18} />
-							{error}
-						</div>
-					)}
+				{/* Double-bezel form card */}
+				<div className="p-2 rounded-[2rem] bg-black/[0.025] ring-1 ring-black/8">
+					<form
+						onSubmit={handleSubmit}
+						className="space-y-5 rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_0_0_1px_rgba(0,0,0,0.02)]"
+					>
+						{error && (
+							<div className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-red-700 text-sm ring-1 ring-red-100">
+								<AlertCircle size={16} className="flex-shrink-0" />
+								{error}
+							</div>
+						)}
 
-					<div>
-						<label
-							htmlFor="register-username"
-							className="mb-1.5 block font-medium text-gray-700 text-sm"
-						>
-							Nombre de usuario
-						</label>
-						<div className="relative">
-							<User className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-							<input
-								id="register-username"
-								type="text"
-								required
-								value={username}
-								onChange={(e) => setUsername(e.target.value)}
-								className="w-full rounded-lg border border-gray-300 py-2.5 pr-4 pl-10 text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-								placeholder="juanperez"
-							/>
-						</div>
-					</div>
-
-					<div>
-						<label
-							htmlFor="register-email"
-							className="mb-1.5 block font-medium text-gray-700 text-sm"
-						>
-							Correo Electrónico
-						</label>
-						<div className="relative">
-							<Mail className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
-							<input
-								id="register-email"
-								type="email"
-								required
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								className="w-full rounded-lg border border-gray-300 py-2.5 pr-4 pl-10 text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-								placeholder="tu@email.com"
-							/>
-						</div>
-					</div>
-
-					<div className="grid grid-cols-2 gap-4">
 						<div>
-							<label
-								htmlFor="register-password"
-								className="mb-1.5 block font-medium text-gray-700 text-sm"
-							>
-								Contraseña
-							</label>
-							<div className="relative">
-								<Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+							<label className={labelClass}>Nombre de usuario</label>
+							<div className="relative group">
+								<User className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-300 transition-colors duration-300 group-focus-within:text-primary" />
 								<input
-									id="register-password"
-									type="password"
+									id="register-username"
+									type="text"
 									required
-									value={password}
-									onChange={(e) => setPassword(e.target.value)}
-									className="w-full rounded-lg border border-gray-300 py-2.5 pr-4 pl-10 text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-									placeholder="********"
+									value={username}
+									onChange={(e) => setUsername(e.target.value)}
+									className={inputClass}
+									placeholder="juanperez"
 								/>
 							</div>
 						</div>
+
 						<div>
-							<label
-								htmlFor="register-confirm-password"
-								className="mb-1.5 block font-medium text-gray-700 text-sm"
-							>
-								Confirmar
-							</label>
-							<div className="relative">
-								<Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+							<label className={labelClass}>Correo Electrónico</label>
+							<div className="relative group">
+								<Mail className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-300 transition-colors duration-300 group-focus-within:text-primary" />
 								<input
-									id="register-confirm-password"
-									type="password"
+									id="register-email"
+									type="email"
 									required
-									value={confirmPassword}
-									onChange={(e) => setConfirmPassword(e.target.value)}
-									className="w-full rounded-lg border border-gray-300 py-2.5 pr-4 pl-10 text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-									placeholder="********"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									className={inputClass}
+									placeholder="tu@email.com"
 								/>
 							</div>
 						</div>
-					</div>
 
-					<div className="border-gray-100 border-t pt-2">
-						<p className="mb-3 text-gray-400 text-xs">
-							Opcional - puedes configurarlo después
-						</p>
-						<div className="space-y-3">
+						<div className="grid grid-cols-2 gap-4">
 							<div>
-								<label
-									htmlFor="register-university"
-									className="mb-1.5 block font-medium text-gray-700 text-sm"
-								>
-									Universidad
-								</label>
-								<select
-									id="register-university"
-									value={selectedUni}
-									onChange={(e) => {
-										setSelectedUni(e.target.value);
-										setSelectedCareer("");
-									}}
-									disabled={loadingUniversities}
-									className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:bg-gray-50 disabled:text-gray-400"
-								>
-									<option value="">
-										{loadingUniversities
-											? "Cargando universidades..."
-											: universities.length === 0
-												? "No hay universidades disponibles"
-												: "Selecciona universidad..."}
-									</option>
-									{universities.map((u) => (
-										<option key={u._id} value={u._id}>
-											{u.short_name} - {u.name}
-										</option>
-									))}
-								</select>
+								<label className={labelClass}>Contraseña</label>
+								<div className="relative group">
+									<Lock className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-300 transition-colors duration-300 group-focus-within:text-primary" />
+									<input
+										id="register-password"
+										type="password"
+										required
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
+										className={inputClass}
+										placeholder="••••••••"
+									/>
+								</div>
 							</div>
-							{selectedUni && (
+							<div>
+								<label className={labelClass}>Confirmar</label>
+								<div className="relative group">
+									<Lock className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-300 transition-colors duration-300 group-focus-within:text-primary" />
+									<input
+										id="register-confirm-password"
+										type="password"
+										required
+										value={confirmPassword}
+										onChange={(e) => setConfirmPassword(e.target.value)}
+										className={inputClass}
+										placeholder="••••••••"
+									/>
+								</div>
+							</div>
+						</div>
+
+						{/* Optional section */}
+						<div className="border-t border-gray-50 pt-5">
+							<p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-300">
+								Opcional — Configurar después
+							</p>
+							<div className="space-y-4">
 								<div>
-									<label
-										htmlFor="register-career"
-										className="mb-1.5 block font-medium text-gray-700 text-sm"
-									>
-										Carrera
-									</label>
+									<label className={labelClass}>Universidad</label>
 									<select
-										id="register-career"
-										value={selectedCareer}
-										onChange={(e) => setSelectedCareer(e.target.value)}
-										className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+										id="register-university"
+										value={selectedUni}
+										onChange={(e) => {
+											setSelectedUni(e.target.value);
+											setSelectedCareer("");
+										}}
+										disabled={loadingUniversities}
+										className={selectClass}
 									>
-										<option value="">Selecciona carrera...</option>
-										{careers.map((c) => (
-											<option key={c._id} value={c._id}>
-												{c.name}
+										<option value="">
+											{loadingUniversities
+												? "Cargando..."
+												: universities.length === 0
+													? "No disponible"
+													: "Selecciona universidad..."}
+										</option>
+										{universities.map((u) => (
+											<option key={u._id} value={u._id}>
+												{u.short_name} - {u.name}
 											</option>
 										))}
 									</select>
 								</div>
-							)}
+
+								{selectedUni && (
+									<div className="animate-in fade-in slide-in-from-top-2 duration-300">
+										<label className={labelClass}>Carrera</label>
+										<select
+											id="register-career"
+											value={selectedCareer}
+											onChange={(e) => setSelectedCareer(e.target.value)}
+											className={selectClass}
+										>
+											<option value="">Selecciona carrera...</option>
+											{careers.map((c) => (
+												<option key={c._id} value={c._id}>
+													{c.name}
+												</option>
+											))}
+										</select>
+									</div>
+								)}
+							</div>
 						</div>
-					</div>
 
-					<button
-						type="submit"
-						disabled={loading}
-						className="w-full rounded-lg bg-primary py-3 font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
-					>
-						{loading ? "Creando cuenta..." : "Registrarse"}
-					</button>
-
-					<p className="text-center text-gray-500 text-sm">
-						¿Ya tienes cuenta?{" "}
-						<Link
-							href="/login"
-							className="font-semibold text-primary hover:underline"
+						{/* Pill CTA with button-in-button */}
+						<button
+							type="submit"
+							disabled={loading}
+							className="group mt-2 flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 						>
-							Inicia sesión
-						</Link>
-					</p>
-				</form>
+							{loading ? (
+								<>
+									<span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+									Creando cuenta...
+								</>
+							) : (
+								<>
+									Crear Cuenta
+									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
+										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+											<path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+										</svg>
+									</span>
+								</>
+							)}
+						</button>
+
+						<p className="text-center text-gray-400 text-sm">
+							¿Ya tienes cuenta?{" "}
+							<Link href="/login" className="font-semibold text-primary transition-opacity hover:opacity-70">
+								Inicia sesión
+							</Link>
+						</p>
+					</form>
+				</div>
 			</div>
 		</div>
 	);

@@ -5,164 +5,189 @@ import {
 	Calendar,
 	GraduationCap,
 	LogOut,
-	Menu,
 	MessageSquare,
 	User,
-	X,
 } from "lucide-react";
 import Link from "next/link";
+import type { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuth } from "@/context/auth-context";
+
+const NAV_LINKS = [
+	{ href: "/pensum" as Route, label: "Pensum", Icon: BookOpen },
+	{ href: "/schedule" as Route, label: "Horarios", Icon: Calendar },
+	{ href: "/reviews" as Route, label: "Reseñas", Icon: MessageSquare },
+];
 
 export default function Navbar() {
 	const { user, logout } = useAuth();
 	const router = useRouter();
 	const [mobileOpen, setMobileOpen] = useState(false);
+	const [scrolled, setScrolled] = useState(false);
+
+	useEffect(() => {
+		const onScroll = () => setScrolled(window.scrollY > 12);
+		window.addEventListener("scroll", onScroll, { passive: true });
+		return () => window.removeEventListener("scroll", onScroll);
+	}, []);
+
+	// Lock body scroll when mobile menu is open
+	useEffect(() => {
+		document.body.style.overflow = mobileOpen ? "hidden" : "";
+		return () => { document.body.style.overflow = ""; };
+	}, [mobileOpen]);
 
 	const handleLogout = () => {
 		logout();
+		setMobileOpen(false);
 		router.push("/login");
 	};
 
 	return (
-		<nav className="sticky top-0 z-50 bg-primary text-white shadow-lg">
-			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div className="flex h-16 items-center justify-between">
-					<Link href="/" className="flex items-center gap-2 hover:opacity-90">
-						<GraduationCap className="h-8 w-8 text-accent" />
-						<span className="font-bold text-xl tracking-tight">
-							Guía Estudiantil
-						</span>
+		<>
+			{/* ─── Floating pill navbar ─────────────────────────────────────── */}
+			<header className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+				<nav
+					className={`pointer-events-auto mt-4 flex items-center gap-1 rounded-full border px-3 py-2 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+						scrolled
+							? "border-black/10 bg-white/90 shadow-[0_8px_32px_rgba(0,0,0,0.12)] backdrop-blur-xl"
+							: "border-white/20 bg-primary/85 shadow-[0_4px_24px_rgba(31,54,83,0.3)] backdrop-blur-xl"
+					}`}
+				>
+					{/* Logo */}
+					<Link
+						href="/"
+						className={`mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight transition-opacity hover:opacity-80 ${scrolled ? "text-primary" : "text-white"}`}
+					>
+						<GraduationCap className="h-5 w-5 text-accent" />
+						<span className="hidden sm:inline">Guía Estudiantil</span>
 					</Link>
 
-					<div className="hidden items-center gap-6 md:flex">
+					{/* Desktop links */}
+					<div className="hidden items-center gap-1 md:flex">
+						{user && NAV_LINKS.map(({ href, label }) => (
+							<Link
+								key={href}
+								href={href}
+								className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-300 hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700 hover:text-primary hover:bg-primary/8" : "text-white/80 hover:text-white"}`}
+							>
+								{label}
+							</Link>
+						))}
+					</div>
+
+					{/* Right actions */}
+					<div className={`ml-2 flex items-center gap-2 border-l pl-3 ${scrolled ? "border-black/10" : "border-white/20"}`}>
 						{user ? (
 							<>
 								<Link
-									href="/pensum"
-									className="flex items-center gap-1.5 font-medium hover:text-accent"
+									href="/profile"
+									className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700 hover:bg-primary/8" : "text-white/80 hover:text-white"}`}
 								>
-									<BookOpen size={18} />
-									Pensum
+									<User size={15} />
+									<span className="hidden sm:inline max-w-[80px] truncate">{user.username}</span>
 								</Link>
-								<Link
-									href="/schedule"
-									className="flex items-center gap-1.5 font-medium hover:text-accent"
+								<button
+									onClick={handleLogout}
+									className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-all hover:bg-red-50 hover:text-red-600 active:scale-90"
+									title="Cerrar sesión"
 								>
-									<Calendar size={18} />
-									Horarios
-								</Link>
-								<Link
-									href="/reviews"
-									className="flex items-center gap-1.5 font-medium hover:text-accent"
-								>
-									<MessageSquare size={18} />
-									Reseñas
-								</Link>
-								<div className="ml-4 flex items-center gap-3 border-white/20 border-l pl-4">
-									<Link
-										href="/profile"
-										className="flex items-center gap-1.5 hover:text-accent"
-									>
-										<User size={18} />
-										{user.username}
-									</Link>
-									<button
-										onClick={handleLogout}
-										className="flex items-center gap-1 text-red-300 hover:text-red-200"
-									>
-										<LogOut size={16} />
-									</button>
-								</div>
+									<LogOut size={15} />
+								</button>
 							</>
 						) : (
-							<div className="flex gap-3">
+							<>
 								<Link
 									href="/login"
-									className="rounded-lg px-4 py-2 font-medium hover:bg-white/10"
+									className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700" : "text-white/80 hover:text-white"}`}
 								>
 									Iniciar Sesión
 								</Link>
 								<Link
 									href="/register"
-									className="rounded-lg bg-accent px-4 py-2 font-semibold text-primary-dark hover:bg-amber-400"
+									className="group flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-semibold text-primary-dark shadow-[0_2px_8px_rgba(229,156,36,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(229,156,36,0.5)] active:scale-95"
 								>
 									Registrarse
+									<span className="flex h-5 w-5 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px]">
+										<svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+											<path d="M2 8L8 2M8 2H3M8 2V7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+										</svg>
+									</span>
 								</Link>
-							</div>
+							</>
 						)}
 					</div>
 
+					{/* Mobile hamburger */}
 					<button
-						className="md:hidden"
+						className={`relative ml-1 flex h-9 w-9 items-center justify-center rounded-full md:hidden transition-all hover:bg-white/15 active:scale-90 ${scrolled ? "text-gray-700" : "text-white"}`}
 						onClick={() => setMobileOpen(!mobileOpen)}
+						aria-label="Menú"
 					>
-						{mobileOpen ? <X size={24} /> : <Menu size={24} />}
+						<span className={`absolute block h-0.5 w-4 rounded-full bg-current transition-all duration-300 ${mobileOpen ? "translate-y-0 rotate-45" : "-translate-y-1"}`} />
+						<span className={`absolute block h-0.5 w-4 rounded-full bg-current transition-all duration-300 ${mobileOpen ? "opacity-0 scale-x-0" : "opacity-100"}`} />
+						<span className={`absolute block h-0.5 w-4 rounded-full bg-current transition-all duration-300 ${mobileOpen ? "translate-y-0 -rotate-45" : "translate-y-1"}`} />
 					</button>
-				</div>
-			</div>
+				</nav>
+			</header>
 
-			{mobileOpen && (
-				<div className="border-white/10 border-t bg-primary-dark px-4 pb-4 md:hidden">
+			{/* ─── Mobile fullscreen overlay ────────────────────────────────── */}
+			<div
+				className={`fixed inset-0 z-40 flex flex-col items-center justify-center bg-white/95 backdrop-blur-3xl transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] md:hidden ${
+					mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+				}`}
+			>
+				<div className="flex flex-col items-center gap-2">
 					{user ? (
-						<div className="flex flex-col gap-3 pt-3">
-							<Link
-								href="/pensum"
-								onClick={() => setMobileOpen(false)}
-								className="flex items-center gap-2 py-2 hover:text-accent"
-							>
-								<BookOpen size={18} /> Pensum
-							</Link>
-							<Link
-								href="/schedule"
-								onClick={() => setMobileOpen(false)}
-								className="flex items-center gap-2 py-2 hover:text-accent"
-							>
-								<Calendar size={18} /> Horarios
-							</Link>
-							<Link
-								href="/reviews"
-								onClick={() => setMobileOpen(false)}
-								className="flex items-center gap-2 py-2 hover:text-accent"
-							>
-								<MessageSquare size={18} /> Reseñas
-							</Link>
+						<>
+							{NAV_LINKS.map(({ href, label, Icon }, i) => (
+								<Link
+									key={href}
+									href={href}
+									onClick={() => setMobileOpen(false)}
+									className={`reveal reveal-delay-${i + 1} flex items-center gap-3 rounded-full px-8 py-4 text-2xl font-bold text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
+								>
+									<Icon size={24} />
+									{label}
+								</Link>
+							))}
 							<Link
 								href="/profile"
 								onClick={() => setMobileOpen(false)}
-								className="flex items-center gap-2 py-2 hover:text-accent"
+								className={`reveal reveal-delay-4 flex items-center gap-3 rounded-full px-8 py-4 text-2xl font-bold text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
 							>
-								<User size={18} /> {user.username}
+								<User size={24} />
+								{user.username}
 							</Link>
 							<button
 								onClick={handleLogout}
-								className="flex items-center gap-2 py-2 text-red-300 hover:text-red-200"
+								className={`reveal reveal-delay-4 mt-4 flex items-center gap-2 rounded-full px-6 py-3 text-base font-semibold text-red-500 transition-all hover:bg-red-50 active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
 							>
 								<LogOut size={18} /> Cerrar Sesión
 							</button>
-						</div>
+						</>
 					) : (
-						<div className="flex flex-col gap-2 pt-3">
+						<>
 							<Link
 								href="/login"
 								onClick={() => setMobileOpen(false)}
-								className="py-2 hover:text-accent"
+								className={`reveal reveal-delay-1 rounded-full px-8 py-4 text-2xl font-bold text-gray-900 transition-all hover:bg-primary/5 active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
 							>
 								Iniciar Sesión
 							</Link>
 							<Link
 								href="/register"
 								onClick={() => setMobileOpen(false)}
-								className="py-2 hover:text-accent"
+								className={`reveal reveal-delay-2 mt-2 flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-xl font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
 							>
 								Registrarse
 							</Link>
-						</div>
+						</>
 					)}
 				</div>
-			)}
-		</nav>
+			</div>
+		</>
 	);
 }

@@ -73,117 +73,120 @@ function ProfileContent() {
 	);
 
 	return (
-		<div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-			<h1 className="mb-8 flex items-center gap-3 font-extrabold text-3xl text-gray-900">
-				<UserIcon className="h-8 w-8 text-primary" />
-				Mi Perfil
-			</h1>
+		<div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+			{/* Header */}
+			<div className="mb-12">
+				<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm ring-1 ring-black/5">
+					<span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">Mi Cuenta</span>
+				</div>
+				<h1 className="font-extrabold text-5xl tracking-tighter text-gray-900">Mi Perfil</h1>
+			</div>
 
-			<div className="mb-6 rounded-2xl bg-white p-6 shadow-md">
-				<h2 className="mb-4 font-bold text-gray-900 text-lg">
-					Información de Cuenta
-				</h2>
-				<div className="grid grid-cols-2 gap-4">
-					<div>
-						<p className="text-gray-500 text-sm">Usuario</p>
-						<p className="font-medium text-gray-900">{user?.username}</p>
-					</div>
-					<div>
-						<p className="text-gray-500 text-sm">Correo</p>
-						<p className="font-medium text-gray-900">{user?.email}</p>
+			{/* Account info — double-bezel */}
+			<div className="mb-6 p-2 rounded-[2rem] bg-black/[0.025] ring-1 ring-black/5">
+				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+					<h2 className="mb-6 font-extrabold text-gray-900 text-xl tracking-tight">Información de Cuenta</h2>
+					<div className="grid grid-cols-2 gap-6">
+						<div className="rounded-xl bg-gray-50 px-5 py-4 ring-1 ring-black/5">
+							<p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Usuario</p>
+							<p className="font-bold text-gray-900">{user?.username}</p>
+						</div>
+						<div className="rounded-xl bg-gray-50 px-5 py-4 ring-1 ring-black/5">
+							<p className="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Correo</p>
+							<p className="font-bold text-gray-900 truncate">{user?.email}</p>
+						</div>
 					</div>
 				</div>
 			</div>
 
-			<div className="mb-6 rounded-2xl bg-white p-6 shadow-md">
-				<h2 className="mb-4 flex items-center gap-2 font-bold text-gray-900 text-lg">
-					<Building2 size={20} className="text-primary" />
-					Configuración Académica
-				</h2>
+			{/* Academic config — double-bezel */}
+			<div className="mb-6 p-2 rounded-[2rem] bg-black/[0.025] ring-1 ring-black/5">
+				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+					<h2 className="mb-6 font-extrabold text-gray-900 text-xl tracking-tight">Configuración Académica</h2>
 
-				<div className="space-y-4">
-					<div>
-						<label className="mb-1.5 block font-medium text-gray-700 text-sm">
-							Universidad
-						</label>
-						<select
-							value={selectedUni}
-							onChange={(e) => {
-								setSelectedUni(e.target.value);
-								setSelectedCareer("");
-							}}
-							className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-						>
-							<option value="">Selecciona tu universidad</option>
-							{universities.map((u) => (
-								<option key={u._id} value={u._id}>
-									{u.short_name} - {u.name}
-								</option>
-							))}
-						</select>
-					</div>
-
-					{selectedUni && (
+					<div className="space-y-4">
 						<div>
-							<label className="mb-1.5 block font-medium text-gray-700 text-sm">
-								Carrera
+							<label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
+								Universidad
 							</label>
 							<select
-								value={selectedCareer}
-								onChange={(e) => setSelectedCareer(e.target.value)}
-								className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+								value={selectedUni}
+								onChange={(e) => {
+									setSelectedUni(e.target.value);
+									setSelectedCareer("");
+								}}
+								className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08] hover:border-gray-200 appearance-none"
 							>
-								<option value="">Selecciona tu carrera</option>
-								{careers.map((c) => (
-									<option key={c._id} value={c._id}>
-										{c.name}
+								<option value="">Selecciona tu universidad</option>
+								{universities.map((u) => (
+									<option key={u._id} value={u._id}>
+										{u.short_name} - {u.name}
 									</option>
 								))}
 							</select>
 						</div>
-					)}
 
-					<button
-						onClick={handleSave}
-						disabled={saving}
-						className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary-light disabled:opacity-50"
-					>
-						{saved ? (
-							<>
-								<CheckCircle size={18} /> Guardado
-							</>
-						) : (
-							<>
-								<Save size={18} /> {saving ? "Guardando..." : "Guardar Cambios"}
-							</>
+						{selectedUni && (
+							<div>
+								<label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
+									Carrera
+								</label>
+								<select
+									value={selectedCareer}
+									onChange={(e) => setSelectedCareer(e.target.value)}
+									className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08] hover:border-gray-200 appearance-none"
+								>
+									<option value="">Selecciona tu carrera</option>
+									{careers.map((c) => (
+										<option key={c._id} value={c._id}>
+											{c.name}
+										</option>
+									))}
+								</select>
+							</div>
 						)}
-					</button>
+
+						{/* Pill save button */}
+						<button
+							onClick={handleSave}
+							disabled={saving}
+							className="group mt-2 flex items-center gap-3 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-[0_4px_16px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:opacity-50 disabled:hover:translate-y-0"
+						>
+							{saved ? (
+								<><CheckCircle size={16} /> Guardado</>
+							) : (
+								<>
+									<Save size={16} /> {saving ? "Guardando..." : "Guardar Cambios"}
+								</>
+							)}
+						</button>
+					</div>
 				</div>
 			</div>
 
-			<div className="rounded-2xl bg-white p-6 shadow-md">
-				<h2 className="mb-4 flex items-center gap-2 font-bold text-gray-900 text-lg">
-					<BookOpen size={20} className="text-primary" />
-					Resumen Académico
-				</h2>
-				<div className="grid grid-cols-3 gap-4">
-					<div className="rounded-xl bg-gray-50 p-4 text-center">
-						<p className="font-bold text-3xl text-primary">
-							{user?.approved_subjects?.length || 0}
-						</p>
-						<p className="text-gray-500 text-sm">Materias Aprobadas</p>
-					</div>
-					<div className="rounded-xl bg-gray-50 p-4 text-center">
-						<p className="font-bold text-3xl text-accent">
-							{user?.total_approved_credits || 0}
-						</p>
-						<p className="text-gray-500 text-sm">Créditos Aprobados</p>
-					</div>
-					<div className="rounded-xl bg-gray-50 p-4 text-center">
-						<p className="font-bold text-3xl text-green-600">
-							{currentUni?.short_name || "-"}
-						</p>
-						<p className="text-gray-500 text-sm">Universidad</p>
+			{/* Academic summary — double-bezel */}
+			<div className="p-2 rounded-[2rem] bg-black/[0.025] ring-1 ring-black/5">
+				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+					<h2 className="mb-6 font-extrabold text-gray-900 text-xl tracking-tight">Resumen Académico</h2>
+					<div className="grid grid-cols-3 gap-4">
+						<div className="rounded-2xl bg-primary/[0.04] p-6 text-center ring-1 ring-primary/8">
+							<p className="font-extrabold text-4xl text-primary tracking-tighter">
+								{user?.approved_subjects?.length || 0}
+							</p>
+							<p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Materias</p>
+						</div>
+						<div className="rounded-2xl bg-accent/[0.06] p-6 text-center ring-1 ring-accent/10">
+							<p className="font-extrabold text-4xl text-accent tracking-tighter">
+								{user?.total_approved_credits || 0}
+							</p>
+							<p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Créditos</p>
+						</div>
+						<div className="rounded-2xl bg-gray-50 p-6 text-center ring-1 ring-black/5">
+							<p className="font-extrabold text-2xl text-gray-700 tracking-tighter">
+								{currentUni?.short_name || "—"}
+							</p>
+							<p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400">Universidad</p>
+						</div>
 					</div>
 				</div>
 			</div>

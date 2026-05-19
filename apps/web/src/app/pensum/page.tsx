@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 
 import { careersAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
+import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
 interface Subject {
@@ -138,12 +139,14 @@ function PensumContent() {
 
 	if (!user?.career_id) {
 		return (
-			<div className="mx-auto max-w-4xl px-4 py-16 text-center">
-				<BookOpen className="mx-auto mb-4 h-16 w-16 text-gray-300" />
-				<h2 className="mb-2 font-bold text-2xl text-gray-900">
+			<div className="mx-auto max-w-4xl px-4 py-24 text-center">
+				<div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-white shadow-sm ring-1 ring-black/5">
+					<BookOpen className="h-10 w-10 text-gray-300" />
+				</div>
+				<h2 className="mb-3 font-extrabold text-3xl text-gray-900 tracking-tight">
 					Configura tu perfil primero
 				</h2>
-				<p className="text-gray-500">
+				<p className="text-gray-500 font-medium">
 					Selecciona tu universidad y carrera en tu perfil para ver tu pensum.
 				</p>
 			</div>
@@ -159,62 +162,54 @@ function PensumContent() {
 	}
 
 	return (
-		<div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-			<div className="mb-8">
-				<h1 className="mb-2 font-extrabold text-3xl text-gray-900">
-					Mi Pensum
-				</h1>
-				<p className="text-gray-500">{career?.name}</p>
+		<div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+			<div className="mb-12">
+				<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm ring-1 ring-black/5">
+					<span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">Plan Académico</span>
+				</div>
+				<h1 className="mb-2 font-extrabold text-5xl tracking-tighter text-gray-900">Mi Pensum</h1>
+				<p className="text-gray-400 font-medium">{career?.name}</p>
 			</div>
-
-			<div className="mb-8 rounded-2xl bg-white p-6 shadow-md">
-				<div className="mb-3 flex items-center justify-between">
-					<div className="flex items-center gap-3">
-						<Award className="h-6 w-6 text-accent" />
-						<span className="font-semibold text-gray-900">
-							Progreso Académico
-						</span>
+			{/* Progress card — double-bezel */}
+			<div className="mb-10 p-2 rounded-[2rem] bg-black/[0.025] ring-1 ring-black/5">
+				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+					<div className="mb-5 flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/[0.08] ring-1 ring-accent/15">
+								<Award className="h-5 w-5 text-accent" />
+							</div>
+							<span className="font-extrabold text-gray-900 tracking-tight">Progreso Académico</span>
+						</div>
+						<span className="font-bold text-2xl text-gray-900 tracking-tighter">{progress}%</span>
 					</div>
-					<span className="text-gray-500 text-sm">
-						{approvedCredits} / {totalCredits} créditos
-					</span>
-				</div>
-				<div className="h-4 w-full rounded-full bg-gray-200">
-					<div
-						className="h-4 rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
-						style={{ width: `${progress}%` }}
-					/>
-				</div>
-				<div className="mt-2 flex justify-between text-gray-500 text-sm">
-					<span>{progress}% completado</span>
-					<span>
-						{subjects.filter((s) => approvedCodes.has(s.code)).length} /{" "}
-						{subjects.length} materias
-					</span>
+					<div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-inset ring-black/5">
+						<div
+							className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-[1200ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+							style={{ width: `${progress}%` }}
+						/>
+					</div>
+					<div className="mt-3 flex justify-between text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+						<span>{approvedCredits} / {totalCredits} créditos</span>
+						<span>{subjects.filter((s) => approvedCodes.has(s.code)).length} / {subjects.length} materias</span>
+					</div>
 				</div>
 			</div>
 
-			<div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-				<div className="rounded-xl bg-white p-4 text-center shadow-sm">
-					<p className="font-bold text-2xl text-primary">{subjects.length}</p>
-					<p className="text-gray-500 text-xs">Total Materias</p>
-				</div>
-				<div className="rounded-xl bg-white p-4 text-center shadow-sm">
-					<p className="font-bold text-2xl text-green-600">
-						{subjects.filter((s) => approvedCodes.has(s.code)).length}
-					</p>
-					<p className="text-gray-500 text-xs">Aprobadas</p>
-				</div>
-				<div className="rounded-xl bg-white p-4 text-center shadow-sm">
-					<p className="font-bold text-2xl text-amber-600">
-						{subjects.filter((s) => !approvedCodes.has(s.code)).length}
-					</p>
-					<p className="text-gray-500 text-xs">Pendientes</p>
-				</div>
-				<div className="rounded-xl bg-white p-4 text-center shadow-sm">
-					<p className="font-bold text-2xl text-accent">{approvedCredits}</p>
-					<p className="text-gray-500 text-xs">Créditos Aprobados</p>
-				</div>
+			{/* Stat cards grid — double-bezel mini */}
+			<div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4">
+				{[
+					{ value: subjects.length, label: "Total", color: "text-primary", bg: "bg-primary/[0.04] ring-primary/8" },
+					{ value: subjects.filter((s) => approvedCodes.has(s.code)).length, label: "Aprobadas", color: "text-green-600", bg: "bg-green-50 ring-green-100" },
+					{ value: subjects.filter((s) => !approvedCodes.has(s.code)).length, label: "Pendientes", color: "text-amber-600", bg: "bg-amber-50 ring-amber-100" },
+					{ value: approvedCredits, label: "Créditos", color: "text-accent", bg: "bg-accent/[0.06] ring-accent/10" },
+				].map((stat) => (
+					<div key={stat.label} className="p-1.5 rounded-[1.5rem] bg-black/[0.02] ring-1 ring-black/5">
+						<div className={`rounded-[calc(1.5rem-0.375rem)] ${stat.bg} p-5 text-center ring-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition-transform duration-300 hover:-translate-y-0.5`}>
+							<p className={`font-extrabold text-3xl tracking-tighter ${stat.color}`}>{stat.value}</p>
+							<p className="mt-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">{stat.label}</p>
+						</div>
+					</div>
+				))}
 			</div>
 
 			<div className="space-y-4">
@@ -238,30 +233,29 @@ function PensumContent() {
 						return (
 							<div
 								key={sem}
-								className="overflow-hidden rounded-2xl bg-white shadow-md"
+								className={`overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isExpanded ? "shadow-[0_8px_24px_rgba(0,0,0,0.06)]" : "shadow-sm hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]"}`}
 							>
 								<div className="flex items-center">
 									<button
 										onClick={() =>
 											setExpandedSemester(isExpanded ? null : semNum)
 										}
-										className="flex flex-1 items-center gap-3 px-6 py-4 text-left hover:bg-gray-50"
+										className="flex flex-1 items-center gap-4 px-6 py-5 text-left transition-colors hover:bg-black/[0.02]"
 									>
 										{allApproved ? (
-											<CheckCircle className="h-6 w-6 flex-shrink-0 text-green-500" />
+											<div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">
+												<CheckCircle className="h-5 w-5" />
+											</div>
 										) : (
-											<Target className="h-6 w-6 flex-shrink-0 text-primary" />
+											<div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+												<Target className="h-5 w-5" />
+											</div>
 										)}
-										<span className="font-bold text-gray-900">
+										<span className="font-extrabold text-gray-900 text-lg tracking-tight">
 											Semestre {sem}
 										</span>
-										<span className="text-gray-400 text-sm">
-											(
-											{
-												semSubjects.filter((s) => approvedCodes.has(s.code))
-													.length
-											}
-											/{semSubjects.length} aprobadas)
+										<span className="text-gray-400 text-sm font-medium">
+											({semSubjects.filter((s) => approvedCodes.has(s.code)).length}/{semSubjects.length} aprobadas)
 										</span>
 									</button>
 
@@ -273,14 +267,14 @@ function PensumContent() {
 											}}
 											disabled={isSemesterLoading}
 											title="Aprobar todas las materias disponibles del semestre"
-											className="mr-3 flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 font-medium text-green-700 text-xs transition-colors hover:bg-green-100 disabled:opacity-50"
+											className="mr-3 flex items-center gap-1.5 rounded-xl bg-green-50 px-4 py-2 font-semibold text-green-700 text-xs shadow-sm ring-1 ring-green-600/20 transition-all duration-300 hover:bg-green-100 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
 										>
 											{isSemesterLoading ? (
-												<Loader2 size={13} className="animate-spin" />
+												<Loader2 size={14} className="animate-spin" />
 											) : (
-												<CheckSquare size={13} />
+												<CheckSquare size={14} />
 											)}
-											{isSemesterLoading ? "Aprobando..." : "Aprobar semestre"}
+											{isSemesterLoading ? "Aprobando..." : "Aprobar todas"}
 										</button>
 									)}
 
@@ -290,17 +284,18 @@ function PensumContent() {
 										}
 										className="py-4 pr-5 pl-2 text-gray-400 hover:bg-gray-50"
 									>
-										{isExpanded ? (
-											<ChevronDown size={20} />
-										) : (
-											<ChevronRight size={20} />
-										)}
+										<ChevronRight
+											size={20}
+											className={`transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+												isExpanded ? "rotate-90" : "rotate-0"
+											}`}
+										/>
 									</button>
 								</div>
 
-								{isExpanded && (
-									<div className="px-6 pb-4">
-										<div className="divide-y divide-gray-100">
+								<SmoothAccordion isOpen={isExpanded}>
+									<div className="accordion-content px-6 pb-6 pt-2">
+										<div className="divide-y divide-gray-50">
 											{semSubjects.map((subject) => {
 												const isApproved = approvedCodes.has(subject.code);
 												const prereqsMet = subject.prerequisites.every((p) =>
@@ -312,9 +307,9 @@ function PensumContent() {
 												return (
 													<div
 														key={subject._id}
-														className={`flex items-center justify-between gap-3 py-3 ${isApproved ? "opacity-70" : ""}`}
+														className={`flex items-center justify-between gap-4 py-4 px-2 rounded-xl transition-colors hover:bg-black/[0.02] ${isApproved ? "opacity-70" : ""}`}
 													>
-														<div className="flex min-w-0 items-center gap-3">
+														<div className="flex min-w-0 items-center gap-4">
 															{isApproved ? (
 																<CheckCircle className="h-5 w-5 flex-shrink-0 text-green-500" />
 															) : (
@@ -322,17 +317,15 @@ function PensumContent() {
 															)}
 															<div className="min-w-0">
 																<p
-																	className={`truncate font-medium ${isApproved ? "text-gray-400 line-through" : "text-gray-900"}`}
+																	className={`truncate font-semibold tracking-tight ${isApproved ? "text-gray-400 line-through" : "text-gray-900"}`}
 																>
 																	{subject.name}
 																</p>
-																<p className="text-gray-400 text-xs">
-																	{subject.code} | {subject.credits} crédito
-																	{subject.credits !== 1 ? "s" : ""}
+																<p className="text-gray-500 text-xs mt-0.5">
+																	<span className="font-medium text-gray-700">{subject.code}</span> • {subject.credits} crédito{subject.credits !== 1 ? "s" : ""}
 																	{subject.prerequisites.length > 0 && (
-																		<span className="ml-2">
-																			Prelaciones:{" "}
-																			{subject.prerequisites.join(", ")}
+																		<span className="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+																			Pre: {subject.prerequisites.join(", ")}
 																		</span>
 																	)}
 																</p>
@@ -345,15 +338,12 @@ function PensumContent() {
 																	onClick={() => handleUnapprove(subject.code)}
 																	disabled={isUnapproving}
 																	title="Deshacer aprobación"
-																	className="flex items-center gap-1 rounded-lg bg-gray-100 px-2.5 py-1.5 font-medium text-gray-500 text-xs transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+																	className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-gray-500 text-xs transition-all hover:bg-red-50 hover:text-red-600 hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0"
 																>
 																	{isUnapproving ? (
-																		<Loader2
-																			size={12}
-																			className="animate-spin"
-																		/>
+																		<Loader2 size={14} className="animate-spin" />
 																	) : (
-																		<RotateCcw size={12} />
+																		<RotateCcw size={14} />
 																	)}
 																	Deshacer
 																</button>
@@ -363,10 +353,10 @@ function PensumContent() {
 																	disabled={
 																		!canApprove || approving === subject.code
 																	}
-																	className={`rounded-lg px-3 py-1.5 font-medium text-xs transition-colors ${
+																	className={`rounded-lg px-4 py-1.5 font-semibold text-xs transition-all duration-300 ${
 																		canApprove
-																			? "bg-green-100 text-green-700 hover:bg-green-200"
-																			: "cursor-not-allowed bg-gray-100 text-gray-400"
+																			? "bg-green-50 text-green-700 hover:bg-green-100 hover:-translate-y-0.5 active:scale-95 shadow-sm ring-1 ring-green-600/20"
+																			: "cursor-not-allowed bg-gray-100 text-gray-400 opacity-70"
 																	}`}
 																	title={
 																		!prereqsMet
@@ -375,11 +365,8 @@ function PensumContent() {
 																	}
 																>
 																	{approving === subject.code ? (
-																		<span className="flex items-center gap-1">
-																			<Loader2
-																				size={12}
-																				className="animate-spin"
-																			/>{" "}
+																		<span className="flex items-center gap-1.5">
+																			<Loader2 size={14} className="animate-spin" />
 																			...
 																		</span>
 																	) : (
@@ -393,7 +380,7 @@ function PensumContent() {
 											})}
 										</div>
 									</div>
-								)}
+								</SmoothAccordion>
 							</div>
 						);
 					})}

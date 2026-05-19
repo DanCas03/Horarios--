@@ -328,14 +328,16 @@ function ReviewsContent() {
 	};
 
 	return (
-		<div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-			<div className="mb-8 flex items-center justify-between">
+		<div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+			<div className="mb-10 flex items-center justify-between">
 				<div>
-					<h1 className="flex items-center gap-3 font-extrabold text-3xl text-gray-900">
-						<MessageSquare className="h-8 w-8 text-primary" />
+					<h1 className="flex items-center gap-4 font-extrabold text-4xl text-gray-900 tracking-tight">
+						<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
+							<MessageSquare className="h-6 w-6 text-primary" />
+						</div>
 						Reseñas
 					</h1>
-					<p className="mt-1 text-gray-500">
+					<p className="mt-3 text-gray-500 font-medium">
 						Consulta y comparte opiniones de materias y profesores
 					</p>
 				</div>
@@ -345,7 +347,7 @@ function ReviewsContent() {
 							setShowForm(!showForm);
 							setFormError("");
 						}}
-						className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 font-medium text-white hover:bg-primary-light"
+						className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] hover:-translate-y-0.5 active:scale-95"
 					>
 						{showForm ? <X size={18} /> : <PlusCircle size={18} />}
 						{showForm ? "Cancelar" : "Escribir Reseña"}
@@ -354,10 +356,10 @@ function ReviewsContent() {
 			</div>
 
 			{/* Search */}
-			<div className="mb-6 rounded-2xl bg-white p-6 shadow-md">
+			<div className="mb-8 rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm">
 				<label
 					htmlFor="search-reviews"
-					className="mb-2 block font-medium text-gray-700 text-sm"
+					className="mb-3 block font-semibold text-gray-900 text-sm tracking-tight"
 				>
 					Buscar reseñas por materia
 				</label>
@@ -379,12 +381,12 @@ function ReviewsContent() {
 									? "Buscar por código o nombre de materia..."
 									: "Ej: MAT-1115"
 							}
-							className="w-full rounded-lg border border-gray-300 py-2.5 pr-9 pl-10 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+							className="w-full rounded-xl border border-gray-200 bg-white/50 py-3 pr-9 pl-11 outline-none transition-all duration-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
 						/>
 
 						{/* Suggestions dropdown */}
 						{searchOpen && searchSuggestions.length > 0 && (
-							<ul className="absolute right-0 left-0 z-30 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl">
+							<ul className="absolute right-0 left-0 z-30 mt-2 max-h-64 overflow-y-auto rounded-xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.1)]">
 								{searchSuggestions.map((s) => (
 									<li key={s.code}>
 										<button
@@ -449,12 +451,12 @@ function ReviewsContent() {
 			{showForm && (
 				<form
 					onSubmit={handleSubmitReview}
-					className="mb-6 space-y-4 rounded-2xl bg-white p-6 shadow-md"
+					className="panel-enter mb-8 space-y-6 rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm"
 				>
-					<h3 className="font-bold text-gray-900 text-lg">Nueva Reseña</h3>
+					<h3 className="font-bold text-gray-900 text-xl tracking-tight">Nueva Reseña</h3>
 
 					{formError && (
-						<div className="rounded-lg bg-red-50 px-4 py-3 text-red-700 text-sm">
+						<div className="rounded-xl bg-red-50 px-4 py-3 text-red-700 text-sm">
 							{formError}
 						</div>
 					)}
@@ -635,9 +637,18 @@ function ReviewsContent() {
 					<button
 						type="submit"
 						disabled={submitting}
-						className="w-full rounded-lg bg-primary py-3 font-semibold text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
+						className="group flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 					>
-						{submitting ? "Publicando..." : "Publicar Reseña (Anónima)"}
+						{submitting ? (
+							<><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Publicando...</>
+						) : (
+							<>
+								Publicar Reseña (Anónima)
+								<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
+									<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+								</span>
+							</>
+						)}
 					</button>
 				</form>
 			)}
@@ -653,30 +664,30 @@ function ReviewsContent() {
 						{reviews.length} reseña(s) para <strong>{activeCode}</strong>
 					</p>
 					{reviews.map((r) => (
-						<div key={r._id} className="rounded-2xl bg-white p-6 shadow-md">
-							<div className="mb-3 flex items-start justify-between">
+						<div key={r._id} className="rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] relative group">
+							<div className="mb-4 flex items-start justify-between relative z-10">
 								<div>
 									<div className="mb-1 flex items-center gap-2">
-										<span className="font-bold text-gray-900">
+										<span className="font-bold text-gray-900 text-lg tracking-tight">
 											{r.subject_code}
 										</span>
 										{r.is_verified && (
-											<span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 text-xs">
+											<span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 text-xs border border-green-200">
 												✓ Verificada
 											</span>
 										)}
 									</div>
 									{r.professor_name && (
-										<p className="text-gray-500 text-sm">
+										<p className="text-gray-600 font-medium text-sm">
 											Prof. {r.professor_name}
 										</p>
 									)}
-									<p className="text-gray-400 text-xs">
+									<p className="text-gray-400 text-xs mt-1">
 										Periodo: {r.period}
-										{r.section && ` | Sección: ${r.section}`}
+										{r.section && ` • Sección: ${r.section}`}
 									</p>
 								</div>
-								<div className="flex items-center gap-1">
+								<div className="flex items-center justify-center rounded-xl p-2 bg-gray-50 group-hover:bg-gray-100 transition-colors">
 									{r.would_recommend ? (
 										<ThumbsUp className="h-5 w-5 text-green-500" />
 									) : (
