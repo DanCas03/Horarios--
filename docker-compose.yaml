@@ -1,0 +1,37 @@
+services:
+  web:
+    container_name: web
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000/
+    ports:
+      - 3000:3000
+    networks:
+      - app_network
+  backend:
+    build: 
+      context: ./old/backend/
+      dockerfile: Dockerfile
+    container_name: guia_estudiantil_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./old/backend:/app
+    # Carga las variables de entorno desde el archivo .env en la carpeta backend
+    env_file:
+      - ./old/backend/.env
+    # Reinicia el contenedor automáticamente si falla
+    networks:
+      - app_network
+    restart: "no"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  app_network:
+    external: true

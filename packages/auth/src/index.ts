@@ -1,12 +1,10 @@
-import { createPrismaClient } from "@horaios/db";
+import prisma from "@horaios/db";
 import { env } from "@horaios/env/server";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
 
 export function createAuth() {
-	const prisma = createPrismaClient();
-
 	return betterAuth({
 		database: prismaAdapter(prisma, {
 			provider: "mongodb",

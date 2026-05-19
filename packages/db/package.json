@@ -26,5 +26,8 @@
 		"@horaios/config": "workspace:*",
 		"prisma": "6.19.0",
 		"typescript": "catalog:"
+	},
+	"prisma": {
+		"schema": "prisma/schema"
 	}
 }

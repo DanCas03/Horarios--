@@ -4,12 +4,12 @@ import { AlertCircle, GraduationCap, Lock, Mail } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { type SyntheticEvent, useState } from "react";
+import { Suspense, type SyntheticEvent, useState } from "react";
 
 import { parseApiError } from "@/api/client";
 import { useAuth } from "@/context/auth-context";
 
-export default function LoginPage() {
+function LoginContent() {
 	const { login } = useAuth();
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -112,5 +112,13 @@ export default function LoginPage() {
 				</form>
 			</div>
 		</div>
+	);
+}
+
+export default function LoginPage() {
+	return (
+		<Suspense fallback={<div className="flex min-h-[calc(100vh-12rem)] items-center justify-center px-4 py-12">Cargando...</div>}>
+			<LoginContent />
+		</Suspense>
 	);
 }
