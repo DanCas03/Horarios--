@@ -35,18 +35,18 @@ function LoginContent() {
 	};
 
 	return (
-		<div className="relative flex min-h-[100dvh] items-center justify-center px-4 py-24 overflow-hidden">
+		<div className="relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 py-24">
 			{/* Ambient background */}
 			<div className="pointer-events-none absolute inset-0">
 				<div className="absolute top-1/4 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-light/20 blur-[100px]" />
-				<div className="absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-accent/15 blur-[80px]" />
+				<div className="absolute right-1/4 bottom-0 h-[300px] w-[300px] rounded-full bg-accent/15 blur-[80px]" />
 			</div>
 
-			<div className="relative w-full max-w-md z-10">
+			<div className="relative z-10 w-full max-w-md">
 				{/* Header */}
 				<div className="mb-10 text-center">
 					{/* Double-bezel logo icon */}
-					<div className="mx-auto mb-8 w-fit p-2 rounded-[1.5rem] bg-black/[0.04] ring-1 ring-black/8">
+					<div className="mx-auto mb-8 w-fit rounded-[1.5rem] bg-black/[0.04] p-2 ring-1 ring-black/8">
 						<div className="flex h-16 w-16 items-center justify-center rounded-[calc(1.5rem-0.5rem)] bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] ring-1 ring-black/5">
 							<GraduationCap className="h-8 w-8 text-primary" />
 						</div>
@@ -54,20 +54,20 @@ function LoginContent() {
 
 					{/* Eyebrow */}
 					<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm">
-						<span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">
+						<span className="font-semibold text-[10px] text-gray-400 uppercase tracking-[0.2em]">
 							Acceso Seguro
 						</span>
 					</div>
-					<h1 className="font-extrabold text-4xl tracking-tighter text-gray-900">
+					<h1 className="font-extrabold text-4xl text-gray-900 tracking-tighter">
 						Bienvenido de vuelta
 					</h1>
-					<p className="mt-3 text-gray-400 font-medium">
+					<p className="mt-3 font-medium text-gray-400">
 						Accede a tu planificación académica
 					</p>
 				</div>
 
 				{/* Double-bezel form card */}
-				<div className="p-2 rounded-[2rem] bg-black/[0.025] ring-1 ring-black/8">
+				<div className="rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/8">
 					<form
 						onSubmit={handleSubmit}
 						className="space-y-5 rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_0_0_1px_rgba(0,0,0,0.02)]"
@@ -80,34 +80,34 @@ function LoginContent() {
 						)}
 
 						<div>
-							<label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
+							<label className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider">
 								Correo Electrónico
 							</label>
-							<div className="relative group">
+							<div className="group relative">
 								<Mail className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-300 transition-colors duration-300 group-focus-within:text-primary" />
 								<input
 									type="email"
 									required
 									value={email}
 									onChange={(e) => setEmail(e.target.value)}
-									className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3.5 pr-4 pl-11 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08] hover:border-gray-200"
+									className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3.5 pr-4 pl-11 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 									placeholder="tu@email.com"
 								/>
 							</div>
 						</div>
 
 						<div>
-							<label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-gray-400">
+							<label className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider">
 								Contraseña
 							</label>
-							<div className="relative group">
+							<div className="group relative">
 								<Lock className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-gray-300 transition-colors duration-300 group-focus-within:text-primary" />
 								<input
 									type="password"
 									required
 									value={password}
 									onChange={(e) => setPassword(e.target.value)}
-									className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3.5 pr-4 pl-11 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08] hover:border-gray-200"
+									className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3.5 pr-4 pl-11 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 									placeholder="••••••••"
 								/>
 							</div>
@@ -129,7 +129,13 @@ function LoginContent() {
 									Iniciar Sesión
 									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
 										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-											<path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+											<path
+												d="M2 10L10 2M10 2H4M10 2V8"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											/>
 										</svg>
 									</span>
 								</>
@@ -154,7 +160,13 @@ function LoginContent() {
 
 export default function LoginPage() {
 	return (
-		<Suspense fallback={<div className="flex min-h-[100dvh] items-center justify-center"><span className="h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" /></div>}>
+		<Suspense
+			fallback={
+				<div className="flex min-h-[100dvh] items-center justify-center">
+					<span className="h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+				</div>
+			}
+		>
 			<LoginContent />
 		</Suspense>
 	);

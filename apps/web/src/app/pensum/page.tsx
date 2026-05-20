@@ -20,18 +20,18 @@ import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
 interface Subject {
-	_id: string;
+	id: string;
 	code: string;
 	name: string;
 	credits: number;
-	semester_suggested: number;
+	semesterSuggested: number;
 	prerequisites: string[];
 }
 
 interface Career {
-	_id: string;
+	id: string;
 	name: string;
-	total_credits: number;
+	totalCredits: number;
 }
 
 function PensumContent() {
@@ -47,15 +47,13 @@ function PensumContent() {
 	);
 
 	const approvedCodes = new Set(
-		user?.approved_subjects?.map((s) => s.subject_code) || [],
+		user?.approvedSubjects?.map((s) => s.subjectCode) || [],
 	);
 
 	useEffect(() => {
-		if (user?.career_id) {
-			Promise.all([
-				subjectsAPI.pensum(user.career_id),
-				careersAPI.get(user.career_id),
-			])
+		const careerId = user?.careerIds?.[0];
+		if (careerId) {
+			Promise.all([subjectsAPI.pensum(careerId), careersAPI.get(careerId)])
 				.then(([subRes, carRes]) => {
 					setSubjects(subRes.data);
 					setCareer(carRes.data);
@@ -65,7 +63,7 @@ function PensumContent() {
 		} else {
 			setLoading(false);
 		}
-	}, [user?.career_id]);
+	}, [user?.careerIds]);
 
 	const handleApprove = async (code: string) => {
 		setApproving(code);
@@ -102,7 +100,7 @@ function PensumContent() {
 		semSubjects: Subject[],
 	) => {
 		const currentApproved = new Set(
-			user?.approved_subjects?.map((s) => s.subject_code) || [],
+			user?.approvedSubjects?.map((s) => s.subjectCode) || [],
 		);
 		const toApprove = semSubjects.filter(
 			(s) =>
@@ -124,7 +122,7 @@ function PensumContent() {
 
 	const semesters = subjects.reduce(
 		(acc, s) => {
-			const sem = s.semester_suggested || 0;
+			const sem = s.semesterSuggested || 0;
 			if (!acc[sem]) acc[sem] = [];
 			acc[sem].push(s);
 			return acc;
@@ -132,12 +130,12 @@ function PensumContent() {
 		{} as Record<number, Subject[]>,
 	);
 
-	const totalCredits = career?.total_credits || 0;
-	const approvedCredits = user?.total_approved_credits || 0;
+	const totalCredits = career?.totalCredits || 0;
+	const approvedCredits = user?.totalApprovedCredits || 0;
 	const progress =
 		totalCredits > 0 ? Math.round((approvedCredits / totalCredits) * 100) : 0;
 
-	if (!user?.career_id) {
+	if (!user?.careerIds?.length) {
 		return (
 			<div className="mx-auto max-w-4xl px-4 py-24 text-center">
 				<div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-white shadow-sm ring-1 ring-black/5">
@@ -146,7 +144,7 @@ function PensumContent() {
 				<h2 className="mb-3 font-extrabold text-3xl text-gray-900 tracking-tight">
 					Configura tu perfil primero
 				</h2>
-				<p className="text-gray-500 font-medium">
+				<p className="font-medium text-gray-500">
 					Selecciona tu universidad y carrera en tu perfil para ver tu pensum.
 				</p>
 			</div>
@@ -165,32 +163,45 @@ function PensumContent() {
 		<div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
 			<div className="mb-12">
 				<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm ring-1 ring-black/5">
-					<span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400">Plan Académico</span>
+					<span className="font-semibold text-[10px] text-gray-400 uppercase tracking-[0.2em]">
+						Plan Académico
+					</span>
 				</div>
-				<h1 className="mb-2 font-extrabold text-5xl tracking-tighter text-gray-900">Mi Pensum</h1>
-				<p className="text-gray-400 font-medium">{career?.name}</p>
+				<h1 className="mb-2 font-extrabold text-5xl text-gray-900 tracking-tighter">
+					Mi Pensum
+				</h1>
+				<p className="font-medium text-gray-400">{career?.name}</p>
 			</div>
 			{/* Progress card — double-bezel */}
-			<div className="mb-10 p-2 rounded-[2rem] bg-black/[0.025] ring-1 ring-black/5">
+			<div className="mb-10 rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
 				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
 					<div className="mb-5 flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/[0.08] ring-1 ring-accent/15">
 								<Award className="h-5 w-5 text-accent" />
 							</div>
-							<span className="font-extrabold text-gray-900 tracking-tight">Progreso Académico</span>
+							<span className="font-extrabold text-gray-900 tracking-tight">
+								Progreso Académico
+							</span>
 						</div>
-						<span className="font-bold text-2xl text-gray-900 tracking-tighter">{progress}%</span>
+						<span className="font-bold text-2xl text-gray-900 tracking-tighter">
+							{progress}%
+						</span>
 					</div>
-					<div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-inset ring-black/5">
+					<div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-black/5 ring-inset">
 						<div
 							className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-[1200ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
 							style={{ width: `${progress}%` }}
 						/>
 					</div>
-					<div className="mt-3 flex justify-between text-[11px] font-semibold uppercase tracking-wider text-gray-400">
-						<span>{approvedCredits} / {totalCredits} créditos</span>
-						<span>{subjects.filter((s) => approvedCodes.has(s.code)).length} / {subjects.length} materias</span>
+					<div className="mt-3 flex justify-between font-semibold text-[11px] text-gray-400 uppercase tracking-wider">
+						<span>
+							{approvedCredits} / {totalCredits} créditos
+						</span>
+						<span>
+							{subjects.filter((s) => approvedCodes.has(s.code)).length} /{" "}
+							{subjects.length} materias
+						</span>
 					</div>
 				</div>
 			</div>
@@ -198,15 +209,46 @@ function PensumContent() {
 			{/* Stat cards grid — double-bezel mini */}
 			<div className="mb-12 grid grid-cols-2 gap-4 md:grid-cols-4">
 				{[
-					{ value: subjects.length, label: "Total", color: "text-primary", bg: "bg-primary/[0.04] ring-primary/8" },
-					{ value: subjects.filter((s) => approvedCodes.has(s.code)).length, label: "Aprobadas", color: "text-green-600", bg: "bg-green-50 ring-green-100" },
-					{ value: subjects.filter((s) => !approvedCodes.has(s.code)).length, label: "Pendientes", color: "text-amber-600", bg: "bg-amber-50 ring-amber-100" },
-					{ value: approvedCredits, label: "Créditos", color: "text-accent", bg: "bg-accent/[0.06] ring-accent/10" },
+					{
+						value: subjects.length,
+						label: "Total",
+						color: "text-primary",
+						bg: "bg-primary/[0.04] ring-primary/8",
+					},
+					{
+						value: subjects.filter((s) => approvedCodes.has(s.code)).length,
+						label: "Aprobadas",
+						color: "text-green-600",
+						bg: "bg-green-50 ring-green-100",
+					},
+					{
+						value: subjects.filter((s) => !approvedCodes.has(s.code)).length,
+						label: "Pendientes",
+						color: "text-amber-600",
+						bg: "bg-amber-50 ring-amber-100",
+					},
+					{
+						value: approvedCredits,
+						label: "Créditos",
+						color: "text-accent",
+						bg: "bg-accent/[0.06] ring-accent/10",
+					},
 				].map((stat) => (
-					<div key={stat.label} className="p-1.5 rounded-[1.5rem] bg-black/[0.02] ring-1 ring-black/5">
-						<div className={`rounded-[calc(1.5rem-0.375rem)] ${stat.bg} p-5 text-center ring-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] transition-transform duration-300 hover:-translate-y-0.5`}>
-							<p className={`font-extrabold text-3xl tracking-tighter ${stat.color}`}>{stat.value}</p>
-							<p className="mt-1.5 text-[10px] font-semibold uppercase tracking-widest text-gray-400">{stat.label}</p>
+					<div
+						key={stat.label}
+						className="rounded-[1.5rem] bg-black/[0.02] p-1.5 ring-1 ring-black/5"
+					>
+						<div
+							className={`rounded-[calc(1.5rem-0.375rem)] ${stat.bg} p-5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] ring-1 transition-transform duration-300 hover:-translate-y-0.5`}
+						>
+							<p
+								className={`font-extrabold text-3xl tracking-tighter ${stat.color}`}
+							>
+								{stat.value}
+							</p>
+							<p className="mt-1.5 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
+								{stat.label}
+							</p>
 						</div>
 					</div>
 				))}
@@ -254,8 +296,13 @@ function PensumContent() {
 										<span className="font-extrabold text-gray-900 text-lg tracking-tight">
 											Semestre {sem}
 										</span>
-										<span className="text-gray-400 text-sm font-medium">
-											({semSubjects.filter((s) => approvedCodes.has(s.code)).length}/{semSubjects.length} aprobadas)
+										<span className="font-medium text-gray-400 text-sm">
+											(
+											{
+												semSubjects.filter((s) => approvedCodes.has(s.code))
+													.length
+											}
+											/{semSubjects.length} aprobadas)
 										</span>
 									</button>
 
@@ -267,7 +314,7 @@ function PensumContent() {
 											}}
 											disabled={isSemesterLoading}
 											title="Aprobar todas las materias disponibles del semestre"
-											className="mr-3 flex items-center gap-1.5 rounded-xl bg-green-50 px-4 py-2 font-semibold text-green-700 text-xs shadow-sm ring-1 ring-green-600/20 transition-all duration-300 hover:bg-green-100 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
+											className="mr-3 flex items-center gap-1.5 rounded-xl bg-green-50 px-4 py-2 font-semibold text-green-700 text-xs shadow-sm ring-1 ring-green-600/20 transition-all duration-300 hover:scale-105 hover:bg-green-100 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
 										>
 											{isSemesterLoading ? (
 												<Loader2 size={14} className="animate-spin" />
@@ -294,7 +341,7 @@ function PensumContent() {
 								</div>
 
 								<SmoothAccordion isOpen={isExpanded}>
-									<div className="accordion-content px-6 pb-6 pt-2">
+									<div className="accordion-content px-6 pt-2 pb-6">
 										<div className="divide-y divide-gray-50">
 											{semSubjects.map((subject) => {
 												const isApproved = approvedCodes.has(subject.code);
@@ -306,8 +353,8 @@ function PensumContent() {
 
 												return (
 													<div
-														key={subject._id}
-														className={`flex items-center justify-between gap-4 py-4 px-2 rounded-xl transition-colors hover:bg-black/[0.02] ${isApproved ? "opacity-70" : ""}`}
+														key={subject.id}
+														className={`flex items-center justify-between gap-3 py-3 ${isApproved ? "opacity-70" : ""}`}
 													>
 														<div className="flex min-w-0 items-center gap-4">
 															{isApproved ? (
@@ -321,10 +368,14 @@ function PensumContent() {
 																>
 																	{subject.name}
 																</p>
-																<p className="text-gray-500 text-xs mt-0.5">
-																	<span className="font-medium text-gray-700">{subject.code}</span> • {subject.credits} crédito{subject.credits !== 1 ? "s" : ""}
+																<p className="mt-0.5 text-gray-500 text-xs">
+																	<span className="font-medium text-gray-700">
+																		{subject.code}
+																	</span>{" "}
+																	• {subject.credits} crédito
+																	{subject.credits !== 1 ? "s" : ""}
 																	{subject.prerequisites.length > 0 && (
-																		<span className="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+																		<span className="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600 text-xs">
 																			Pre: {subject.prerequisites.join(", ")}
 																		</span>
 																	)}
@@ -338,10 +389,13 @@ function PensumContent() {
 																	onClick={() => handleUnapprove(subject.code)}
 																	disabled={isUnapproving}
 																	title="Deshacer aprobación"
-																	className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-gray-500 text-xs transition-all hover:bg-red-50 hover:text-red-600 hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0"
+																	className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-gray-500 text-xs transition-all hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0"
 																>
 																	{isUnapproving ? (
-																		<Loader2 size={14} className="animate-spin" />
+																		<Loader2
+																			size={14}
+																			className="animate-spin"
+																		/>
 																	) : (
 																		<RotateCcw size={14} />
 																	)}
@@ -355,7 +409,7 @@ function PensumContent() {
 																	}
 																	className={`rounded-lg px-4 py-1.5 font-semibold text-xs transition-all duration-300 ${
 																		canApprove
-																			? "bg-green-50 text-green-700 hover:bg-green-100 hover:-translate-y-0.5 active:scale-95 shadow-sm ring-1 ring-green-600/20"
+																			? "bg-green-50 text-green-700 shadow-sm ring-1 ring-green-600/20 hover:-translate-y-0.5 hover:bg-green-100 active:scale-95"
 																			: "cursor-not-allowed bg-gray-100 text-gray-400 opacity-70"
 																	}`}
 																	title={
@@ -366,7 +420,10 @@ function PensumContent() {
 																>
 																	{approving === subject.code ? (
 																		<span className="flex items-center gap-1.5">
-																			<Loader2 size={14} className="animate-spin" />
+																			<Loader2
+																				size={14}
+																				className="animate-spin"
+																			/>
 																			...
 																		</span>
 																	) : (

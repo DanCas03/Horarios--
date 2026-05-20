@@ -22,18 +22,11 @@ export default function ProtectedRoute({
 
 	useEffect(() => {
 		if (!loading && !user) {
-			const hasToken = !!localStorage.getItem("access_token");
-			if (!hasToken) {
-				router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
-			}
+			router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
 		}
 	}, [loading, pathname, router, user]);
 
 	if (loading) return <Spinner />;
-
-	const hasToken =
-		typeof window !== "undefined" && !!localStorage.getItem("access_token");
-	if (!user && hasToken) return <Spinner />;
 	if (!user) return null;
 
 	return <>{children}</>;

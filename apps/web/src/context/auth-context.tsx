@@ -1,111 +1,112 @@
 "use client";
 
+import axios from "axios";
 import {
 	createContext,
 	type ReactNode,
+	useCallback,
 	useContext,
 	useEffect,
 	useState,
 } from "react";
+import { authClient } from "@/lib/auth-client";
 
-import { authAPI } from "@/api/client";
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 
-interface ApprovedSubject {
-	subject_code: string;
+export interface ApprovedSubject {
+	subjectCode: string;
 	grade?: number;
 	period?: string;
 }
 
-interface User {
-	_id: string;
+export interface UserProfile {
+	id: string;
+	name: string;
 	email: string;
-	username: string;
-	university_id?: string;
-	career_id?: string;
-	approved_subjects: ApprovedSubject[];
-	total_approved_credits: number;
+	image?: string | null;
+	username?: string | null;
+	universityIds: string[];
+	careerIds: string[];
+	approvedSubjects: ApprovedSubject[];
+	totalApprovedCredits: number;
 }
 
 interface AuthContextType {
-	user: User | null;
-	token: string | null;
+	user: UserProfile | null;
 	loading: boolean;
 	login: (email: string, password: string) => Promise<void>;
 	register: (
 		email: string,
-		username: string,
+		name: string,
 		password: string,
 		universityId?: string,
 		careerId?: string,
 	) => Promise<void>;
-	logout: () => void;
+	logout: () => Promise<void>;
 	refreshUser: () => Promise<void>;
 }
 
+// ─── Context ──────────────────────────────────────────────────────────────────
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+async function fetchProfile(): Promise<UserProfile | null> {
+	try {
+		const res = await axios.get("/api/auth/me", { withCredentials: true });
+		return res.data as UserProfile;
+	} catch {
+		return null;
+	}
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-	const [user, setUser] = useState<User | null>(null);
-	const [token, setToken] = useState<string | null>(null);
+	const [user, setUser] = useState<UserProfile | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		const storedToken = localStorage.getItem("access_token");
-		setToken(storedToken);
-		if (storedToken) {
-			refreshUser().finally(() => setLoading(false));
-		} else {
-			setLoading(false);
-		}
+	const refreshUser = useCallback(async () => {
+		const profile = await fetchProfile();
+		setUser(profile);
 	}, []);
 
-	const refreshUser = async () => {
-		try {
-			const res = await authAPI.me();
-			setUser(res.data);
-		} catch {
-			logout();
-		}
-	};
+	useEffect(() => {
+		refreshUser().finally(() => setLoading(false));
+	}, [refreshUser]);
 
 	const login = async (email: string, password: string) => {
-		const res = await authAPI.login({ email, password });
-		const { access_token, user: userData } = res.data;
-		localStorage.setItem("access_token", access_token);
-		setToken(access_token);
-		setUser(userData);
+		await authClient.signIn.email({ email, password });
+		await refreshUser();
 	};
 
 	const register = async (
 		email: string,
-		username: string,
+		name: string,
 		password: string,
 		universityId?: string,
 		careerId?: string,
 	) => {
-		const res = await authAPI.register({
-			email,
-			username,
-			password,
-			...(universityId ? { university_id: universityId } : {}),
-			...(careerId ? { career_id: careerId } : {}),
-		});
-		const { access_token, user: userData } = res.data;
-		localStorage.setItem("access_token", access_token);
-		setToken(access_token);
-		setUser(userData);
+		await authClient.signUp.email({ email, name, password });
+		// Si se eligió universidad/carrera, actualizar el perfil
+		if (universityId || careerId) {
+			await axios.put(
+				"/api/auth/me",
+				{
+					universityIds: universityId ? [universityId] : [],
+					careerIds: careerId ? [careerId] : [],
+				},
+				{ withCredentials: true },
+			);
+		}
+		await refreshUser();
 	};
 
-	const logout = () => {
-		localStorage.removeItem("access_token");
-		localStorage.removeItem("user");
-		setToken(null);
+	const logout = async () => {
+		await authClient.signOut();
 		setUser(null);
 	};
 
 	return (
 		<AuthContext.Provider
-			value={{ user, token, loading, login, register, logout, refreshUser }}
+			value={{ user, loading, login, register, logout, refreshUser }}
 		>
 			{children}
 		</AuthContext.Provider>

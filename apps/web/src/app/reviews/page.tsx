@@ -24,20 +24,20 @@ import ProtectedRoute from "@/components/auth/protected-route";
 import { useAuth } from "@/context/auth-context";
 
 interface Review {
-	_id: string;
-	subject_code: string;
-	professor_name?: string;
+	id: string;
+	subjectCode: string;
+	professorName?: string;
 	period: string;
 	section?: string;
-	difficulty_rating: number;
-	professor_rating?: number;
-	workload_rating: number;
-	would_recommend: boolean;
+	difficultyRating: number;
+	professorRating?: number;
+	workloadRating: number;
+	wouldRecommend: boolean;
 	comment?: string;
 	tips?: string;
-	study_strategy?: string;
-	is_verified: boolean;
-	created_at: string;
+	studyStrategy?: string;
+	isVerified: boolean;
+	createdAt: string;
 }
 
 interface SubjectOption {
@@ -205,14 +205,16 @@ function ReviewsContent() {
 
 	// Load pensum subjects: all (for search) + approved (for form combobox)
 	useEffect(() => {
-		if (!user?.career_id) return;
+		if (!user?.careerIds?.[0]) return;
 		subjectsAPI
-			.pensum(user.career_id)
+			.pensum(user.careerIds[0])
 			.then((res) => {
 				const approvedCodes = new Set(
-					user.approved_subjects?.map((s) => s.subject_code) || [],
+					user.approvedSubjects?.map((s) => s.subjectCode) || [],
 				);
-				const all: SubjectOption[] = res.data.map((s: any) => ({
+				const all: SubjectOption[] = (
+					res.data as { code: string; name: string }[]
+				).map((s) => ({
 					code: s.code,
 					name: s.name,
 				}));
@@ -223,7 +225,7 @@ function ReviewsContent() {
 				setSubjectOptions(approved);
 			})
 			.catch(() => {});
-	}, [user?.career_id, user?.approved_subjects]);
+	}, [user?.careerIds, user?.approvedSubjects]);
 
 	// Close search dropdown on outside click
 	useEffect(() => {
@@ -255,7 +257,7 @@ function ReviewsContent() {
 			try {
 				const res = await reviewsAPI.bySubject(
 					code.trim(),
-					user?.university_id || undefined,
+					user?.universityIds?.[0] || undefined,
 				);
 				setReviews(res.data);
 			} catch {
@@ -264,7 +266,7 @@ function ReviewsContent() {
 				setLoading(false);
 			}
 		},
-		[user?.university_id],
+		[user?.universityIds],
 	);
 
 	// Debounced auto-search as the user types
@@ -301,8 +303,18 @@ function ReviewsContent() {
 		setSubmitting(true);
 		try {
 			await reviewsAPI.create({
-				...form,
-				university_id: user?.university_id || "",
+				subjectCode: form.subject_code,
+				universityId: user?.universityIds?.[0] || "",
+				professorName: form.professor_name || undefined,
+				period: form.period,
+				section: form.section || undefined,
+				difficultyRating: form.difficulty_rating,
+				professorRating: form.professor_rating,
+				workloadRating: form.workload_rating,
+				wouldRecommend: form.would_recommend,
+				comment: form.comment || undefined,
+				tips: form.tips || undefined,
+				studyStrategy: form.study_strategy || undefined,
 			});
 			setShowForm(false);
 			setForm({
@@ -337,7 +349,7 @@ function ReviewsContent() {
 						</div>
 						Reseñas
 					</h1>
-					<p className="mt-3 text-gray-500 font-medium">
+					<p className="mt-3 font-medium text-gray-500">
 						Consulta y comparte opiniones de materias y profesores
 					</p>
 				</div>
@@ -347,7 +359,7 @@ function ReviewsContent() {
 							setShowForm(!showForm);
 							setFormError("");
 						}}
-						className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] hover:-translate-y-0.5 active:scale-95"
+						className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] active:scale-95"
 					>
 						{showForm ? <X size={18} /> : <PlusCircle size={18} />}
 						{showForm ? "Cancelar" : "Escribir Reseña"}
@@ -356,7 +368,7 @@ function ReviewsContent() {
 			</div>
 
 			{/* Search */}
-			<div className="mb-8 rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm">
+			<div className="mb-8 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
 				<label
 					htmlFor="search-reviews"
 					className="mb-3 block font-semibold text-gray-900 text-sm tracking-tight"
@@ -381,7 +393,7 @@ function ReviewsContent() {
 									? "Buscar por código o nombre de materia..."
 									: "Ej: MAT-1115"
 							}
-							className="w-full rounded-xl border border-gray-200 bg-white/50 py-3 pr-9 pl-11 outline-none transition-all duration-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10 hover:border-gray-300"
+							className="w-full rounded-xl border border-gray-200 bg-white/50 py-3 pr-9 pl-11 outline-none transition-all duration-300 hover:border-gray-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
 						/>
 
 						{/* Suggestions dropdown */}
@@ -451,9 +463,11 @@ function ReviewsContent() {
 			{showForm && (
 				<form
 					onSubmit={handleSubmitReview}
-					className="panel-enter mb-8 space-y-6 rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm"
+					className="panel-enter mb-8 space-y-6 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5"
 				>
-					<h3 className="font-bold text-gray-900 text-xl tracking-tight">Nueva Reseña</h3>
+					<h3 className="font-bold text-gray-900 text-xl tracking-tight">
+						Nueva Reseña
+					</h3>
 
 					{formError && (
 						<div className="rounded-xl bg-red-50 px-4 py-3 text-red-700 text-sm">
@@ -640,12 +654,23 @@ function ReviewsContent() {
 						className="group flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 					>
 						{submitting ? (
-							<><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" /> Publicando...</>
+							<>
+								<span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />{" "}
+								Publicando...
+							</>
 						) : (
 							<>
 								Publicar Reseña (Anónima)
 								<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
-									<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H4M10 2V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+									<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+										<path
+											d="M2 10L10 2M10 2H4M10 2V8"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										/>
+									</svg>
 								</span>
 							</>
 						)}
@@ -664,31 +689,31 @@ function ReviewsContent() {
 						{reviews.length} reseña(s) para <strong>{activeCode}</strong>
 					</p>
 					{reviews.map((r) => (
-						<div key={r._id} className="rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.06)] relative group">
-							<div className="mb-4 flex items-start justify-between relative z-10">
+						<div key={r.id} className="rounded-2xl bg-white p-6 shadow-md">
+							<div className="mb-3 flex items-start justify-between">
 								<div>
 									<div className="mb-1 flex items-center gap-2">
-										<span className="font-bold text-gray-900 text-lg tracking-tight">
-											{r.subject_code}
+										<span className="font-bold text-gray-900">
+											{r.subjectCode}
 										</span>
-										{r.is_verified && (
-											<span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 text-xs border border-green-200">
+										{r.isVerified && (
+											<span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 text-xs">
 												✓ Verificada
 											</span>
 										)}
 									</div>
-									{r.professor_name && (
-										<p className="text-gray-600 font-medium text-sm">
-											Prof. {r.professor_name}
+									{r.professorName && (
+										<p className="text-gray-500 text-sm">
+											Prof. {r.professorName}
 										</p>
 									)}
-									<p className="text-gray-400 text-xs mt-1">
+									<p className="mt-1 text-gray-400 text-xs">
 										Periodo: {r.period}
 										{r.section && ` • Sección: ${r.section}`}
 									</p>
 								</div>
-								<div className="flex items-center justify-center rounded-xl p-2 bg-gray-50 group-hover:bg-gray-100 transition-colors">
-									{r.would_recommend ? (
+								<div className="flex items-center gap-1">
+									{r.wouldRecommend ? (
 										<ThumbsUp className="h-5 w-5 text-green-500" />
 									) : (
 										<ThumbsDown className="h-5 w-5 text-red-500" />
@@ -699,17 +724,17 @@ function ReviewsContent() {
 							<div className="mb-4 grid grid-cols-3 gap-4">
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Dificultad</p>
-									<StarRating value={r.difficulty_rating} />
+									<StarRating value={r.difficultyRating} />
 								</div>
-								{r.professor_rating != null && (
+								{r.professorRating != null && (
 									<div>
 										<p className="mb-1 text-gray-500 text-xs">Profesor</p>
-										<StarRating value={r.professor_rating} />
+										<StarRating value={r.professorRating} />
 									</div>
 								)}
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Carga</p>
-									<StarRating value={r.workload_rating} />
+									<StarRating value={r.workloadRating} />
 								</div>
 							</div>
 
@@ -724,12 +749,12 @@ function ReviewsContent() {
 									<p className="text-amber-800 text-sm">{r.tips}</p>
 								</div>
 							)}
-							{r.study_strategy && (
+							{r.studyStrategy && (
 								<div className="rounded-lg bg-blue-50 p-3">
 									<p className="mb-1 font-semibold text-blue-700 text-xs">
 										📚 Estrategia:
 									</p>
-									<p className="text-blue-800 text-sm">{r.study_strategy}</p>
+									<p className="text-blue-800 text-sm">{r.studyStrategy}</p>
 								</div>
 							)}
 						</div>

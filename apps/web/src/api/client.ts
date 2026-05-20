@@ -1,37 +1,16 @@
 "use client";
 
-import { env } from "@horaios/env/web";
 import axios from "axios";
 
 const api = axios.create({
-	baseURL: `${env.NEXT_PUBLIC_API_URL}/api`,
+	baseURL: "/api",
+	withCredentials: true,
 	headers: {
 		"Content-Type": "application/json",
 	},
 });
 
-api.interceptors.request.use((config) => {
-	const token = localStorage.getItem("access_token");
-	if (token) {
-		config.headers.Authorization = `Bearer ${token}`;
-	}
-	return config;
-});
-
-api.interceptors.response.use(
-	(response) => response,
-	(error) => {
-		if (error.response?.status === 401) {
-			const hadToken = !!localStorage.getItem("access_token");
-			localStorage.removeItem("access_token");
-			localStorage.removeItem("user");
-			if (hadToken) {
-				window.location.href = "/login";
-			}
-		}
-		return Promise.reject(error);
-	},
-);
+// Auth handled via better-auth cookies (withCredentials: true)
 
 export const authAPI = {
 	register: (data: {
@@ -82,18 +61,18 @@ export const reviewsAPI = {
 	byProfessor: (professorName: string) =>
 		api.get(`/reviews/professor/${professorName}`),
 	create: (data: {
-		subject_code: string;
-		university_id: string;
-		professor_name?: string;
+		subjectCode: string;
+		universityId: string;
+		professorName?: string;
 		period: string;
 		section?: string;
-		difficulty_rating: number;
-		professor_rating?: number;
-		workload_rating: number;
-		would_recommend: boolean;
+		difficultyRating: number;
+		professorRating?: number;
+		workloadRating: number;
+		wouldRecommend: boolean;
 		comment?: string;
 		tips?: string;
-		study_strategy?: string;
+		studyStrategy?: string;
 	}) => api.post("/reviews/", data),
 };
 

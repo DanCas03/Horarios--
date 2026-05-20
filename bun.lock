@@ -22,6 +22,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@horaios/auth": "workspace:*",
+        "@horaios/db": "workspace:*",
         "@horaios/env": "workspace:*",
         "@horaios/ui": "workspace:*",
         "@prisma/client": "catalog:",

@@ -52,6 +52,54 @@ interface AvailableSubject {
 	semester_suggested: number;
 }
 
+interface RawScheduleBlock {
+	subjectCode?: string;
+	subjectName?: string;
+	section: string;
+	professor?: string;
+	day: string;
+	startTime: string;
+	endTime: string;
+	classroom?: string;
+	modality: string;
+}
+
+interface RawSchedule {
+	id: string;
+	period: string;
+	scheduleType: string;
+	blocks: RawScheduleBlock[];
+	tentativeSubjects: {
+		subjectCode?: string;
+		subjectName?: string;
+		priority: number;
+	}[];
+	createdAt: string;
+}
+
+const normalizeSchedule = (raw: RawSchedule): Schedule => ({
+	_id: raw.id,
+	period: raw.period,
+	schedule_type: raw.scheduleType,
+	blocks: (raw.blocks ?? []).map((b) => ({
+		subject_code: b.subjectCode ?? "",
+		subject_name: b.subjectName,
+		section: b.section,
+		professor: b.professor,
+		day: b.day,
+		start_time: b.startTime,
+		end_time: b.endTime,
+		classroom: b.classroom,
+		modality: b.modality,
+	})),
+	tentative_subjects: (raw.tentativeSubjects ?? []).map((s) => ({
+		subject_code: s.subjectCode ?? "",
+		subject_name: s.subjectName,
+		priority: s.priority,
+	})),
+	created_at: raw.createdAt,
+});
+
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DAYS = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado"];
 const DAY_LABELS: Record<string, string> = {
@@ -117,10 +165,27 @@ function ScheduleContent() {
 		setLoading(true);
 		try {
 			const schedRes = await schedulesAPI.my();
-			setSchedules(schedRes.data);
-			if (user?.career_id) {
-				const availRes = await subjectsAPI.available(user.career_id);
-				setAvailable(availRes.data);
+			setSchedules((schedRes.data as RawSchedule[]).map(normalizeSchedule));
+			const careerId = user?.careerIds?.at(0);
+			if (careerId) {
+				const availRes = await subjectsAPI.available(careerId);
+				setAvailable(
+					(
+						availRes.data as {
+							id: string;
+							code: string;
+							name: string;
+							credits: number;
+							semesterSuggested?: number;
+						}[]
+					).map((s) => ({
+						_id: s.id,
+						code: s.code,
+						name: s.name,
+						credits: s.credits,
+						semester_suggested: s.semesterSuggested ?? 0,
+					})),
+				);
 			}
 		} catch (err) {
 			console.error(err);
@@ -153,8 +218,8 @@ function ScheduleContent() {
 			const subjects = [...selected].map((code) => {
 				const s = available.find((a) => a.code === code);
 				return {
-					subject_code: code,
-					subject_name: s?.name ?? code,
+					subjectCode: code,
+					subjectName: s?.name ?? code,
 					priority: 1,
 				};
 			});
@@ -195,13 +260,30 @@ function ScheduleContent() {
 		setCurrentError("");
 		setSavingCurrent(true);
 		try {
+			const universityId = user?.universityIds?.[0];
+			if (!universityId) {
+				setCurrentError(
+					"Configura tu universidad en el perfil antes de guardar",
+				);
+				setSavingCurrent(false);
+				return;
+			}
 			await schedulesAPI.create({
-				user_id: user?._id ?? "",
-				university_id: user?.university_id ?? "",
+				universityId,
 				period: currentPeriod.trim(),
-				schedule_type: "current",
-				blocks: validBlocks,
-				tentative_subjects: [],
+				scheduleType: "current",
+				blocks: validBlocks.map((b) => ({
+					subjectCode: b.subject_code,
+					subjectName: b.subject_name,
+					section: b.section,
+					professor: b.professor,
+					day: b.day,
+					startTime: b.start_time,
+					endTime: b.end_time,
+					classroom: b.classroom,
+					modality: b.modality,
+				})),
+				tentativeSubjects: [],
 			});
 			setShowCurrentForm(false);
 			setBlocks([EMPTY_BLOCK()]);
@@ -248,8 +330,8 @@ function ScheduleContent() {
 	if (loading) {
 		return (
 			<div className="flex justify-center py-20">
-			<div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
-		</div>
+				<div className="h-10 w-10 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+			</div>
 		);
 	}
 
@@ -264,14 +346,14 @@ function ScheduleContent() {
 						</div>
 						Horarios
 					</h1>
-					<p className="mt-3 text-gray-500 font-medium">
+					<p className="mt-3 font-medium text-gray-500">
 						Gestiona tu horario actual y planifica los próximos períodos
 					</p>
 				</div>
 			</div>
 
 			{/* Tabs */}
-			<div className="mb-8 flex gap-3 p-1.5 bg-white/50 backdrop-blur-md border border-white/60 rounded-2xl w-fit shadow-[0_4px_20px_rgb(0,0,0,0.03)]">
+			<div className="mb-8 flex w-fit gap-3 rounded-2xl border border-white/60 bg-white/50 p-1.5 shadow-[0_4px_20px_rgb(0,0,0,0.03)] backdrop-blur-md">
 				{(["tentative", "current"] as const).map((tab) => (
 					<button
 						key={tab}
@@ -279,7 +361,7 @@ function ScheduleContent() {
 						className={`rounded-xl px-6 py-2.5 font-semibold text-sm transition-all duration-300 ${
 							activeTab === tab
 								? "bg-white text-primary shadow-sm ring-1 ring-black/5"
-								: "text-gray-500 hover:text-gray-900 hover:bg-white/50"
+								: "text-gray-500 hover:bg-white/50 hover:text-gray-900"
 						}`}
 					>
 						{tab === "tentative"
@@ -289,7 +371,6 @@ function ScheduleContent() {
 				))}
 			</div>
 
-
 			{/* ═══════════════════════════════════════════════════════════════════════
           TENTATIVE TAB
       ════════════════════════════════════════════════════════════════════════ */}
@@ -297,7 +378,7 @@ function ScheduleContent() {
 				<div key="tentative-tab" className="tab-content space-y-6">
 					{/* Subject selection panel */}
 					{available.length > 0 ? (
-						<div className="rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm">
+						<div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
 							<div className="mb-4 flex items-center justify-between">
 								<div>
 									<h3 className="font-bold text-gray-900">
@@ -411,8 +492,8 @@ function ScheduleContent() {
 								</div>
 							</div>
 						</div>
-					) : user?.career_id ? (
-						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 ring-1 ring-black/5 shadow-sm">
+					) : user?.careerIds ? (
+						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-md">
 							<BookMarked className="mx-auto mb-3 h-12 w-12 opacity-40" />
 							<p className="font-medium">No hay materias disponibles</p>
 							<p className="mt-1 text-sm">
@@ -420,7 +501,7 @@ function ScheduleContent() {
 							</p>
 						</div>
 					) : (
-						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 ring-1 ring-black/5 shadow-sm">
+						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-sm ring-1 ring-black/5">
 							<BookMarked className="mx-auto mb-3 h-12 w-12 opacity-40" />
 							<p className="font-medium">Configura tu carrera primero</p>
 							<p className="mt-1 text-sm">
@@ -463,7 +544,7 @@ function ScheduleContent() {
 					<div className="flex justify-end">
 						<button
 							onClick={() => setShowCurrentForm(!showCurrentForm)}
-							className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] hover:-translate-y-0.5 active:scale-95"
+							className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] active:scale-95"
 						>
 							{showCurrentForm ? <X size={16} /> : <Plus size={16} />}
 							{showCurrentForm ? "Cancelar" : "Registrar horario actual"}
@@ -472,7 +553,7 @@ function ScheduleContent() {
 
 					{/* New schedule form */}
 					{showCurrentForm && (
-						<div className="panel-enter rounded-2xl bg-white p-8 ring-1 ring-black/5 shadow-sm">
+						<div className="panel-enter rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
 							<h3 className="mb-4 font-bold text-gray-900">Nuevo Horario</h3>
 
 							{currentError && (
@@ -550,12 +631,12 @@ function ScheduleContent() {
 								/>
 							))
 						: !showCurrentForm && (
-								<div className="rounded-2xl bg-white p-12 text-center ring-1 ring-black/5 shadow-sm">
+								<div className="rounded-2xl bg-white p-12 text-center shadow-sm ring-1 ring-black/5">
 									<Calendar className="mx-auto mb-4 h-16 w-16 text-gray-300" />
 									<h3 className="mb-2 font-bold text-gray-900 text-xl tracking-tight">
 										Sin horario actual
 									</h3>
-									<p className="mb-6 text-gray-500 font-medium">
+									<p className="mb-6 font-medium text-gray-500">
 										Registra los bloques de tus clases de este período para
 										verlos en la grilla.
 									</p>
@@ -582,7 +663,7 @@ function TentativeScheduleCard({
 	deleting: boolean;
 }) {
 	return (
-		<div className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+		<div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
 			<div className="flex items-center gap-3 px-5 py-3.5">
 				<button
 					onClick={onToggle}
@@ -617,7 +698,7 @@ function TentativeScheduleCard({
 			</div>
 
 			<SmoothAccordion isOpen={isExpanded}>
-				<div className="accordion-content border-gray-50 border-t px-5 pb-5 pt-1">
+				<div className="accordion-content border-gray-50 border-t px-5 pt-1 pb-5">
 					<div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3">
 						{schedule.tentative_subjects.map((ts, i) => (
 							<div
@@ -680,7 +761,7 @@ function CurrentScheduleCard({
 	].filter((d) => schedule.blocks.some((b) => b.day === d));
 
 	return (
-		<div className="overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 shadow-sm transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
+		<div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
 			<div className="flex items-center gap-3 px-6 py-4">
 				<button
 					onClick={onToggle}
@@ -715,7 +796,7 @@ function CurrentScheduleCard({
 			</div>
 
 			<SmoothAccordion isOpen={isExpanded && schedule.blocks.length > 0}>
-				<div className="accordion-content border-gray-100 border-t px-6 pb-5 pt-1">
+				<div className="accordion-content border-gray-100 border-t px-6 pt-1 pb-5">
 					<div className="mt-4 overflow-x-auto">
 						<div style={{ minWidth: `${activeDays.length * 120 + 60}px` }}>
 							{/* Header */}
