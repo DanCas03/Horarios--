@@ -5,8 +5,6 @@ services:
       context: .
       dockerfile: ./apps/web/Dockerfile
       args:
-        # Debe ser localhost: el cliente axios corre en el navegador, no dentro de Docker
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
         DATABASE_URL: ${DATABASE_URL}
         BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
         BETTER_AUTH_URL: ${BETTER_AUTH_URL}
@@ -16,28 +14,3 @@ services:
       - .env
     ports:
       - 3000:3000
-    networks:
-      - app_network
-  backend:
-    build: 
-      context: ./old/backend/
-      dockerfile: Dockerfile
-    container_name: guia_estudiantil_backend
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./old/backend:/app
-    # Carga las variables de entorno desde el archivo .env en la carpeta backend
-    env_file:
-      - ./old/backend/.env
-    # Reinicia el contenedor automáticamente si falla
-    networks:
-      - app_network
-    restart: "no"
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-
-# Define a network, which allows containers to communicate
-# with each other, by using their container name as a hostname
-networks:
-  app_network:
