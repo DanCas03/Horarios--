@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
 		name: "horaios",
 		short_name: "horaios",
 		description: "my pwa app",
-		start_url: "/new",
+		start_url: "/",
 		display: "standalone",
 		background_color: "#ffffff",
 		theme_color: "#000000",

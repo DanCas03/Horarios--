@@ -7,7 +7,6 @@ import { type NextRequest, NextResponse } from "next/server";
  */
 export async function GET(request: NextRequest) {
 	const universityId = request.nextUrl.searchParams.get("university_id");
-	console.log(universityId);
 
 	const careers = await prisma.career.findMany({
 		where: universityId ? { universityId } : undefined,
