@@ -1,0 +1,109 @@
+// =============================================================================
+// University
+// =============================================================================
+model University {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  name               String
+  shortName          String   @map("short_name")
+  logoUrl            String?  @map("logo_url")
+  website            String?
+  academicPeriodType String   @map("academic_period_type") // "semestre" | "trimestre"
+  location           String?
+  createdAt          DateTime? @default(now()) @map("created_at")
+  updatedAt          DateTime? @updatedAt @map("updated_at")
+
+  @@map("universities")
+}
+
+// =============================================================================
+// Career
+// =============================================================================
+model Career {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  name           String
+  code           String?
+  universityId   String   @map("university_id")
+  faculty        String?
+  totalCredits   Int?     @map("total_credits")
+  totalSemesters Int?     @map("total_semesters")
+  degreeTitle    String?  @map("degree_title")
+  minors         String[] // nombres de minors/menciones
+  createdAt      DateTime? @default(now()) @map("created_at")
+  updatedAt      DateTime? @updatedAt @map("updated_at")
+
+  @@map("careers")
+}
+
+// =============================================================================
+// Subject
+// =============================================================================
+model Subject {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  code              String
+  careerId          String   @map("career_id")
+  universityId      String   @map("university_id")
+  credits           Int
+  semesterSuggested Int?     @map("semester_suggested")
+  subjectType       String   @default("obligatoria") @map("subject_type") // "obligatoria" | "electiva" | "pasantia"
+  prerequisites     String[] // códigos de materias prerrequisito
+  corequisites      String[] // códigos de materias correquisito
+  modality          String   @default("presencial") // "presencial" | "virtual" | "hibrida"
+  weeklyHours       Int?     @map("weekly_hours")
+  asyncHours        Int?     @map("async_hours")
+  usualAvailability String   @default("todos") @map("usual_availability") // "todos" | "pares" | "impares"
+  description       String?
+  avgDifficulty     Float    @default(0) @map("avg_difficulty")
+  avgApprovalRate   Float    @default(0) @map("avg_approval_rate")
+  reviewCount       Int      @default(0) @map("review_count")
+  createdAt         DateTime? @default(now()) @map("created_at")
+  updatedAt         DateTime? @updatedAt @map("updated_at")
+
+  @@map("subjects")
+}
+
+// =============================================================================
+// Review
+// =============================================================================
+model Review {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  subjectCode      String   @map("subject_code")
+  universityId     String   @map("university_id")
+  userId           String   @map("user_id") // no se expone públicamente
+  professorName    String?  @map("professor_name")
+  period           String
+  section          String?
+  difficultyRating Int      @map("difficulty_rating") // 1-5
+  professorRating  Int?     @map("professor_rating")  // 1-5
+  workloadRating   Int      @map("workload_rating")   // 1-5
+  wouldRecommend   Boolean  @map("would_recommend")
+  comment          String?
+  tips             String?
+  studyStrategy    String?  @map("study_strategy")
+  isVerified       Boolean  @default(false) @map("is_verified")
+  createdAt        DateTime? @default(now()) @map("created_at")
+
+  @@index([subjectCode])
+  @@index([userId])
+  @@map("reviews")
+}
+
+// =============================================================================
+// Schedule
+// =============================================================================
+model Schedule {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId             String   @map("user_id")
+  universityId       String   @map("university_id")
+  period             String
+  scheduleType       String   @map("schedule_type") // "current" | "tentative"
+  // blocks: [{ subjectCode, subjectName?, section, professor?, day, startTime, endTime, classroom?, modality }]
+  blocks             Json[]
+  // tentativeSubjects: [{ subjectCode, subjectName?, priority }]
+  tentativeSubjects  Json[]   @map("tentative_subjects")
+  createdAt          DateTime? @default(now()) @map("created_at")
+  updatedAt          DateTime? @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("schedules")
+}

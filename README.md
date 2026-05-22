@@ -1,123 +1,125 @@
-# Guia Estudiantil - UCAB & UNIMET
+# horaios
 
-Aplicacion web para la planificacion academica de estudiantes de la UCAB y UNIMET. Permite el seguimiento del pensum, planificacion de horarios y un sistema de resenas anonimo.
+This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, and more.
 
-## Stack Tecnologico
+## Features
 
-- **Backend:** Python / FastAPI
-- **Frontend:** React + TypeScript + Vite + Tailwind CSS
-- **Base de Datos:** MongoDB (Atlas)
-- **Scraping:** BeautifulSoup + httpx
-- **DevOps:** Docker & Docker Compose
+- **TypeScript** - For type safety and improved developer experience
+- **Next.js** - Full-stack React framework
+- **TailwindCSS** - Utility-first CSS for rapid UI development
+- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
+- **Prisma** - TypeScript-first ORM
+- **MongoDB** - Database engine
+- **Authentication** - Better-Auth
+- **Biome** - Linting and formatting
+- **PWA** - Progressive Web App support
+- **Turborepo** - Optimized monorepo build system
 
-## Requisitos
+## Getting Started
 
-- Python 3.11+
-- Node.js 18+
-- MongoDB Atlas cluster activo
-- Docker Desktop (Opcional, para ejecución en contenedores)
-
-## Ejecución Rápida con Docker
-
-Si tienes Docker instalado, puedes levantar todo el proyecto con un solo comando:
+First, install the dependencies:
 
 ```bash
-docker-compose up --build
+bun install
 ```
 
-Consulta la [Guía de Docker](DOCKER_GUIDE.md) para más detalles.
+## Database Setup
 
-## Configuracion Manual (Sin Docker)
+This project uses MongoDB with Prisma.
 
-### 1. Backend
+1. Make sure you have MongoDB set up.
+2. Update your `apps/web/.env` file with your MongoDB connection URI.
+
+3. Apply the schema to your database:
 
 ```bash
-cd backend
-
-# Crear entorno virtual
-python -m venv venv
-venv\Scripts\activate  # Windows
-# source venv/bin/activate  # Linux/Mac
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Configurar variables de entorno
-copy .env.example .env
-# Editar .env con tu URI de MongoDB Atlas y secret key
+bun run db:push
 ```
 
-### 2. Frontend
+Then, run the development server:
 
 ```bash
-cd frontend
-npm install
+bun run dev
 ```
 
-### 3. Seed de datos iniciales
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the fullstack application.
+
+## UI Customization
+
+React web apps in this stack share shadcn/ui primitives through `packages/ui`.
+
+- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
+- Update shared primitives in `packages/ui/src/components/*`
+- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
+
+### Add more shared components
+
+Run this from the project root to add more primitives to the shared UI package:
 
 ```bash
-cd backend
-python -m app.scrapers.seed_data
+npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
 ```
 
-## Ejecutar Manualmente
+Import shared components like this:
 
-### Backend (puerto 8000)
-
-```bash
-cd backend
-uvicorn app.main:app --reload --port 8000
+```tsx
+import { Button } from "@horaios/ui/components/button";
 ```
 
-### Frontend (puerto 5173)
+### Add app-specific blocks
 
-```bash
-cd frontend
-npm run dev
-```
+If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
 
-Acceder a: http://localhost:5173
+## Git Hooks and Formatting
 
-## API Docs
+- Format and lint fix: `bun run check`
 
-Con el backend corriendo: http://localhost:8000/docs
-
-## Estructura del Proyecto
+## Project Structure
 
 ```
-Horarios-/
-├── backend/
-│   ├── app/
-│   │   ├── main.py          # FastAPI app
-│   │   ├── config.py        # Settings
-│   │   ├── database.py      # MongoDB connection
-│   │   ├── models/          # Pydantic models
-│   │   ├── routes/          # API endpoints
-│   │   ├── services/        # Auth, business logic
-│   │   └── scrapers/        # Web scraping + seed data
-│   ├── requirements.txt
-│   ├── Dockerfile           # Docker config backend
-│   └── .env.example
-├── frontend/
-│   ├── src/
-│   │   ├── api/             # Axios API client
-│   │   ├── context/         # React Context (Auth)
-│   │   ├── components/      # Reusable components
-│   │   ├── pages/           # Page components
-│   │   └── main.tsx         # Entry point
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── Dockerfile           # Docker config frontend
-│   └── nginx.conf           # Nginx config
-├── docker-compose.yml       # Docker orchestration
-├── DOCKER_GUIDE.md          # Guía de uso de Docker
-└── README.md
+horaios/
+├── apps/
+│   └── web/         # Fullstack application (Next.js)
+├── packages/
+│   ├── ui/          # Shared shadcn/ui components and styles
+│   ├── auth/        # Authentication configuration & logic
+│   └── db/          # Database schema & queries
 ```
 
-## Universidades Soportadas
+## Available Scripts
 
-| Universidad | Siglas | Sistema |
-|---|---|---|
-| Universidad Catolica Andres Bello | UCAB | Semestral |
-| Universidad Metropolitana | UNIMET | Trimestral |
+- `bun run dev`: Start all applications in development mode
+- `bun run build`: Build all applications
+- `bun run dev:web`: Start only the web application
+- `bun run check-types`: Check TypeScript types across all apps
+- `bun run db:push`: Push schema changes to database
+- `bun run db:generate`: Generate database client/types
+- `bun run db:migrate`: Run database migrations
+- `bun run db:studio`: Open database studio UI
+- `bun run check`: Run Biome formatting and linting
+- `cd apps/web && bun run generate-pwa-assets`: Generate PWA assets
+
+ ╭────────────────────────────────────────────────────────────────────╮
+ │                                                                    │
+ │  Next steps                                                        │
+ │  1. cd horaios                                                     │
+ │  2. bun run dev                                                    │
+ │  Your project will be available at:                                │
+ │  • Frontend: http://localhost:3001                                 │
+ │                                                                    │
+ │  Database commands:                                                │
+ │  • Generate Prisma Client: bun run db:generate                     │
+ │  • Apply schema: bun run db:push                                   │
+ │  • Database UI: bun run db:studio                                  │
+ │                                                                    │
+ │  Linting and formatting:                                           │
+ │  • Format and lint fix: bun run check                              │
+ │                                                                    │
+ │  Special sponsors                                                  │
+ │  • neondatabase   • Guillermo Rauch   • Clerk   • Novu   • Convex  │
+ │                                                                    │
+ │  Like Better-T-Stack? Please consider giving us a star             │
+ │     on GitHub:                                                     │
+ │  https://github.com/AmanVarshney01/create-better-t-stack           │
+ │                                                                    │
+ ╰────────────────────────────────────────────────────────────────────╯

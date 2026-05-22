@@ -1,0 +1,14 @@
+model UserProfile {
+  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username             String?
+  universityIds        String[] // múltiples universidades
+  careerIds            String[] // múltiples carreras
+  approvedSubjects     Json[]   // [{ subjectCode: string, grade?: number, period?: string }]
+  totalApprovedCredits Int      @default(0)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("user_profiles")
+}

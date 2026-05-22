@@ -1,0 +1,24 @@
+{
+	"name": "@horaios/auth",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {},
+	"dependencies": {
+		"@horaios/db": "workspace:*",
+		"@horaios/env": "workspace:*",
+		"better-auth": "catalog:",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@horaios/config": "workspace:*",
+		"typescript": "catalog:"
+	}
+}
