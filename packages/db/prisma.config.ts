@@ -1,5 +1,4 @@
 import path from "node:path";
-
 import dotenv from "dotenv";
 import type { PrismaConfig } from "prisma";
 
