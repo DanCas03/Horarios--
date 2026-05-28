@@ -1,0 +1,1213 @@
+{
+  "collections": {
+    "students_guide.account": {
+      "ns": "students_guide.account",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "accountId",
+          "createdAt",
+          "password",
+          "providerId",
+          "updatedAt",
+          "userId"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "string"
+          },
+          "accountId": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "password": {
+            "bsonType": "string"
+          },
+          "providerId": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          },
+          "userId": {
+            "bsonType": "string"
+          }
+        }
+      }
+    },
+    "students_guide.reviews": {
+      "ns": "students_guide.reviews",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "comment",
+          "created_at",
+          "is_verified",
+          "period_id",
+          "section_id",
+          "study_strategy",
+          "subject_code",
+          "tips",
+          "university_id",
+          "user_profile_id",
+          "would_recommend"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "comment": {
+            "bsonType": "string"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "is_verified": {
+            "bsonType": "bool"
+          },
+          "period_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "section_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "study_strategy": {
+            "bsonType": "string"
+          },
+          "subject_code": {
+            "bsonType": "string"
+          },
+          "tips": {
+            "bsonType": "string"
+          },
+          "university_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "user_profile_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "would_recommend": {
+            "bsonType": "bool"
+          },
+          "ratings": {
+            "bsonType": "array",
+            "items": {}
+          },
+          "overall_rating": {
+            "bsonType": [
+              "int"
+            ]
+          },
+          "teacher_ids": {
+            "bsonType": "array",
+            "items": {}
+          }
+        }
+      }
+    },
+    "students_guide.schedules": {
+      "ns": "students_guide.schedules",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "created_at",
+          "period_id",
+          "schedule_type",
+          "university_id",
+          "updated_at",
+          "user_profile_id"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "period_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "schedule_type": {
+            "bsonType": "string"
+          },
+          "university_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "updated_at": {
+            "bsonType": "date"
+          },
+          "user_profile_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "section_ids": {
+            "bsonType": "array",
+            "items": {}
+          }
+        }
+      }
+    },
+    "students_guide.session": {
+      "ns": "students_guide.session",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "createdAt",
+          "expiresAt",
+          "ipAddress",
+          "token",
+          "updatedAt",
+          "userAgent",
+          "userId"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "expiresAt": {
+            "bsonType": "date"
+          },
+          "ipAddress": {
+            "bsonType": "string"
+          },
+          "token": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          },
+          "userAgent": {
+            "bsonType": "string"
+          },
+          "userId": {
+            "bsonType": "string"
+          }
+        }
+      }
+    },
+    "students_guide.subjects": {
+      "ns": "students_guide.subjects",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "code",
+          "credits",
+          "modality",
+          "name",
+          "subject_type",
+          "university_id"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "avg_approval_rate": {
+            "bsonType": [
+              "int",
+              "double"
+            ]
+          },
+          "avg_difficulty": {
+            "bsonType": [
+              "int",
+              "double"
+            ]
+          },
+          "code": {
+            "bsonType": "string"
+          },
+          "credits": {
+            "bsonType": "int"
+          },
+          "description": {
+            "bsonType": [
+              "null",
+              "string"
+            ]
+          },
+          "modality": {
+            "bsonType": "string"
+          },
+          "name": {
+            "bsonType": "string"
+          },
+          "review_count": {
+            "bsonType": [
+              "int",
+              "long"
+            ]
+          },
+          "subject_type": {
+            "bsonType": "string"
+          },
+          "university_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "updated_at": {
+            "bsonType": "date"
+          },
+          "usual_availability": {
+            "bsonType": "string"
+          },
+          "attributes": {
+            "bsonType": "array",
+            "items": {}
+          },
+          "is_active": {
+            "bsonType": [
+              "bool"
+            ]
+          }
+        }
+      }
+    },
+    "students_guide.universities": {
+      "ns": "students_guide.universities",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "createdAt",
+          "location",
+          "logo_url",
+          "name",
+          "short_name",
+          "website"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "location": {
+            "bsonType": "string"
+          },
+          "logo_url": {
+            "bsonType": "string"
+          },
+          "name": {
+            "bsonType": "string"
+          },
+          "short_name": {
+            "bsonType": "string"
+          },
+          "website": {
+            "bsonType": "string"
+          }
+        }
+      }
+    },
+    "students_guide.user": {
+      "ns": "students_guide.user",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "createdAt",
+          "email",
+          "emailVerified",
+          "name",
+          "updatedAt"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "string"
+          },
+          "createdAt": {
+            "bsonType": "date"
+          },
+          "email": {
+            "bsonType": "string"
+          },
+          "emailVerified": {
+            "bsonType": "bool"
+          },
+          "name": {
+            "bsonType": "string"
+          },
+          "updatedAt": {
+            "bsonType": "date"
+          }
+        }
+      }
+    },
+    "students_guide.user_profiles": {
+      "ns": "students_guide.user_profiles",
+      "jsonSchema": {
+        "bsonType": "object",
+        "required": [
+          "_id",
+          "approved_subjects",
+          "academic_program_ids",
+          "created_at",
+          "total_approved_credits",
+          "university_ids",
+          "updated_at",
+          "user_id",
+          "username"
+        ],
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "approved_subjects": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "object",
+              "properties": {
+                "subject_id": {
+                  "bsonType": [
+                    "objectId"
+                  ]
+                }
+              },
+              "required": [
+                "subject_id"
+              ]
+            }
+          },
+          "academic_program_ids": {
+            "bsonType": "array",
+            "items": {}
+          },
+          "created_at": {
+            "bsonType": "date"
+          },
+          "total_approved_credits": {
+            "bsonType": "long"
+          },
+          "university_ids": {
+            "bsonType": "array",
+            "items": {
+              "bsonType": "string"
+            }
+          },
+          "updated_at": {
+            "bsonType": "date"
+          },
+          "user_id": {
+            "bsonType": [
+              "string"
+            ]
+          },
+          "username": {
+            "bsonType": "null"
+          }
+        }
+      }
+    },
+    "students_guide.verification": {
+      "ns": "students_guide.verification",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {}
+      }
+    },
+    "students_guide.periods": {
+      "ns": "students_guide.periods",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "code": {
+            "bsonType": "string"
+          },
+          "start": {
+            "bsonType": [
+              "date"
+            ]
+          },
+          "end": {
+            "bsonType": [
+              "date"
+            ]
+          },
+          "university_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "term_type": {
+            "bsonType": "string"
+          },
+          "is_active": {
+            "bsonType": [
+              "bool"
+            ]
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      }
+    },
+    "students_guide.teachers": {
+      "ns": "students_guide.teachers",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "name_1": {
+            "bsonType": "string"
+          },
+          "name_2": {
+            "bsonType": "string"
+          },
+          "surname_1": {
+            "bsonType": "string"
+          },
+          "surname_2": {
+            "bsonType": "string"
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      }
+    },
+    "students_guide.sections": {
+      "ns": "students_guide.sections",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "code": {
+            "bsonType": "string"
+          },
+          "teacher_ids": {
+            "bsonType": "array",
+            "items": {}
+          },
+          "period_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "subject_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "capacity": {
+            "bsonType": [
+              "int"
+            ]
+          },
+          "schedule_blocks": {
+            "bsonType": "array",
+            "items": {}
+          },
+          "campus": {
+            "bsonType": "string"
+          },
+          "learning_type": {
+            "bsonType": "string"
+          },
+          "attributes": {
+            "bsonType": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      }
+    },
+    "students_guide.academic_unit": {
+      "ns": "students_guide.academic_unit",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "university_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "code": {
+            "bsonType": "string"
+          },
+          "name": {
+            "bsonType": "string"
+          },
+          "is_extracurricular": {
+            "bsonType": [
+              "bool"
+            ]
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      }
+    },
+    "students_guide.academic_programs": {
+      "ns": "students_guide.academic_programs",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "university_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "name": {
+            "bsonType": "string"
+          },
+          "academic_unit_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "program_type": {
+            "bsonType": "string"
+          },
+          "term_type": {
+            "bsonType": "string"
+          },
+          "academic_level": {
+            "bsonType": "string"
+          },
+          "total_terms": {
+            "bsonType": [
+              "int"
+            ]
+          },
+          "total_credits": {
+            "bsonType": [
+              "int"
+            ]
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      }
+    },
+    "students_guide.study_plans": {
+      "ns": "students_guide.study_plans",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "academic_program_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "name": {
+            "bsonType": "string"
+          },
+          "is_active": {
+            "bsonType": [
+              "bool"
+            ]
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      }
+    },
+    "students_guide.study_plan_subjects": {
+      "ns": "students_guide.study_plan_subjects",
+      "jsonSchema": {
+        "bsonType": "object",
+        "properties": {
+          "_id": {
+            "bsonType": "objectId"
+          },
+          "study_plan_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "subject_id": {
+            "bsonType": [
+              "objectId"
+            ]
+          },
+          "suggested_term": {
+            "bsonType": [
+              "int"
+            ]
+          },
+          "prerequisite_ids": {
+            "bsonType": "array",
+            "items": {}
+          },
+          "corequisite_ids": {
+            "bsonType": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "_id"
+        ]
+      }
+    }
+  },
+  "relationships": [
+    {
+      "id": "4f00f957-bae2-49cc-a764-2dc600b3415a",
+      "relationship": [
+        {
+          "ns": "students_guide.account",
+          "cardinality": 1,
+          "fields": [
+            "accountId"
+          ]
+        },
+        {
+          "ns": "students_guide.user",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "e8ec2943-0ec0-4ff8-8949-5e00da837981",
+      "relationship": [
+        {
+          "ns": "students_guide.account",
+          "cardinality": 1,
+          "fields": [
+            "userId"
+          ]
+        },
+        {
+          "ns": "students_guide.user",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "d9535d09-aab9-4aa6-bc02-121252f60412",
+      "relationship": [
+        {
+          "ns": "students_guide.user_profiles",
+          "cardinality": 1,
+          "fields": [
+            "user_id"
+          ]
+        },
+        {
+          "ns": "students_guide.user",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": true
+    },
+    {
+      "id": "01ce4531-0cc3-43cc-bf2d-fff355e0c021",
+      "relationship": [
+        {
+          "ns": "students_guide.user_profiles",
+          "cardinality": 1,
+          "fields": [
+            "university_ids"
+          ]
+        },
+        {
+          "ns": "students_guide.universities",
+          "cardinality": 100,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "54f4c39f-b00e-425c-8253-69fc59ffc66c",
+      "relationship": [
+        {
+          "ns": "students_guide.schedules",
+          "cardinality": 1000,
+          "fields": [
+            "user_profile_id"
+          ]
+        },
+        {
+          "ns": "students_guide.user_profiles",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "7e5e61fb-a598-4eb7-8485-bc09d42c5e99",
+      "relationship": [
+        {
+          "ns": "students_guide.schedules",
+          "cardinality": 10000,
+          "fields": [
+            "university_id"
+          ]
+        },
+        {
+          "ns": "students_guide.universities",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "bc6b4d3f-a52b-414c-95d1-bba91eed5882",
+      "relationship": [
+        {
+          "ns": "students_guide.periods",
+          "cardinality": 1,
+          "fields": [
+            "university_id"
+          ]
+        },
+        {
+          "ns": "students_guide.universities",
+          "cardinality": 10000,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "16e961b7-0674-4133-bb4a-a2c99cbacfe4",
+      "relationship": [
+        {
+          "ns": "students_guide.sections",
+          "cardinality": 1,
+          "fields": [
+            "teacher_ids"
+          ]
+        },
+        {
+          "ns": "students_guide.teachers",
+          "cardinality": 100,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "fcc6a0a6-f434-4cd7-b50b-503024f243aa",
+      "relationship": [
+        {
+          "ns": "students_guide.sections",
+          "cardinality": 10000,
+          "fields": [
+            "period_id"
+          ]
+        },
+        {
+          "ns": "students_guide.periods",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "950770e8-ae7d-4097-b391-97868757e9f9",
+      "relationship": [
+        {
+          "ns": "students_guide.sections",
+          "cardinality": 10000,
+          "fields": [
+            "subject_id"
+          ]
+        },
+        {
+          "ns": "students_guide.subjects",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "ac52d712-1b35-4a22-a420-81c5f7634a3b",
+      "relationship": [
+        {
+          "ns": "students_guide.schedules",
+          "cardinality": 1,
+          "fields": [
+            "period_id"
+          ]
+        },
+        {
+          "ns": "students_guide.periods",
+          "cardinality": 10000,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "f4b2e4ea-7d6b-4add-bbcf-0345d4ab585e",
+      "relationship": [
+        {
+          "ns": "students_guide.schedules",
+          "cardinality": 1,
+          "fields": [
+            "section_ids"
+          ]
+        },
+        {
+          "ns": "students_guide.sections",
+          "cardinality": 100,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "51ed0cc8-841c-4fa8-9487-fab619286fc0",
+      "relationship": [
+        {
+          "ns": "students_guide.reviews",
+          "cardinality": 10000,
+          "fields": [
+            "user_profile_id"
+          ]
+        },
+        {
+          "ns": "students_guide.user_profiles",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "8d71e4ad-e2bb-44eb-b353-1caf122f287d",
+      "relationship": [
+        {
+          "ns": "students_guide.reviews",
+          "cardinality": 10000,
+          "fields": [
+            "university_id"
+          ]
+        },
+        {
+          "ns": "students_guide.universities",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "7cc0440b-1343-441d-849a-0ef9be5a9e19",
+      "relationship": [
+        {
+          "ns": "students_guide.user_profiles",
+          "cardinality": 10000,
+          "fields": [
+            "academic_program_ids"
+          ]
+        },
+        {
+          "ns": "students_guide.academic_programs",
+          "cardinality": 100,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "a76382c3-48be-4a0c-b28c-ed1ff7f79992",
+      "relationship": [
+        {
+          "ns": "students_guide.user_profiles",
+          "cardinality": 1000,
+          "fields": [
+            "approved_subjects",
+            "subject_id"
+          ]
+        },
+        {
+          "ns": "students_guide.subjects",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "307368a9-c1d3-4e04-bb16-09898b9ebdee",
+      "relationship": [
+        {
+          "ns": "students_guide.subjects",
+          "cardinality": 10000,
+          "fields": [
+            "university_id"
+          ]
+        },
+        {
+          "ns": "students_guide.universities",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "13ccd940-c1e3-4c25-8f33-7f87be5e2e80",
+      "relationship": [
+        {
+          "ns": "students_guide.academic_unit",
+          "cardinality": 1000,
+          "fields": [
+            "university_id"
+          ]
+        },
+        {
+          "ns": "students_guide.universities",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "d35c170e-c5be-4c60-9084-a6101305033e",
+      "relationship": [
+        {
+          "ns": "students_guide.academic_programs",
+          "cardinality": 1000,
+          "fields": [
+            "university_id"
+          ]
+        },
+        {
+          "ns": "students_guide.universities",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "71cf97fb-c13d-4495-bfaa-acb5b96c3955",
+      "relationship": [
+        {
+          "ns": "students_guide.academic_programs",
+          "cardinality": 1000,
+          "fields": [
+            "academic_unit_id"
+          ]
+        },
+        {
+          "ns": "students_guide.academic_unit",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "179bc368-cc53-4380-a272-ab188f518c73",
+      "relationship": [
+        {
+          "ns": "students_guide.study_plan_subjects",
+          "cardinality": 1000,
+          "fields": [
+            "study_plan_id"
+          ]
+        },
+        {
+          "ns": "students_guide.study_plans",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "dbf01e73-82d3-4fc6-9a4b-ebe460b6ee0a",
+      "relationship": [
+        {
+          "ns": "students_guide.study_plan_subjects",
+          "cardinality": 1000,
+          "fields": [
+            "subject_id"
+          ]
+        },
+        {
+          "ns": "students_guide.subjects",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "dfd56aaa-bfc3-41d3-9083-05bbe006f93b",
+      "relationship": [
+        {
+          "ns": "students_guide.study_plan_subjects",
+          "cardinality": 100,
+          "fields": [
+            "corequisite_ids"
+          ]
+        },
+        {
+          "ns": "students_guide.subjects",
+          "cardinality": 100,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "82967ed3-6b94-4e37-8ae1-ea4400bd6cee",
+      "relationship": [
+        {
+          "ns": "students_guide.study_plan_subjects",
+          "cardinality": 100,
+          "fields": [
+            "prerequisite_ids"
+          ]
+        },
+        {
+          "ns": "students_guide.subjects",
+          "cardinality": 100,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "4d14ef09-d616-42a3-90d2-8fa3eb02eda6",
+      "relationship": [
+        {
+          "ns": "students_guide.study_plans",
+          "cardinality": 100,
+          "fields": [
+            "academic_program_id"
+          ]
+        },
+        {
+          "ns": "students_guide.academic_programs",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    },
+    {
+      "id": "3112338b-6e7f-42d1-8715-51bdc57b187b",
+      "relationship": [
+        {
+          "ns": "students_guide.reviews",
+          "cardinality": 10000,
+          "fields": [
+            "section_id"
+          ]
+        },
+        {
+          "ns": "students_guide.sections",
+          "cardinality": 1,
+          "fields": [
+            "_id"
+          ]
+        }
+      ],
+      "isInferred": false
+    }
+  ]
+}
