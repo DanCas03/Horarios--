@@ -1,14 +1,34 @@
+// =============================================================================
+// Composite Types (Embedded Documents)
+// =============================================================================
+
+type ApprovedSubjectPeriod {
+  code     String?
+  start    DateTime?
+  end      DateTime?
+  termType String? @map("term_type")
+}
+
+type ApprovedSubjectItem {
+  subjectId String?               @map("subject_id") @db.ObjectId
+  grade     Float?
+  period    ApprovedSubjectPeriod?
+}
+
+// =============================================================================
+// User Profile
+// =============================================================================
 model UserProfile {
-  id                   String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId               String   @unique
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String?               @unique @map("user_id")
+  user                 User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   username             String?
-  universityIds        String[] // múltiples universidades
-  careerIds            String[] // múltiples carreras
-  approvedSubjects     Json[]   // [{ subjectCode: string, grade?: number, period?: string }]
-  totalApprovedCredits Int      @default(0)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  universityIds        String[]              @map("university_ids")
+  academicProgramIds   String[]              @map("academic_program_ids") @db.ObjectId
+  approvedSubjects     ApprovedSubjectItem[] @map("approved_subjects")
+  totalApprovedCredits Int                   @default(0) @map("total_approved_credits")
+  createdAt            DateTime              @default(now()) @map("created_at")
+  updatedAt            DateTime              @updatedAt @map("updated_at")
 
   @@map("user_profiles")
 }

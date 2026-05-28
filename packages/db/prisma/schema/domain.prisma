@@ -1,90 +1,179 @@
 // =============================================================================
+// Composite Types (Embedded Documents)
+// =============================================================================
+
+type Rating {
+  category String
+  value    Int
+}
+
+type ScheduleBlock {
+  startTime String @map("start_time")
+  endTime   String @map("end_time")
+  dayOfWeek String @map("day_of_week")
+  classroom String?
+}
+
+// =============================================================================
 // University
 // =============================================================================
 model University {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  name               String
-  shortName          String   @map("short_name")
-  logoUrl            String?  @map("logo_url")
-  website            String?
-  academicPeriodType String   @map("academic_period_type") // "semestre" | "trimestre"
-  location           String?
-  createdAt          DateTime? @default(now()) @map("created_at")
-  updatedAt          DateTime? @updatedAt @map("updated_at")
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  shortName String   @map("short_name")
+  logoUrl   String   @map("logo_url")
+  website   String
+  location  String
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("universities")
 }
 
 // =============================================================================
-// Career
+// Teacher
 // =============================================================================
-model Career {
-  id             String   @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  code           String?
-  universityId   String   @map("university_id")
-  faculty        String?
-  totalCredits   Int?     @map("total_credits")
-  totalSemesters Int?     @map("total_semesters")
-  degreeTitle    String?  @map("degree_title")
-  minors         String[] // nombres de minors/menciones
-  createdAt      DateTime? @default(now()) @map("created_at")
-  updatedAt      DateTime? @updatedAt @map("updated_at")
+model Teacher {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  name1    String  @map("name_1")
+  name2    String? @map("name_2")
+  surname1 String  @map("surname_1")
+  surname2 String? @map("surname_2")
 
-  @@map("careers")
+  @@map("teachers")
+}
+
+// =============================================================================
+// Period
+// =============================================================================
+model Period {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  code         String?
+  start        DateTime?
+  end          DateTime?
+  universityId String?  @map("university_id") @db.ObjectId
+  termType     String?  @map("term_type")
+  isActive     Boolean? @map("is_active")
+
+  @@map("periods")
 }
 
 // =============================================================================
 // Subject
 // =============================================================================
 model Subject {
-  id                String   @id @default(auto()) @map("_id") @db.ObjectId
-  name              String
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
   code              String
-  careerId          String   @map("career_id")
-  universityId      String   @map("university_id")
+  name              String
   credits           Int
-  semesterSuggested Int?     @map("semester_suggested")
-  subjectType       String   @default("obligatoria") @map("subject_type") // "obligatoria" | "electiva" | "pasantia"
-  prerequisites     String[] // códigos de materias prerrequisito
-  corequisites      String[] // códigos de materias correquisito
-  modality          String   @default("presencial") // "presencial" | "virtual" | "hibrida"
-  weeklyHours       Int?     @map("weekly_hours")
-  asyncHours        Int?     @map("async_hours")
-  usualAvailability String   @default("todos") @map("usual_availability") // "todos" | "pares" | "impares"
+  modality          String
+  subjectType       String    @map("subject_type")
+  universityId      String?   @map("university_id") @db.ObjectId
   description       String?
-  avgDifficulty     Float    @default(0) @map("avg_difficulty")
-  avgApprovalRate   Float    @default(0) @map("avg_approval_rate")
-  reviewCount       Int      @default(0) @map("review_count")
-  createdAt         DateTime? @default(now()) @map("created_at")
-  updatedAt         DateTime? @updatedAt @map("updated_at")
+  avgDifficulty     Float?    @map("avg_difficulty")
+  avgApprovalRate   Float?    @map("avg_approval_rate")
+  reviewCount       Int?      @map("review_count")
+  usualAvailability String?   @map("usual_availability")
+  updatedAt         DateTime? @map("updated_at")
+  attributes        Json[]
+  isActive          Boolean?  @map("is_active")
 
   @@map("subjects")
+}
+
+// =============================================================================
+// Section
+// =============================================================================
+model Section {
+  id             String          @id @default(auto()) @map("_id") @db.ObjectId
+  code           String?
+  teacherIds     String[]        @map("teacher_ids") @db.ObjectId
+  periodId       String?         @map("period_id") @db.ObjectId
+  subjectId      String?         @map("subject_id") @db.ObjectId
+  capacity       Int?
+  scheduleBlocks ScheduleBlock[] @map("schedule_blocks")
+  campus         String?
+  learningType   String?         @map("learning_type")
+  attributes     Json[]
+
+  @@map("sections")
+}
+
+// =============================================================================
+// Academic Unit
+// =============================================================================
+model AcademicUnit {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  universityId      String?  @map("university_id") @db.ObjectId
+  code              String?
+  name              String?
+  isExtracurricular Boolean? @map("is_extracurricular")
+
+  @@map("academic_unit")
+}
+
+// =============================================================================
+// Academic Program
+// =============================================================================
+model AcademicProgram {
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  universityId   String? @map("university_id") @db.ObjectId
+  name           String?
+  academicUnitId String? @map("academic_unit_id") @db.ObjectId
+  programType    String? @map("program_type")
+  termType       String? @map("term_type")
+  academicLevel  String? @map("academic_level")
+  totalTerms     Int?    @map("total_terms")
+  totalCredits   Int?    @map("total_credits")
+
+  @@map("academic_programs")
+}
+
+// =============================================================================
+// Study Plan
+// =============================================================================
+model StudyPlan {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  academicProgramId String?  @map("academic_program_id") @db.ObjectId
+  name              String?
+  isActive          Boolean? @map("is_active")
+
+  @@map("study_plans")
+}
+
+// =============================================================================
+// Study Plan Subject
+// =============================================================================
+model StudyPlanSubject {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  studyPlanId     String?  @map("study_plan_id") @db.ObjectId
+  subjectId       String?  @map("subject_id") @db.ObjectId
+  suggestedTerm   Int?     @map("suggested_term")
+  prerequisiteIds String[] @map("prerequisite_ids") @db.ObjectId
+  corequisiteIds  String[] @map("corequisite_ids") @db.ObjectId
+
+  @@map("study_plan_subjects")
 }
 
 // =============================================================================
 // Review
 // =============================================================================
 model Review {
-  id               String   @id @default(auto()) @map("_id") @db.ObjectId
-  subjectCode      String   @map("subject_code")
-  universityId     String   @map("university_id")
-  userId           String   @map("user_id") // no se expone públicamente
-  professorName    String?  @map("professor_name")
-  period           String
-  section          String?
-  difficultyRating Int      @map("difficulty_rating") // 1-5
-  professorRating  Int?     @map("professor_rating")  // 1-5
-  workloadRating   Int      @map("workload_rating")   // 1-5
-  wouldRecommend   Boolean  @map("would_recommend")
-  comment          String?
-  tips             String?
-  studyStrategy    String?  @map("study_strategy")
-  isVerified       Boolean  @default(false) @map("is_verified")
-  createdAt        DateTime? @default(now()) @map("created_at")
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  comment        String
+  createdAt      DateTime @default(now()) @map("created_at")
+  isVerified     Boolean  @map("is_verified")
+  periodId       String?  @map("period_id") @db.ObjectId
+  sectionId      String?  @map("section_id") @db.ObjectId
+  studyStrategy  String?  @map("study_strategy")
+  subjectCode    String   @map("subject_code")
+  tips           String?
+  universityId   String?  @map("university_id") @db.ObjectId
+  userProfileId  String?  @map("user_profile_id") @db.ObjectId
+  wouldRecommend Boolean  @map("would_recommend")
+  ratings        Rating[]
+  overallRating  Int?     @map("overall_rating")
+  teacherIds     String[] @map("teacher_ids") @db.ObjectId
 
-  @@index([subjectCode])
-  @@index([userId])
   @@map("reviews")
 }
 
@@ -92,18 +181,15 @@ model Review {
 // Schedule
 // =============================================================================
 model Schedule {
-  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId             String   @map("user_id")
-  universityId       String   @map("university_id")
-  period             String
-  scheduleType       String   @map("schedule_type") // "current" | "tentative"
-  // blocks: [{ subjectCode, subjectName?, section, professor?, day, startTime, endTime, classroom?, modality }]
-  blocks             Json[]
-  // tentativeSubjects: [{ subjectCode, subjectName?, priority }]
-  tentativeSubjects  Json[]   @map("tentative_subjects")
-  createdAt          DateTime? @default(now()) @map("created_at")
-  updatedAt          DateTime? @updatedAt @map("updated_at")
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt     DateTime @default(now()) @map("created_at")
+  periodId      String?  @map("period_id") @db.ObjectId
+  scheduleType  String   @map("schedule_type")
+  universityId  String?  @map("university_id") @db.ObjectId
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  userProfileId String?  @map("user_profile_id") @db.ObjectId
+  sectionIds    String[] @map("section_ids") @db.ObjectId
+  customBlocks  Json[]   @map("custom_blocks")
 
-  @@index([userId])
   @@map("schedules")
 }

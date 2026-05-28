@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type SyntheticEvent, useEffect, useState } from "react";
 
-import { careersAPI, parseApiError, universitiesAPI } from "@/api/client";
+import { academicProgramsAPI, parseApiError, universitiesAPI } from "@/api/client";
 import { useAuth } from "@/context/auth-context";
 
 interface University {
@@ -14,7 +14,7 @@ interface University {
 	shortName: string;
 }
 
-interface Career {
+interface AcademicProgram {
 	id: string;
 	name: string;
 }
@@ -31,9 +31,9 @@ export default function RegisterPage() {
 	const [loading, setLoading] = useState(false);
 
 	const [universities, setUniversities] = useState<University[]>([]);
-	const [careers, setCareers] = useState<Career[]>([]);
+	const [academicPrograms, setAcademicPrograms] = useState<AcademicProgram[]>([]);
 	const [selectedUni, setSelectedUni] = useState("");
-	const [selectedCareer, setSelectedCareer] = useState("");
+	const [selectedProgram, setSelectedProgram] = useState("");
 	const [loadingUniversities, setLoadingUniversities] = useState(true);
 
 	useEffect(() => {
@@ -47,12 +47,12 @@ export default function RegisterPage() {
 
 	useEffect(() => {
 		if (selectedUni) {
-			careersAPI
+			academicProgramsAPI
 				.list(selectedUni)
-				.then((res) => setCareers(res.data))
+				.then((res) => setAcademicPrograms(res.data))
 				.catch(() => {});
 		} else {
-			setCareers([]);
+			setAcademicPrograms([]);
 		}
 	}, [selectedUni]);
 
@@ -76,7 +76,7 @@ export default function RegisterPage() {
 				username,
 				password,
 				selectedUni || undefined,
-				selectedCareer || undefined,
+				selectedProgram || undefined,
 			);
 			router.push("/pensum");
 		} catch (err: unknown) {
@@ -220,7 +220,7 @@ export default function RegisterPage() {
 										value={selectedUni}
 										onChange={(e) => {
 											setSelectedUni(e.target.value);
-											setSelectedCareer("");
+											setSelectedProgram("");
 										}}
 										disabled={loadingUniversities}
 										className={selectClass}
@@ -243,16 +243,16 @@ export default function RegisterPage() {
 								{selectedUni && (
 									<div className="fade-in slide-in-from-top-2 animate-in duration-300">
 										<label htmlFor="register-career" className={labelClass}>
-											Carrera
+											Programa Académico
 										</label>
 										<select
 											id="register-career"
-											value={selectedCareer}
-											onChange={(e) => setSelectedCareer(e.target.value)}
+											value={selectedProgram}
+											onChange={(e) => setSelectedProgram(e.target.value)}
 											className={selectClass}
 										>
-											<option value="">Selecciona carrera...</option>
-											{careers.map((c) => (
+											<option value="">Selecciona programa...</option>
+											{academicPrograms.map((c) => (
 												<option key={c.id} value={c.id}>
 													{c.name}
 												</option>

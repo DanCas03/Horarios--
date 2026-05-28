@@ -18,7 +18,7 @@ export const authAPI = {
 		username: string;
 		password: string;
 		university_id?: string;
-		career_id?: string;
+		academic_program_id?: string;
 	}) => api.post("/auth/register", data),
 	login: (data: { email: string; password: string }) =>
 		api.post("/auth/login", data),
@@ -30,27 +30,34 @@ export const universitiesAPI = {
 	get: (id: string) => api.get(`/universities/${id}`),
 };
 
-export const careersAPI = {
+export const academicProgramsAPI = {
 	list: (universityId?: string) =>
-		api.get("/careers/", {
+		api.get("/academic-programs/", {
 			params: universityId ? { university_id: universityId } : {},
 		}),
-	get: (id: string) => api.get(`/careers/${id}`),
+	get: (id: string) => api.get(`/academic-programs/${id}`),
+};
+
+export const periodsAPI = {
+	list: (universityId?: string) =>
+		api.get("/periods", {
+			params: universityId ? { university_id: universityId } : {},
+		}),
 };
 
 export const subjectsAPI = {
 	list: (params?: {
-		career_id?: string;
+		academic_program_id?: string;
 		university_id?: string;
 		semester?: number;
 	}) => api.get("/subjects/", { params }),
-	pensum: (careerId: string) => api.get(`/subjects/pensum/${careerId}`),
+	pensum: (programId: string) => api.get(`/subjects/pensum/${programId}`),
 	get: (id: string) => api.get(`/subjects/${id}`),
-	available: (careerId: string) => api.get(`/subjects/available/${careerId}`),
-	approve: (data: { subject_code: string; grade?: number; period?: string }) =>
+	available: (programId: string) => api.get(`/subjects/available/${programId}`),
+	approve: (data: { subjectId: string; grade?: number; period?: string }) =>
 		api.post("/subjects/approve", data),
-	unapprove: (subjectCode: string) =>
-		api.delete(`/subjects/approve/${subjectCode}`),
+	unapprove: (subjectId: string) =>
+		api.delete(`/subjects/approve/${subjectId}`),
 };
 
 export const reviewsAPI = {
@@ -58,17 +65,15 @@ export const reviewsAPI = {
 		api.get(`/reviews/subject/${subjectCode}`, {
 			params: universityId ? { university_id: universityId } : {},
 		}),
-	byProfessor: (professorName: string) =>
-		api.get(`/reviews/professor/${professorName}`),
+	byProfessor: (teacherId: string) =>
+		api.get(`/reviews/professor/${teacherId}`),
 	create: (data: {
 		subjectCode: string;
 		universityId: string;
 		professorName?: string;
 		period: string;
 		section?: string;
-		difficultyRating: number;
-		professorRating?: number;
-		workloadRating: number;
+		ratings: { category: string; value: number }[];
 		wouldRecommend: boolean;
 		comment?: string;
 		tips?: string;
@@ -77,12 +82,12 @@ export const reviewsAPI = {
 };
 
 export const schedulesAPI = {
-	my: (params?: { period?: string; schedule_type?: string }) =>
+	my: (params?: { periodId?: string; schedule_type?: string }) =>
 		api.get("/schedules/my", { params }),
 	create: (data: unknown) => api.post("/schedules", data),
 	update: (id: string, data: unknown) => api.put(`/schedules/${id}`, data),
-	createTentative: (period: string, subjects: unknown[]) =>
-		api.post(`/schedules/tentative?period=${period}`, subjects),
+	createTentative: (periodId: string, data: { sectionIds?: string[]; customBlocks?: any[] }) =>
+		api.post(`/schedules/tentative?periodId=${periodId}`, data),
 	delete: (id: string) => api.delete(`/schedules/${id}`),
 };
 

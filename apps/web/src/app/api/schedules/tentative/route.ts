@@ -2,48 +2,65 @@ import prisma from "@horaios/db";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
-type TentativeSubject = {
-	subjectCode: string;
-	subjectName?: string;
-	priority: number;
-};
-
 /**
- * POST /api/schedules/tentative?period=...
- * Crea un horario tentativo para el próximo periodo.
+ * POST /api/schedules/tentative?periodId=...
+ * Crea un horario tentativo para un periodo.
  * Requiere autenticación.
  *
- * Body: array de TentativeSubject
- * Query param: period (periodo académico, e.g. "2025-2")
+ * Body: { sectionIds?: string[], customBlocks?: any[] }
+ * Query param: periodId
  */
 export async function POST(request: NextRequest) {
 	const { session, errorResponse } = await requireSession();
 	if (errorResponse) return errorResponse;
 
-	const period = request.nextUrl.searchParams.get("period");
-	if (!period) {
+	const periodId = request.nextUrl.searchParams.get("periodId");
+	if (!periodId) {
 		return NextResponse.json(
-			{ error: "El parámetro 'period' es requerido" },
+			{ error: "El parámetro 'periodId' es requerido" },
 			{ status: 400 },
 		);
 	}
 
-	const subjects = (await request.json()) as TentativeSubject[];
+	const body = await request.json();
+	const { sectionIds, customBlocks } = body as {
+		sectionIds?: string[];
+		customBlocks?: any[];
+	};
 
-	// Obtener la universidad del perfil del usuario (primera, si tiene varias)
 	const profile = await prisma.userProfile.findUnique({
 		where: { userId: session.user.id },
 	});
-	const universityId = profile?.universityIds[0] ?? "";
+
+	if (!profile) {
+		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+	}
+
+	const universityId = profile.universityIds[0] ?? "";
+
+	let resolvedPeriodId = periodId;
+	if (periodId && periodId.length !== 24) {
+		const period = await prisma.period.findFirst({
+			where: {
+				code: periodId,
+				universityId,
+			},
+		});
+		if (period) {
+			resolvedPeriodId = period.id;
+		} else {
+			return NextResponse.json({ error: "Periodo no encontrado" }, { status: 404 });
+		}
+	}
 
 	const schedule = await prisma.schedule.create({
 		data: {
-			userId: session.user.id,
+			userProfileId: profile.id,
 			universityId,
-			period,
+			periodId: resolvedPeriodId,
 			scheduleType: "tentative",
-			blocks: [],
-			tentativeSubjects: subjects,
+			sectionIds: sectionIds ?? [],
+			customBlocks: customBlocks ?? [],
 		},
 	});
 

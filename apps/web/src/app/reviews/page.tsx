@@ -19,9 +19,33 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { parseApiError, reviewsAPI, subjectsAPI } from "@/api/client";
+import { parseApiError, periodsAPI, reviewsAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import { useAuth } from "@/context/auth-context";
+
+interface Period {
+	id: string;
+	code: string;
+	start?: string;
+	end?: string;
+	termType?: string;
+	isActive?: boolean;
+}
+
+const formatPeriod = (p: Period) => {
+	let label = p.code;
+	if (p.termType) {
+		label += ` - ${p.termType}`;
+	}
+	if (p.start && p.end) {
+		const startMonth = new Date(p.start).toLocaleDateString("es-ES", { month: "long" });
+		const endMonth = new Date(p.end).toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+		const capStart = startMonth.charAt(0).toUpperCase() + startMonth.slice(1);
+		const capEnd = endMonth.charAt(0).toUpperCase() + endMonth.slice(1);
+		label += ` (${capStart} - ${capEnd})`;
+	}
+	return label;
+};
 
 interface Review {
 	id: string;
@@ -29,9 +53,7 @@ interface Review {
 	professorName?: string;
 	period: string;
 	section?: string;
-	difficultyRating: number;
-	professorRating?: number;
-	workloadRating: number;
+	ratings: { category: string; value: number }[];
 	wouldRecommend: boolean;
 	comment?: string;
 	tips?: string;
@@ -203,29 +225,47 @@ function ReviewsContent() {
 	const [submitting, setSubmitting] = useState(false);
 	const [formError, setFormError] = useState("");
 
+	const [periods, setPeriods] = useState<Period[]>([]);
+
+	// Load periods
+	useEffect(() => {
+		periodsAPI
+			.list()
+			.then((res) => {
+				const fetchedPeriods = res.data as Period[];
+				setPeriods(fetchedPeriods);
+				if (fetchedPeriods.length > 0) {
+					setForm((prev) => ({ ...prev, period: fetchedPeriods[0].code }));
+				}
+			})
+			.catch(() => {});
+	}, []);
+
 	// Load pensum subjects: all (for search) + approved (for form combobox)
 	useEffect(() => {
-		if (!user?.careerIds?.[0]) return;
+		if (!user?.academicProgramIds?.[0]) return;
 		subjectsAPI
-			.pensum(user.careerIds[0])
+			.pensum(user.academicProgramIds[0])
 			.then((res) => {
-				const approvedCodes = new Set(
-					user.approvedSubjects?.map((s) => s.subjectCode) || [],
+				const approvedIds = new Set(
+					user.approvedSubjects?.map((s) => s.subjectId) || [],
 				);
 				const all: SubjectOption[] = (
-					res.data as { code: string; name: string }[]
+					res.data as { code: string; name: string; id: string }[]
 				).map((s) => ({
 					code: s.code,
 					name: s.name,
 				}));
-				const approved: SubjectOption[] = all.filter((s) =>
-					approvedCodes.has(s.code),
-				);
+				const approved: SubjectOption[] = (
+					res.data as { code: string; name: string; id: string }[]
+				)
+					.filter((s) => approvedIds.has(s.id))
+					.map((s) => ({ code: s.code, name: s.name }));
 				setAllSubjects(all);
 				setSubjectOptions(approved);
 			})
 			.catch(() => {});
-	}, [user?.careerIds, user?.approvedSubjects]);
+	}, [user?.academicProgramIds, user?.approvedSubjects]);
 
 	// Close search dropdown on outside click
 	useEffect(() => {
@@ -308,9 +348,11 @@ function ReviewsContent() {
 				professorName: form.professor_name || undefined,
 				period: form.period,
 				section: form.section || undefined,
-				difficultyRating: form.difficulty_rating,
-				professorRating: form.professor_rating,
-				workloadRating: form.workload_rating,
+				ratings: [
+					{ category: "difficulty", value: form.difficulty_rating },
+					{ category: "professor", value: form.professor_rating },
+					{ category: "workload", value: form.workload_rating },
+				],
 				wouldRecommend: form.would_recommend,
 				comment: form.comment || undefined,
 				tips: form.tips || undefined,
@@ -321,7 +363,7 @@ function ReviewsContent() {
 				subject_code: "",
 				university_id: "",
 				professor_name: "",
-				period: "",
+				period: periods.length > 0 ? periods[0].code : "",
 				section: "",
 				difficulty_rating: 3,
 				professor_rating: 3,
@@ -502,14 +544,22 @@ function ReviewsContent() {
 							>
 								Periodo *
 							</label>
-							<input
+							<select
 								id="review-period"
 								required
 								value={form.period}
 								onChange={(e) => setForm({ ...form, period: e.target.value })}
-								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-								placeholder="2025-1"
-							/>
+								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
+							>
+								{periods.map((p) => (
+									<option key={p.id} value={p.code}>
+										{formatPeriod(p)}
+									</option>
+								))}
+								{periods.length === 0 && (
+									<option value={form.period}>{form.period || "Sin periodos"}</option>
+								)}
+							</select>
 						</div>
 						<div>
 							<label
@@ -724,17 +774,17 @@ function ReviewsContent() {
 							<div className="mb-4 grid grid-cols-3 gap-4">
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Dificultad</p>
-									<StarRating value={r.difficultyRating} />
+									<StarRating value={r.ratings?.find((rt) => rt.category === "difficulty")?.value || 0} />
 								</div>
-								{r.professorRating != null && (
+								{r.professorName && (
 									<div>
 										<p className="mb-1 text-gray-500 text-xs">Profesor</p>
-										<StarRating value={r.professorRating} />
+										<StarRating value={r.ratings?.find((rt) => rt.category === "professor")?.value || 0} />
 									</div>
 								)}
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Carga</p>
-									<StarRating value={r.workloadRating} />
+									<StarRating value={r.ratings?.find((rt) => rt.category === "workload")?.value || 0} />
 								</div>
 							</div>
 

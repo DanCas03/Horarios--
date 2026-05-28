@@ -21,7 +21,7 @@ export async function GET() {
 			data: {
 				userId: session.user.id,
 				universityIds: [],
-				careerIds: [],
+				academicProgramIds: [],
 				approvedSubjects: [],
 				totalApprovedCredits: 0,
 			},
@@ -35,7 +35,7 @@ export async function GET() {
 		image: session.user.image,
 		username: profile.username,
 		universityIds: profile.universityIds,
-		careerIds: profile.careerIds,
+		academicProgramIds: profile.academicProgramIds,
 		approvedSubjects: profile.approvedSubjects,
 		totalApprovedCredits: profile.totalApprovedCredits,
 	});
@@ -50,10 +50,10 @@ export async function PUT(request: Request) {
 	if (errorResponse) return errorResponse;
 
 	const body = await request.json();
-	const { username, universityIds, careerIds } = body as {
+	const { username, universityIds, academicProgramIds } = body as {
 		username?: string;
 		universityIds?: string[];
-		careerIds?: string[];
+		academicProgramIds?: string[];
 	};
 
 	const profile = await prisma.userProfile.upsert({
@@ -61,13 +61,13 @@ export async function PUT(request: Request) {
 		update: {
 			...(username !== undefined && { username }),
 			...(universityIds !== undefined && { universityIds }),
-			...(careerIds !== undefined && { careerIds }),
+			...(academicProgramIds !== undefined && { academicProgramIds }),
 		},
 		create: {
 			userId: session.user.id,
 			username: username ?? null,
 			universityIds: universityIds ?? [],
-			careerIds: careerIds ?? [],
+			academicProgramIds: academicProgramIds ?? [],
 			approvedSubjects: [],
 			totalApprovedCredits: 0,
 		},
@@ -79,7 +79,7 @@ export async function PUT(request: Request) {
 		email: session.user.email,
 		username: profile.username,
 		universityIds: profile.universityIds,
-		careerIds: profile.careerIds,
+		academicProgramIds: profile.academicProgramIds,
 		approvedSubjects: profile.approvedSubjects,
 		totalApprovedCredits: profile.totalApprovedCredits,
 	});

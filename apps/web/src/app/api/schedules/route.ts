@@ -2,57 +2,62 @@ import prisma from "@horaios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
-type ScheduleBlock = {
-	subjectCode: string;
-	subjectName?: string;
-	section: string;
-	professor?: string;
-	day: string;
-	startTime: string;
-	endTime: string;
-	classroom?: string;
-	modality: string;
-};
-
-type TentativeSubject = {
-	subjectCode: string;
-	subjectName?: string;
-	priority: number;
-};
-
 /**
  * POST /api/schedules
- * Crea un horario (actual o tentativo). Requiere autenticación.
+ * Crea un horario. Requiere autenticación.
  */
 export async function POST(request: Request) {
 	const { session, errorResponse } = await requireSession();
 	if (errorResponse) return errorResponse;
 
 	const body = await request.json();
-	const { universityId, period, scheduleType, blocks, tentativeSubjects } =
+	const { universityId, periodId, scheduleType, sectionIds, customBlocks } =
 		body as {
-			universityId: string;
-			period: string;
+			universityId?: string;
+			periodId?: string;
 			scheduleType: string;
-			blocks?: ScheduleBlock[];
-			tentativeSubjects?: TentativeSubject[];
+			sectionIds?: string[];
+			customBlocks?: any[];
 		};
 
-	if (!universityId || !period || !scheduleType) {
+	if (!scheduleType) {
 		return NextResponse.json(
-			{ error: "universityId, period y scheduleType son requeridos" },
+			{ error: "scheduleType es requerido" },
 			{ status: 400 },
 		);
 	}
 
+	const profile = await prisma.userProfile.findUnique({
+		where: { userId: session.user.id },
+	});
+
+	if (!profile) {
+		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+	}
+
+	let resolvedPeriodId = periodId;
+	if (periodId && periodId.length !== 24) {
+		const period = await prisma.period.findFirst({
+			where: {
+				code: periodId,
+				...(universityId && { universityId }),
+			},
+		});
+		if (period) {
+			resolvedPeriodId = period.id;
+		} else {
+			return NextResponse.json({ error: "Periodo no encontrado" }, { status: 404 });
+		}
+	}
+
 	const schedule = await prisma.schedule.create({
 		data: {
-			userId: session.user.id,
+			userProfileId: profile.id,
 			universityId,
-			period,
+			periodId: resolvedPeriodId,
 			scheduleType,
-			blocks: blocks ?? [],
-			tentativeSubjects: tentativeSubjects ?? [],
+			sectionIds: sectionIds ?? [],
+			customBlocks: customBlocks ?? [],
 		},
 	});
 

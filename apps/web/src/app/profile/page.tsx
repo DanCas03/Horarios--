@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import api, { careersAPI, universitiesAPI } from "@/api/client";
+import api, { academicProgramsAPI, universitiesAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import { useAuth } from "@/context/auth-context";
 
@@ -19,7 +19,7 @@ interface University {
 	shortName: string;
 }
 
-interface Career {
+interface AcademicProgram {
 	id: string;
 	name: string;
 }
@@ -27,12 +27,12 @@ interface Career {
 function ProfileContent() {
 	const { user, refreshUser } = useAuth();
 	const [universities, setUniversities] = useState<University[]>([]);
-	const [careers, setCareers] = useState<Career[]>([]);
+	const [academicPrograms, setAcademicPrograms] = useState<AcademicProgram[]>([]);
 	const [selectedUni, setSelectedUni] = useState(
 		user?.universityIds?.[0] || "",
 	);
-	const [selectedCareer, setSelectedCareer] = useState(
-		user?.careerIds?.[0] || "",
+	const [selectedProgram, setSelectedProgram] = useState(
+		user?.academicProgramIds?.[0] || "",
 	);
 	const [saving, setSaving] = useState(false);
 	const [saved, setSaved] = useState(false);
@@ -46,12 +46,12 @@ function ProfileContent() {
 
 	useEffect(() => {
 		if (selectedUni) {
-			careersAPI
+			academicProgramsAPI
 				.list(selectedUni)
-				.then((res) => setCareers(res.data))
+				.then((res) => setAcademicPrograms(res.data))
 				.catch(() => {});
 		} else {
-			setCareers([]);
+			setAcademicPrograms([]);
 		}
 	}, [selectedUni]);
 
@@ -60,7 +60,7 @@ function ProfileContent() {
 		try {
 			await api.put("/auth/me", {
 				universityIds: selectedUni ? [selectedUni] : [],
-				careerIds: selectedCareer ? [selectedCareer] : [],
+				academicProgramIds: selectedProgram ? [selectedProgram] : [],
 			});
 			await refreshUser();
 			setSaved(true);
@@ -129,7 +129,7 @@ function ProfileContent() {
 								value={selectedUni}
 								onChange={(e) => {
 									setSelectedUni(e.target.value);
-									setSelectedCareer("");
+									setSelectedProgram("");
 								}}
 								className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							>
@@ -145,17 +145,17 @@ function ProfileContent() {
 						{selectedUni && (
 							<div>
 								<label className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider">
-									Carrera
+									Programa Académico
 								</label>
 								<select
-									value={selectedCareer}
-									onChange={(e) => setSelectedCareer(e.target.value)}
+									value={selectedProgram}
+									onChange={(e) => setSelectedProgram(e.target.value)}
 									className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 								>
-									<option value="">Selecciona tu carrera</option>
-									{careers.map((c) => (
-										<option key={c.id} value={c.id}>
-											{c.name}
+									<option value="">Selecciona tu programa</option>
+									{academicPrograms.map((p) => (
+										<option key={p.id} value={p.id}>
+											{p.name}
 										</option>
 									))}
 								</select>
