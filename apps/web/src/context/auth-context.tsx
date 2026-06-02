@@ -14,7 +14,7 @@ import { authClient } from "@/lib/auth-client";
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 export interface ApprovedSubject {
-	subjectCode: string;
+	subjectId: string;
 	grade?: number;
 	period?: string;
 }
@@ -26,7 +26,7 @@ export interface UserProfile {
 	image?: string | null;
 	username?: string | null;
 	universityIds: string[];
-	careerIds: string[];
+	academicProgramIds: string[];
 	approvedSubjects: ApprovedSubject[];
 	totalApprovedCredits: number;
 }
@@ -40,7 +40,7 @@ interface AuthContextType {
 		name: string,
 		password: string,
 		universityId?: string,
-		careerId?: string,
+		academicProgramId?: string,
 	) => Promise<void>;
 	logout: () => Promise<void>;
 	refreshUser: () => Promise<void>;
@@ -82,16 +82,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		name: string,
 		password: string,
 		universityId?: string,
-		careerId?: string,
+		academicProgramId?: string,
 	) => {
 		await authClient.signUp.email({ email, name, password });
 		// Si se eligió universidad/carrera, actualizar el perfil
-		if (universityId || careerId) {
+		if (universityId || academicProgramId) {
 			await axios.put(
 				"/api/auth/me",
 				{
 					universityIds: universityId ? [universityId] : [],
-					careerIds: careerId ? [careerId] : [],
+					academicProgramIds: academicProgramId ? [academicProgramId] : [],
 				},
 				{ withCredentials: true },
 			);

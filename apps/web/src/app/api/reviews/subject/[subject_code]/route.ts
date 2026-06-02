@@ -2,8 +2,8 @@ import prisma from "@horaios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
- * GET /api/reviews/subject/[subject_code]?university_id=&professor=
- * Retorna las reseñas de una materia (anónimas - sin userId).
+ * GET /api/reviews/subject/[subject_code]?university_id=&teacher_id=
+ * Retorna las reseñas de una materia (anónimas - sin userProfileId).
  */
 export async function GET(
 	request: NextRequest,
@@ -12,19 +12,19 @@ export async function GET(
 	const { subject_code } = await params;
 	const sp = request.nextUrl.searchParams;
 	const universityId = sp.get("university_id");
-	const professor = sp.get("professor");
+	const teacherId = sp.get("teacher_id");
 
 	const reviews = await prisma.review.findMany({
 		where: {
 			subjectCode: subject_code,
 			...(universityId && { universityId }),
-			...(professor && {
-				professorName: { contains: professor, mode: "insensitive" },
+			...(teacherId && {
+				teacherIds: { has: teacherId },
 			}),
 		},
 		orderBy: { createdAt: "desc" },
 	});
 
-	// Omitir userId para mantener anonimato
-	return NextResponse.json(reviews.map(({ userId: _userId, ...rest }) => rest));
+	// Omitir userProfileId para mantener anonimato
+	return NextResponse.json(reviews.map(({ userProfileId: _upId, ...rest }) => rest));
 }

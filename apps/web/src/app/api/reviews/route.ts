@@ -2,10 +2,15 @@ import prisma from "@horaios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
-type ApprovedSubjectEntry = {
-	subjectCode: string;
-	grade?: number;
-	period?: string;
+type RatingInput = {
+	category: string;
+	value: number;
+};
+
+type ApprovedSubjectItem = {
+	subjectId?: string | null;
+	grade?: number | null;
+	period?: any | null;
 };
 
 /**
@@ -19,50 +24,34 @@ export async function POST(request: Request) {
 
 	const body = await request.json();
 	const payload = body as {
-		subjectCode?: string;
-		subject_code?: string;
+		subjectCode: string;
 		universityId?: string;
-		university_id?: string;
-		professorName?: string;
-		professor_name?: string;
-		period?: string;
-		section?: string;
-		difficultyRating?: number;
-		difficulty_rating?: number;
-		professorRating?: number;
-		professor_rating?: number;
-		workloadRating?: number;
-		workload_rating?: number;
-		wouldRecommend?: boolean;
-		would_recommend?: boolean;
-		comment?: string;
+		teacherIds?: string[];
+		periodId?: string;
+		sectionId?: string;
+		ratings: RatingInput[];
+		overallRating?: number;
+		wouldRecommend: boolean;
+		comment: string;
 		tips?: string;
 		studyStrategy?: string;
-		study_strategy?: string;
 	};
 
-	const subjectCode = payload.subjectCode ?? payload.subject_code;
-	const universityId = payload.universityId ?? payload.university_id;
-	const professorName = payload.professorName ?? payload.professor_name;
-	const period = payload.period;
-	const section = payload.section;
-	const difficultyRating =
-		payload.difficultyRating ?? payload.difficulty_rating;
-	const professorRating = payload.professorRating ?? payload.professor_rating;
-	const workloadRating = payload.workloadRating ?? payload.workload_rating;
-	const wouldRecommend = payload.wouldRecommend ?? payload.would_recommend;
-	const comment = payload.comment;
-	const tips = payload.tips;
-	const studyStrategy = payload.studyStrategy ?? payload.study_strategy;
+	const {
+		subjectCode,
+		universityId,
+		teacherIds,
+		periodId,
+		sectionId,
+		ratings,
+		overallRating,
+		wouldRecommend,
+		comment,
+		tips,
+		studyStrategy,
+	} = payload;
 
-	if (
-		!subjectCode ||
-		!universityId ||
-		!period ||
-		!difficultyRating ||
-		!workloadRating ||
-		wouldRecommend === undefined
-	) {
+	if (!subjectCode || !ratings || wouldRecommend === undefined) {
 		return NextResponse.json(
 			{ error: "Faltan campos requeridos" },
 			{ status: 400 },
@@ -73,25 +62,34 @@ export async function POST(request: Request) {
 	const profile = await prisma.userProfile.findUnique({
 		where: { userId: session.user.id },
 	});
+	if (!profile) {
+		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+	}
 
-	const approvedCodes = new Set(
-		(profile?.approvedSubjects ?? []).map(
-			(s) => (s as ApprovedSubjectEntry).subjectCode,
-		),
-	);
-	const isVerified = approvedCodes.has(subjectCode);
+	const subject = await prisma.subject.findFirst({
+		where: { code: subjectCode },
+	});
+
+	let isVerified = false;
+	if (subject) {
+		const approvedIds = new Set(
+			(profile.approvedSubjects ?? [])
+				.map((s) => (s as ApprovedSubjectItem).subjectId)
+				.filter(id => !!id)
+		);
+		isVerified = approvedIds.has(subject.id);
+	}
 
 	const review = await prisma.review.create({
 		data: {
 			subjectCode,
 			universityId,
-			userId: session.user.id,
-			professorName,
-			period,
-			section,
-			difficultyRating,
-			professorRating,
-			workloadRating,
+			userProfileId: profile.id,
+			teacherIds: teacherIds ?? [],
+			periodId,
+			sectionId,
+			ratings,
+			overallRating,
 			wouldRecommend,
 			comment,
 			tips,
@@ -101,12 +99,12 @@ export async function POST(request: Request) {
 	});
 
 	// Recalcular estadísticas de la materia si la reseña es verificada
-	if (isVerified) {
+	if (isVerified && subject) {
 		await updateSubjectStats(subjectCode);
 	}
 
-	// Retornar sin userId
-	const { userId: _userId, ...reviewPublic } = review;
+	// Retornar sin userProfileId
+	const { userProfileId: _upId, ...reviewPublic } = review;
 	return NextResponse.json(reviewPublic, { status: 201 });
 }
 
@@ -117,14 +115,24 @@ export async function POST(request: Request) {
 async function updateSubjectStats(subjectCode: string) {
 	const verifiedReviews = await prisma.review.findMany({
 		where: { subjectCode, isVerified: true },
-		select: { difficultyRating: true, wouldRecommend: true },
+		select: { ratings: true, wouldRecommend: true },
 	});
 
 	if (verifiedReviews.length === 0) return;
 
 	const count = verifiedReviews.length;
-	const avgDifficulty =
-		verifiedReviews.reduce((sum, r) => sum + r.difficultyRating, 0) / count;
+	let diffSum = 0;
+	let diffCount = 0;
+
+	for (const r of verifiedReviews) {
+		const diffRating = r.ratings.find(rt => rt.category === "difficulty" || rt.category === "dificultad");
+		if (diffRating) {
+			diffSum += diffRating.value;
+			diffCount++;
+		}
+	}
+
+	const avgDifficulty = diffCount > 0 ? diffSum / diffCount : 0;
 	const recommendCount = verifiedReviews.filter((r) => r.wouldRecommend).length;
 	const avgApprovalRate = (recommendCount / count) * 100;
 

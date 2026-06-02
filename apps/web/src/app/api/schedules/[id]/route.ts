@@ -15,9 +15,17 @@ export async function PUT(
 
 	const { id } = await params;
 
+	const profile = await prisma.userProfile.findUnique({
+		where: { userId: session.user.id },
+	});
+
+	if (!profile) {
+		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+	}
+
 	// Verificar que el horario pertenece al usuario
 	const existing = await prisma.schedule.findFirst({
-		where: { id, userId: session.user.id },
+		where: { id, userProfileId: profile.id },
 	});
 
 	if (!existing) {
@@ -28,25 +36,21 @@ export async function PUT(
 	}
 
 	const body = await request.json();
-	const { universityId, period, scheduleType, blocks, tentativeSubjects } =
+	const { universityId, periodId, scheduleType, sectionIds } =
 		body as {
 			universityId?: string;
-			period?: string;
+			periodId?: string;
 			scheduleType?: string;
-			blocks?: unknown;
-			tentativeSubjects?: unknown;
+			sectionIds?: string[];
 		};
 
 	const updated = await prisma.schedule.update({
 		where: { id },
 		data: {
 			...(universityId !== undefined && { universityId }),
-			...(period !== undefined && { period }),
+			...(periodId !== undefined && { periodId }),
 			...(scheduleType !== undefined && { scheduleType }),
-			...(blocks !== undefined && { blocks: blocks as never }),
-			...(tentativeSubjects !== undefined && {
-				tentativeSubjects: tentativeSubjects as never,
-			}),
+			...(sectionIds !== undefined && { sectionIds }),
 		},
 	});
 
@@ -66,8 +70,16 @@ export async function DELETE(
 
 	const { id } = await params;
 
+	const profile = await prisma.userProfile.findUnique({
+		where: { userId: session.user.id },
+	});
+
+	if (!profile) {
+		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+	}
+
 	const existing = await prisma.schedule.findFirst({
-		where: { id, userId: session.user.id },
+		where: { id, userProfileId: profile.id },
 	});
 
 	if (!existing) {

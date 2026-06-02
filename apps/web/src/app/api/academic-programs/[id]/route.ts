@@ -2,8 +2,8 @@ import prisma from "@horaios/db";
 import { NextResponse } from "next/server";
 
 /**
- * GET /api/careers/[id]
- * Obtiene una carrera por su ID.
+ * GET /api/academic-programs/[id]
+ * Obtiene un programa académico por su ID.
  */
 export async function GET(
 	_request: Request,
@@ -11,13 +11,13 @@ export async function GET(
 ) {
 	const { id } = await params;
 
-	const career = await prisma.career.findUnique({ where: { id } });
-	if (!career) {
+	const program = await prisma.academicProgram.findUnique({ where: { id } });
+	if (!program) {
 		return NextResponse.json(
-			{ error: "Carrera no encontrada" },
+			{ error: "Programa académico no encontrado" },
 			{ status: 404 },
 		);
 	}
 
-	return NextResponse.json(career);
+	return NextResponse.json(program);
 }

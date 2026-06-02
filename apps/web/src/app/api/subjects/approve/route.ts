@@ -2,16 +2,23 @@ import prisma from "@horaios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
-type ApprovedSubjectEntry = {
-	subjectCode: string;
-	grade?: number;
-	period?: string;
+type ApprovedSubjectPeriod = {
+	code?: string;
+	start?: Date;
+	end?: Date;
+	termType?: string;
+};
+
+type ApprovedSubjectItem = {
+	subjectId?: string | null;
+	grade?: number | null;
+	period?: ApprovedSubjectPeriod | null;
 };
 
 /**
  * POST /api/subjects/approve
  * Marca una materia como aprobada para el usuario autenticado.
- * Body: { subjectCode?: string, subject_code?: string, grade?: number, period?: string }
+ * Body: { subjectId: string, grade?: number, period?: ApprovedSubjectPeriod }
  */
 export async function POST(request: Request) {
 	const { session, errorResponse } = await requireSession();
@@ -19,25 +26,24 @@ export async function POST(request: Request) {
 
 	const body = await request.json();
 	const payload = body as {
-		subjectCode?: string;
-		subject_code?: string;
+		subjectId?: string;
 		grade?: number;
-		period?: string;
+		period?: ApprovedSubjectPeriod;
 	};
-	const subjectCode = payload.subjectCode ?? payload.subject_code;
+	const subjectId = payload.subjectId;
 	const grade = payload.grade;
 	const period = payload.period;
 
-	if (!subjectCode) {
+	if (!subjectId) {
 		return NextResponse.json(
-			{ error: "subjectCode es requerido" },
+			{ error: "subjectId es requerido" },
 			{ status: 400 },
 		);
 	}
 
 	// Verificar que la materia existe
-	const subject = await prisma.subject.findFirst({
-		where: { code: subjectCode },
+	const subject = await prisma.subject.findUnique({
+		where: { id: subjectId },
 	});
 	if (!subject) {
 		return NextResponse.json(
@@ -51,18 +57,17 @@ export async function POST(request: Request) {
 		where: { userId: session.user.id },
 	});
 
-	const approvedSubjects = (profile?.approvedSubjects ??
-		[]) as ApprovedSubjectEntry[];
+	const approvedSubjects = (profile?.approvedSubjects ?? []) as ApprovedSubjectItem[];
 
 	// Verificar que no esté ya aprobada
-	if (approvedSubjects.some((s) => s.subjectCode === subjectCode)) {
+	if (approvedSubjects.some((s) => s.subjectId === subjectId)) {
 		return NextResponse.json(
 			{ error: "Esta materia ya está marcada como aprobada" },
 			{ status: 400 },
 		);
 	}
 
-	const newEntry: ApprovedSubjectEntry = { subjectCode, grade, period };
+	const newEntry: ApprovedSubjectItem = { subjectId, grade, period };
 	const newTotal = (profile?.totalApprovedCredits ?? 0) + subject.credits;
 
 	const updatedProfile = await prisma.userProfile.upsert({
@@ -76,12 +81,12 @@ export async function POST(request: Request) {
 			approvedSubjects: [newEntry],
 			totalApprovedCredits: subject.credits,
 			universityIds: [],
-			careerIds: [],
+			academicProgramIds: [],
 		},
 	});
 
 	return NextResponse.json({
-		message: `Materia ${subjectCode} marcada como aprobada`,
+		message: `Materia marcada como aprobada`,
 		totalApprovedCredits: updatedProfile.totalApprovedCredits,
 	});
 }

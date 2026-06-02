@@ -18,25 +18,24 @@ export async function GET() {
  */
 export async function POST(request: Request) {
 	const body = await request.json();
-	const { name, shortName, logoUrl, website, academicPeriodType, location } =
+	const { name, shortName, logoUrl, website, location } =
 		body as {
 			name: string;
 			shortName: string;
 			logoUrl?: string;
 			website?: string;
-			academicPeriodType: string;
 			location?: string;
 		};
 
-	if (!name || !shortName || !academicPeriodType) {
+	if (!name || !shortName) {
 		return NextResponse.json(
-			{ error: "name, shortName y academicPeriodType son requeridos" },
+			{ error: "name y shortName son requeridos" },
 			{ status: 400 },
 		);
 	}
 
 	const university = await prisma.university.create({
-		data: { name, shortName, logoUrl, website, academicPeriodType, location },
+		data: { name, shortName, logoUrl: logoUrl ?? "", website: website ?? "", location: location ?? "" },
 	});
 
 	return NextResponse.json(university, { status: 201 });

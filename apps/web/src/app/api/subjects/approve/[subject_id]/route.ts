@@ -2,25 +2,32 @@ import prisma from "@horaios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
-type ApprovedSubjectEntry = {
-	subjectCode: string;
-	grade?: number;
-	period?: string;
+type ApprovedSubjectPeriod = {
+	code?: string;
+	start?: Date;
+	end?: Date;
+	termType?: string;
+};
+
+type ApprovedSubjectItem = {
+	subjectId?: string | null;
+	grade?: number | null;
+	period?: ApprovedSubjectPeriod | null;
 };
 
 /**
- * DELETE /api/subjects/approve/[subject_code]
+ * DELETE /api/subjects/approve/[subject_id]
  * Desmarca una materia como aprobada (deshacer aprobación).
  * Requiere autenticación.
  */
 export async function DELETE(
 	_request: Request,
-	{ params }: { params: Promise<{ subject_code: string }> },
+	{ params }: { params: Promise<{ subject_id: string }> },
 ) {
 	const { session, errorResponse } = await requireSession();
 	if (errorResponse) return errorResponse;
 
-	const { subject_code } = await params;
+	const { subject_id } = await params;
 
 	const profile = await prisma.userProfile.findUnique({
 		where: { userId: session.user.id },
@@ -33,8 +40,8 @@ export async function DELETE(
 		);
 	}
 
-	const approvedSubjects = profile.approvedSubjects as ApprovedSubjectEntry[];
-	const existing = approvedSubjects.find((s) => s.subjectCode === subject_code);
+	const approvedSubjects = profile.approvedSubjects as ApprovedSubjectItem[];
+	const existing = approvedSubjects.find((s) => s.subjectId === subject_id);
 
 	if (!existing) {
 		return NextResponse.json(
@@ -44,15 +51,15 @@ export async function DELETE(
 	}
 
 	// Calcular créditos a restar
-	const subject = await prisma.subject.findFirst({
-		where: { code: subject_code },
+	const subject = await prisma.subject.findUnique({
+		where: { id: subject_id },
 	});
 	const creditsToRemove = subject?.credits ?? 0;
 	const newTotal = Math.max(0, profile.totalApprovedCredits - creditsToRemove);
 
 	// Filtrar la materia del array
 	const updatedList = approvedSubjects.filter(
-		(s) => s.subjectCode !== subject_code,
+		(s) => s.subjectId !== subject_id,
 	);
 
 	await prisma.userProfile.update({
@@ -64,7 +71,7 @@ export async function DELETE(
 	});
 
 	return NextResponse.json({
-		message: `Materia ${subject_code} desmarcada como aprobada`,
+		message: `Materia desmarcada como aprobada`,
 		totalApprovedCredits: newTotal,
 	});
 }

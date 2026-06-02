@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { careersAPI, subjectsAPI } from "@/api/client";
+import { academicProgramsAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
@@ -28,7 +28,7 @@ interface Subject {
 	prerequisites: string[];
 }
 
-interface Career {
+interface AcademicProgram {
 	id: string;
 	name: string;
 	totalCredits: number;
@@ -37,7 +37,7 @@ interface Career {
 function PensumContent() {
 	const { user, refreshUser } = useAuth();
 	const [subjects, setSubjects] = useState<Subject[]>([]);
-	const [career, setCareer] = useState<Career | null>(null);
+	const [program, setProgram] = useState<AcademicProgram | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [expandedSemester, setExpandedSemester] = useState<number | null>(1);
 	const [approving, setApproving] = useState<string | null>(null);
@@ -46,29 +46,29 @@ function PensumContent() {
 		null,
 	);
 
-	const approvedCodes = new Set(
-		user?.approvedSubjects?.map((s) => s.subjectCode) || [],
+	const approvedIds = new Set(
+		user?.approvedSubjects?.map((s) => s.subjectId) || [],
 	);
 
 	useEffect(() => {
-		const careerId = user?.careerIds?.[0];
-		if (careerId) {
-			Promise.all([subjectsAPI.pensum(careerId), careersAPI.get(careerId)])
-				.then(([subRes, carRes]) => {
+		const programId = user?.academicProgramIds?.[0];
+		if (programId) {
+			Promise.all([subjectsAPI.pensum(programId), academicProgramsAPI.get(programId)])
+				.then(([subRes, progRes]) => {
 					setSubjects(subRes.data);
-					setCareer(carRes.data);
+					setProgram(progRes.data);
 				})
 				.catch(console.error)
 				.finally(() => setLoading(false));
 		} else {
 			setLoading(false);
 		}
-	}, [user?.careerIds]);
+	}, [user?.academicProgramIds]);
 
-	const handleApprove = async (code: string) => {
-		setApproving(code);
+	const handleApprove = async (id: string) => {
+		setApproving(id);
 		try {
-			await subjectsAPI.approve({ subject_code: code });
+			await subjectsAPI.approve({ subjectId: id });
 			await refreshUser();
 		} catch (err: unknown) {
 			alert(
@@ -80,10 +80,10 @@ function PensumContent() {
 		}
 	};
 
-	const handleUnapprove = async (code: string) => {
-		setUnapprovingCode(code);
+	const handleUnapprove = async (id: string) => {
+		setUnapprovingCode(id);
 		try {
-			await subjectsAPI.unapprove(code);
+			await subjectsAPI.unapprove(id);
 			await refreshUser();
 		} catch (err: unknown) {
 			alert(
@@ -99,21 +99,21 @@ function PensumContent() {
 		semNum: number,
 		semSubjects: Subject[],
 	) => {
-		const currentApproved = new Set(
-			user?.approvedSubjects?.map((s) => s.subjectCode) || [],
+		const currentApprovedIds = new Set(
+			user?.approvedSubjects?.map((s) => s.subjectId) || [],
 		);
 		const toApprove = semSubjects.filter(
 			(s) =>
-				!currentApproved.has(s.code) &&
-				s.prerequisites.every((p) => currentApproved.has(p)),
+				!currentApprovedIds.has(s.id) &&
+				s.prerequisites.every((p) => currentApprovedIds.has(p)),
 		);
 		if (toApprove.length === 0) return;
 
 		setApprovingSemester(semNum);
 		for (const subject of toApprove) {
 			try {
-				await subjectsAPI.approve({ subject_code: subject.code });
-				currentApproved.add(subject.code);
+				await subjectsAPI.approve({ subjectId: subject.id });
+				currentApprovedIds.add(subject.id);
 			} catch {}
 		}
 		await refreshUser();
@@ -130,12 +130,12 @@ function PensumContent() {
 		{} as Record<number, Subject[]>,
 	);
 
-	const totalCredits = career?.totalCredits || 0;
+	const totalCredits = program?.totalCredits || 0;
 	const approvedCredits = user?.totalApprovedCredits || 0;
 	const progress =
 		totalCredits > 0 ? Math.round((approvedCredits / totalCredits) * 100) : 0;
 
-	if (!user?.careerIds?.length) {
+	if (!user?.academicProgramIds?.length) {
 		return (
 			<div className="mx-auto max-w-4xl px-4 py-24 text-center">
 				<div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-white shadow-sm ring-1 ring-black/5">
@@ -170,7 +170,7 @@ function PensumContent() {
 				<h1 className="mb-2 font-extrabold text-5xl text-gray-900 tracking-tighter">
 					Mi Pensum
 				</h1>
-				<p className="font-medium text-gray-400">{career?.name}</p>
+				<p className="font-medium text-gray-400">{program?.name}</p>
 			</div>
 			{/* Progress card — double-bezel */}
 			<div className="mb-10 rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
@@ -199,7 +199,7 @@ function PensumContent() {
 							{approvedCredits} / {totalCredits} créditos
 						</span>
 						<span>
-							{subjects.filter((s) => approvedCodes.has(s.code)).length} /{" "}
+							{subjects.filter((s) => approvedIds.has(s.id)).length} /{" "}
 							{subjects.length} materias
 						</span>
 					</div>
@@ -216,13 +216,13 @@ function PensumContent() {
 						bg: "bg-primary/[0.04] ring-primary/8",
 					},
 					{
-						value: subjects.filter((s) => approvedCodes.has(s.code)).length,
+						value: subjects.filter((s) => approvedIds.has(s.id)).length,
 						label: "Aprobadas",
 						color: "text-green-600",
 						bg: "bg-green-50 ring-green-100",
 					},
 					{
-						value: subjects.filter((s) => !approvedCodes.has(s.code)).length,
+						value: subjects.filter((s) => !approvedIds.has(s.id)).length,
 						label: "Pendientes",
 						color: "text-amber-600",
 						bg: "bg-amber-50 ring-amber-100",
@@ -261,14 +261,14 @@ function PensumContent() {
 						const semNum = Number(sem);
 						const isExpanded = expandedSemester === semNum;
 						const allApproved = semSubjects.every((s) =>
-							approvedCodes.has(s.code),
+							approvedIds.has(s.id),
 						);
 						const canApproveAll =
 							!allApproved &&
 							semSubjects.some(
 								(s) =>
-									!approvedCodes.has(s.code) &&
-									s.prerequisites.every((p) => approvedCodes.has(p)),
+									!approvedIds.has(s.id) &&
+									s.prerequisites.every((p) => approvedIds.has(p)),
 							);
 						const isSemesterLoading = approvingSemester === semNum;
 
@@ -299,7 +299,7 @@ function PensumContent() {
 										<span className="font-medium text-gray-400 text-sm">
 											(
 											{
-												semSubjects.filter((s) => approvedCodes.has(s.code))
+												semSubjects.filter((s) => approvedIds.has(s.id))
 													.length
 											}
 											/{semSubjects.length} aprobadas)
@@ -344,12 +344,12 @@ function PensumContent() {
 									<div className="accordion-content px-6 pt-2 pb-6">
 										<div className="divide-y divide-gray-50">
 											{semSubjects.map((subject) => {
-												const isApproved = approvedCodes.has(subject.code);
+												const isApproved = approvedIds.has(subject.id);
 												const prereqsMet = subject.prerequisites.every((p) =>
-													approvedCodes.has(p),
+													approvedIds.has(p),
 												);
 												const canApprove = !isApproved && prereqsMet;
-												const isUnapproving = unapprovingCode === subject.code;
+												const isUnapproving = unapprovingCode === subject.id;
 
 												return (
 													<div
@@ -386,7 +386,7 @@ function PensumContent() {
 														<div className="flex flex-shrink-0 items-center gap-2">
 															{isApproved ? (
 																<button
-																	onClick={() => handleUnapprove(subject.code)}
+																	onClick={() => handleUnapprove(subject.id)}
 																	disabled={isUnapproving}
 																	title="Deshacer aprobación"
 																	className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-gray-500 text-xs transition-all hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0"
@@ -403,9 +403,9 @@ function PensumContent() {
 																</button>
 															) : (
 																<button
-																	onClick={() => handleApprove(subject.code)}
+																	onClick={() => handleApprove(subject.id)}
 																	disabled={
-																		!canApprove || approving === subject.code
+																		!canApprove || approving === subject.id
 																	}
 																	className={`rounded-lg px-4 py-1.5 font-semibold text-xs transition-all duration-300 ${
 																		canApprove
@@ -418,7 +418,7 @@ function PensumContent() {
 																			: "Marcar como aprobada"
 																	}
 																>
-																	{approving === subject.code ? (
+																	{approving === subject.id ? (
 																		<span className="flex items-center gap-1.5">
 																			<Loader2
 																				size={14}
