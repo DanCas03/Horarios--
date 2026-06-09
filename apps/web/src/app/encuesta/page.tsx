@@ -186,80 +186,93 @@ function SubjectCombobox({
 
 // WARNING: Mockup temporales de períodos y profesores
 const MOCK_PERIODS: Period[] = [
-	{ id: "mock-p-1", code: "2025-2026/1", termType: "Semestre" },
-	{ id: "mock-p-2", code: "2025-2026/2", termType: "Semestre" },
-	{ id: "mock-p-3", code: "2025-2026/3", termType: "Semestre" },
-	{ id: "mock-p-4", code: "2024-2025/1", termType: "Semestre" },
-	{ id: "mock-p-5", code: "2024-2025/2", termType: "Semestre" },
-	{ id: "mock-p-6", code: "2024-2025/3", termType: "Semestre" },
-	{ id: "mock-p-7", code: "2023-2024/1", termType: "Semestre" },
-	{ id: "mock-p-8", code: "2023-2024/2", termType: "Semestre" },
-	{ id: "mock-p-9", code: "2023-2024/3", termType: "Semestre" },
-	{ id: "mock-p-10", code: "2022-2023/1", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa01", code: "2025-2026/1", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa02", code: "2025-2026/2", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa03", code: "2025-2026/3", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa04", code: "2024-2025/1", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa05", code: "2024-2025/2", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa06", code: "2024-2025/3", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa07", code: "2023-2024/1", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa08", code: "2023-2024/2", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa09", code: "2023-2024/3", termType: "Semestre" },
+	{ id: "6666fa07e67b5720f68eaa0a", code: "2022-2023/1", termType: "Semestre" },
 ];
 
 const MOCK_PROFESSORS = [
-	"Prof. Alejandro Silva",
-	"Prof. Beatriz Mendoza",
-	"Prof. Carlos Gutierrez",
-	"Prof. Diana Martinez",
-	"Prof. Eduardo Gomez",
-	"Prof. Fernanda Ruiz",
-	"Prof. Gerardo Ponce",
-	"Prof. Helena Castro",
-	"Prof. Ignacio Ortiz",
-	"Prof. Julia Delgado",
-	"Prof. Kevin Salazar",
-	"Prof. Laura Benitez",
-	"Prof. Manuel Cardenas",
-	"Prof. Natalia Flores",
-	"Prof. Oscar Medina",
-	"Prof. Patricia Herrera",
-	"Prof. Ricardo Soto",
-	"Prof. Sandra Pardo",
-	"Prof. Tomas Aguilar",
-	"Prof. Valeria Mendez"
+	{ id: "6666fa08e67b5720f68eaa11", name: "Prof. Alejandro Silva" },
+	{ id: "6666fa08e67b5720f68eaa12", name: "Prof. Beatriz Mendoza" },
+	{ id: "6666fa08e67b5720f68eaa13", name: "Prof. Carlos Gutierrez" },
+	{ id: "6666fa08e67b5720f68eaa14", name: "Prof. Diana Martinez" },
+	{ id: "6666fa08e67b5720f68eaa15", name: "Prof. Eduardo Gomez" },
+	{ id: "6666fa08e67b5720f68eaa16", name: "Prof. Fernanda Ruiz" },
+	{ id: "6666fa08e67b5720f68eaa17", name: "Prof. Gerardo Ponce" },
+	{ id: "6666fa08e67b5720f68eaa18", name: "Prof. Helena Castro" },
+	{ id: "6666fa08e67b5720f68eaa19", name: "Prof. Ignacio Ortiz" },
+	{ id: "6666fa08e67b5720f68eaa1a", name: "Prof. Julia Delgado" },
+	{ id: "6666fa08e67b5720f68eaa1b", name: "Prof. Kevin Salazar" },
+	{ id: "6666fa08e67b5720f68eaa1c", name: "Prof. Laura Benitez" },
+	{ id: "6666fa08e67b5720f68eaa1d", name: "Prof. Manuel Cardenas" },
+	{ id: "6666fa08e67b5720f68eaa1e", name: "Prof. Natalia Flores" },
+	{ id: "6666fa08e67b5720f68eaa1f", name: "Prof. Oscar Medina" },
+	{ id: "6666fa08e67b5720f68eaa20", name: "Prof. Patricia Herrera" },
+	{ id: "6666fa08e67b5720f68eaa21", name: "Prof. Ricardo Soto" },
+	{ id: "6666fa08e67b5720f68eaa22", name: "Prof. Sandra Pardo" },
+	{ id: "6666fa08e67b5720f68eaa23", name: "Prof. Tomas Aguilar" },
+	{ id: "6666fa08e67b5720f68eaa24", name: "Prof. Valeria Mendez" },
 ];
+
+const hashSubjectCodeToHex = (code: string) => {
+	let hash = 0;
+	for (let i = 0; i < code.length; i++) {
+		hash = code.charCodeAt(i) + ((hash << 5) - hash);
+	}
+	return Math.abs(hash).toString(16).padEnd(16, "0").slice(0, 16);
+};
+
+const generateMockSectionId = (subjectCode: string, secNumber: string) => {
+	const subjectHex = hashSubjectCodeToHex(subjectCode);
+	return `6666fa09${subjectHex}${secNumber.padStart(2, "0")}`.slice(0, 24);
+};
 
 // Generar secciones mock estáticas utilizando los profesores mock
 const generateMockSections = (subjectCode: string): SectionOption[] => {
 	if (!subjectCode) return [];
 	return [
 		{
-			id: `${subjectCode}-sec-1`,
+			id: generateMockSectionId(subjectCode, "1"),
 			code: "1",
-			teacherIds: ["mock-t-1", "mock-t-2"],
-			teachers: [MOCK_PROFESSORS[0], MOCK_PROFESSORS[1]],
+			teacherIds: [MOCK_PROFESSORS[0].id, MOCK_PROFESSORS[1].id],
+			teachers: [MOCK_PROFESSORS[0].name, MOCK_PROFESSORS[1].name],
 		},
 		{
-			id: `${subjectCode}-sec-2`,
+			id: generateMockSectionId(subjectCode, "2"),
 			code: "2",
-			teacherIds: ["mock-t-3"],
-			teachers: [MOCK_PROFESSORS[2]],
+			teacherIds: [MOCK_PROFESSORS[2].id],
+			teachers: [MOCK_PROFESSORS[2].name],
 		},
 		{
-			id: `${subjectCode}-sec-3`,
+			id: generateMockSectionId(subjectCode, "3"),
 			code: "3",
-			teacherIds: ["mock-t-4", "mock-t-5"],
-			teachers: [MOCK_PROFESSORS[3], MOCK_PROFESSORS[4]],
+			teacherIds: [MOCK_PROFESSORS[3].id, MOCK_PROFESSORS[4].id],
+			teachers: [MOCK_PROFESSORS[3].name, MOCK_PROFESSORS[4].name],
 		},
 		{
-			id: `${subjectCode}-sec-4`,
+			id: generateMockSectionId(subjectCode, "4"),
 			code: "4",
-			teacherIds: ["mock-t-6"],
-			teachers: [MOCK_PROFESSORS[5]],
+			teacherIds: [MOCK_PROFESSORS[5].id],
+			teachers: [MOCK_PROFESSORS[5].name],
 		},
 		{
-			id: `${subjectCode}-sec-5`,
+			id: generateMockSectionId(subjectCode, "5"),
 			code: "5",
-			teacherIds: ["mock-t-7", "mock-t-8"],
-			teachers: [MOCK_PROFESSORS[6], MOCK_PROFESSORS[7]],
+			teacherIds: [MOCK_PROFESSORS[6].id, MOCK_PROFESSORS[7].id],
+			teachers: [MOCK_PROFESSORS[6].name, MOCK_PROFESSORS[7].name],
 		},
 		{
-			id: `${subjectCode}-sec-6`,
+			id: generateMockSectionId(subjectCode, "6"),
 			code: "6",
-			teacherIds: ["mock-t-9"],
-			teachers: [MOCK_PROFESSORS[8]],
+			teacherIds: [MOCK_PROFESSORS[8].id],
+			teachers: [MOCK_PROFESSORS[8].name],
 		},
 	];
 };
