@@ -27,6 +27,7 @@ model UserProfile {
   academicProgramIds   String[]              @map("academic_program_ids") @db.ObjectId
   approvedSubjects     ApprovedSubjectItem[] @map("approved_subjects")
   totalApprovedCredits Int                   @default(0) @map("total_approved_credits")
+  surveyCompleted      Boolean               @default(false) @map("survey_completed")
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
 

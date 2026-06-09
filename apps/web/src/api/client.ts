@@ -94,6 +94,10 @@ export const schedulesAPI = {
 	delete: (id: string) => api.delete(`/schedules/${id}`),
 };
 
+export const surveyAPI = {
+	complete: () => api.patch("/auth/me/survey"),
+};
+
 export function parseApiError(err: unknown, defaultMsg: string): string {
 	const detail = (err as { response?: { data?: { detail?: unknown } } })
 		?.response?.data?.detail;

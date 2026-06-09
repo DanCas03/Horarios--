@@ -38,6 +38,7 @@ export async function GET() {
 		academicProgramIds: profile.academicProgramIds,
 		approvedSubjects: profile.approvedSubjects,
 		totalApprovedCredits: profile.totalApprovedCredits,
+		surveyCompleted: profile.surveyCompleted,
 	});
 }
 

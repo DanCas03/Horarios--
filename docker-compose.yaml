@@ -9,6 +9,7 @@ services:
         BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
         BETTER_AUTH_URL: ${BETTER_AUTH_URL}
         CORS_ORIGIN: ${CORS_ORIGIN}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     restart: always
     env_file:
       - .env
