@@ -1,8 +1,8 @@
 "use client";
 
 import { BookOpen, Check, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
 
 import { parseApiError, subjectsAPI } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
@@ -19,6 +19,8 @@ interface PensumSubject {
 function OnboardingContent() {
 	const { user, refreshUser } = useAuth();
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const isEditing = searchParams.get("edit") === "true";
 
 	const [subjects, setSubjects] = useState<PensumSubject[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -27,12 +29,24 @@ function OnboardingContent() {
 	const [error, setError] = useState("");
 	const [collapsedSemesters, setCollapsedSemesters] = useState<Set<number>>(new Set());
 
-	// Si ya tiene materias aprobadas, ir directo a encuesta
+	// Si ya tiene materias aprobadas y no está editando, ir directo a encuesta
 	useEffect(() => {
-		if (user && user.approvedSubjects && user.approvedSubjects.length > 0) {
+		if (!isEditing && user && user.approvedSubjects && user.approvedSubjects.length > 0) {
 			router.replace("/encuesta");
 		}
-	}, [user, router]);
+	}, [user, router, isEditing]);
+
+	// Inicializar selectedIds con las materias aprobadas actuales del usuario
+	useEffect(() => {
+		if (user?.approvedSubjects) {
+			const initialApproved = new Set(
+				user.approvedSubjects
+					.map((s) => s.subjectId)
+					.filter((id): id is string => !!id)
+			);
+			setSelectedIds(initialApproved);
+		}
+	}, [user?.approvedSubjects]);
 
 	// Cargar pensum
 	useEffect(() => {
@@ -99,11 +113,20 @@ function OnboardingContent() {
 		setError("");
 		setSubmitting(true);
 		try {
-			await Promise.all(
-				Array.from(selectedIds).map((subjectId) =>
-					subjectsAPI.approve({ subjectId }),
-				),
+			const currentApprovedIds = new Set(
+				user?.approvedSubjects
+					?.map((s) => s.subjectId)
+					.filter((id): id is string => !!id) ?? []
 			);
+
+			const toApprove = Array.from(selectedIds).filter((id) => !currentApprovedIds.has(id));
+			const toUnapprove = Array.from(currentApprovedIds).filter((id) => !selectedIds.has(id));
+
+			await Promise.all([
+				...toApprove.map((subjectId) => subjectsAPI.approve({ subjectId })),
+				...toUnapprove.map((subjectId) => subjectsAPI.unapprove(subjectId)),
+			]);
+
 			await refreshUser();
 			router.push("/encuesta");
 		} catch (err: unknown) {
@@ -295,7 +318,9 @@ function OnboardingContent() {
 export default function OnboardingPage() {
 	return (
 		<SurveyGuard requireApprovedSubjects={false}>
-			<OnboardingContent />
+			<Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+				<OnboardingContent />
+			</Suspense>
 		</SurveyGuard>
 	);
 }
