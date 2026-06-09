@@ -184,6 +184,86 @@ function SubjectCombobox({
 	);
 }
 
+// WARNING: Mockup temporales de períodos y profesores
+const MOCK_PERIODS: Period[] = [
+	{ id: "mock-p-1", code: "2025-2026/1", termType: "Semestre" },
+	{ id: "mock-p-2", code: "2025-2026/2", termType: "Semestre" },
+	{ id: "mock-p-3", code: "2025-2026/3", termType: "Semestre" },
+	{ id: "mock-p-4", code: "2024-2025/1", termType: "Semestre" },
+	{ id: "mock-p-5", code: "2024-2025/2", termType: "Semestre" },
+	{ id: "mock-p-6", code: "2024-2025/3", termType: "Semestre" },
+	{ id: "mock-p-7", code: "2023-2024/1", termType: "Semestre" },
+	{ id: "mock-p-8", code: "2023-2024/2", termType: "Semestre" },
+	{ id: "mock-p-9", code: "2023-2024/3", termType: "Semestre" },
+	{ id: "mock-p-10", code: "2022-2023/1", termType: "Semestre" },
+];
+
+const MOCK_PROFESSORS = [
+	"Prof. Alejandro Silva",
+	"Prof. Beatriz Mendoza",
+	"Prof. Carlos Gutierrez",
+	"Prof. Diana Martinez",
+	"Prof. Eduardo Gomez",
+	"Prof. Fernanda Ruiz",
+	"Prof. Gerardo Ponce",
+	"Prof. Helena Castro",
+	"Prof. Ignacio Ortiz",
+	"Prof. Julia Delgado",
+	"Prof. Kevin Salazar",
+	"Prof. Laura Benitez",
+	"Prof. Manuel Cardenas",
+	"Prof. Natalia Flores",
+	"Prof. Oscar Medina",
+	"Prof. Patricia Herrera",
+	"Prof. Ricardo Soto",
+	"Prof. Sandra Pardo",
+	"Prof. Tomas Aguilar",
+	"Prof. Valeria Mendez"
+];
+
+// Generar secciones mock estáticas utilizando los profesores mock
+const generateMockSections = (subjectCode: string): SectionOption[] => {
+	if (!subjectCode) return [];
+	return [
+		{
+			id: `${subjectCode}-sec-1`,
+			code: "1",
+			teacherIds: ["mock-t-1", "mock-t-2"],
+			teachers: [MOCK_PROFESSORS[0], MOCK_PROFESSORS[1]],
+		},
+		{
+			id: `${subjectCode}-sec-2`,
+			code: "2",
+			teacherIds: ["mock-t-3"],
+			teachers: [MOCK_PROFESSORS[2]],
+		},
+		{
+			id: `${subjectCode}-sec-3`,
+			code: "3",
+			teacherIds: ["mock-t-4", "mock-t-5"],
+			teachers: [MOCK_PROFESSORS[3], MOCK_PROFESSORS[4]],
+		},
+		{
+			id: `${subjectCode}-sec-4`,
+			code: "4",
+			teacherIds: ["mock-t-6"],
+			teachers: [MOCK_PROFESSORS[5]],
+		},
+		{
+			id: `${subjectCode}-sec-5`,
+			code: "5",
+			teacherIds: ["mock-t-7", "mock-t-8"],
+			teachers: [MOCK_PROFESSORS[6], MOCK_PROFESSORS[7]],
+		},
+		{
+			id: `${subjectCode}-sec-6`,
+			code: "6",
+			teacherIds: ["mock-t-9"],
+			teachers: [MOCK_PROFESSORS[8]],
+		},
+	];
+};
+
 // ─── SingleReviewForm ─────────────────────────────────────────────────────────
 
 function SingleReviewForm({
@@ -206,7 +286,7 @@ function SingleReviewForm({
 	const [sections, setSections] = useState<SectionOption[]>([]);
 	const [loadingSections, setLoadingSections] = useState(false);
 
-	// Load sections when subject/period changes
+	// Load sections when subject/period changes (WARNING: Secciones estáticas mock)
 	useEffect(() => {
 		const selectedSub = allSubjects.find((s) => s.code === form.subject_code);
 		if (!selectedSub?.id || !form.period) {
@@ -216,17 +296,12 @@ function SingleReviewForm({
 		}
 
 		setLoadingSections(true);
-		subjectsAPI
-			.sections(selectedSub.id, form.period)
-			.then((res) => {
-				setSections(res.data);
-				onUpdate(form.id, { sectionId: "", teacherIds: [] });
-			})
-			.catch(() => {
-				setSections([]);
-				onUpdate(form.id, { sectionId: "", teacherIds: [] });
-			})
-			.finally(() => setLoadingSections(false));
+		// TODO: Reemplazar por llamada real a base de datos en el futuro.
+		// subjectsAPI.sections(selectedSub.id, form.period)
+		const mockSec = generateMockSections(form.subject_code);
+		setSections(mockSec);
+		onUpdate(form.id, { sectionId: "", teacherIds: [] });
+		setLoadingSections(false);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [form.subject_code, form.period, allSubjects]);
 
@@ -517,23 +592,17 @@ function EncuestaContent() {
 	const [finishing, setFinishing] = useState(false);
 	const lastFormRef = useRef<HTMLDivElement>(null);
 
-	// Load periods
+	// Load periods (WARNING: Períodos estáticos mock)
 	useEffect(() => {
-		periodsAPI
-			.list()
-			.then((res) => {
-				const fetchedPeriods = res.data as Period[];
-				setPeriods(fetchedPeriods);
-				// Initialize first form with default period
-				if (fetchedPeriods.length > 0) {
-					setForms([createEmptyForm(fetchedPeriods[0].id)]);
-				} else {
-					setForms([createEmptyForm("")]);
-				}
-			})
-			.catch(() => {
-				setForms([createEmptyForm("")]);
-			});
+		// TODO: Reemplazar por consulta real a la base de datos (periodsAPI.list()) en el futuro
+		const fetchedPeriods = MOCK_PERIODS;
+		setPeriods(fetchedPeriods);
+		// Initialize first form with default period
+		if (fetchedPeriods.length > 0) {
+			setForms([createEmptyForm(fetchedPeriods[0].id)]);
+		} else {
+			setForms([createEmptyForm("")]);
+		}
 	}, []);
 
 	// Load pensum subjects
