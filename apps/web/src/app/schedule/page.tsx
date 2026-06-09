@@ -193,8 +193,8 @@ function ScheduleContent() {
 			const fetchedPeriods = periodsRes.data as Period[];
 			setPeriods(fetchedPeriods);
 			if (fetchedPeriods.length > 0) {
-				setTentativePeriod(fetchedPeriods[0].code);
-				setCurrentPeriod(fetchedPeriods[0].code);
+				setTentativePeriod(fetchedPeriods[0].id);
+				setCurrentPeriod(fetchedPeriods[0].id);
 			}
 
 			const programId = user?.academicProgramIds?.at(0);
@@ -301,7 +301,7 @@ function ScheduleContent() {
 			}
 			await schedulesAPI.create({
 				universityId,
-				period: currentPeriod.trim(),
+				periodId: currentPeriod.trim(),
 				scheduleType: "current",
 				customBlocks: validBlocks.map((b) => ({
 					subjectCode: b.subject_code,
@@ -504,7 +504,7 @@ function ScheduleContent() {
 											className="w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
 										>
 											{periods.map((p) => (
-												<option key={p.id} value={p.code}>
+												<option key={p.id} value={p.id}>
 													{formatPeriod(p)}
 												</option>
 											))}
@@ -614,7 +614,7 @@ function ScheduleContent() {
 									className="w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
 								>
 									{periods.map((p) => (
-										<option key={p.id} value={p.code}>
+										<option key={p.id} value={p.id}>
 											{formatPeriod(p)}
 										</option>
 									))}

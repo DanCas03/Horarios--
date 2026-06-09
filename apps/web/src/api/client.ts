@@ -58,6 +58,8 @@ export const subjectsAPI = {
 		api.post("/subjects/approve", data),
 	unapprove: (subjectId: string) =>
 		api.delete(`/subjects/approve/${subjectId}`),
+	sections: (subjectId: string, periodId?: string) =>
+		api.get("/sections", { params: { subjectId, periodId } }),
 };
 
 export const reviewsAPI = {
@@ -69,13 +71,14 @@ export const reviewsAPI = {
 		api.get(`/reviews/professor/${teacherId}`),
 	create: (data: {
 		subjectCode: string;
-		universityId: string;
-		professorName?: string;
-		period: string;
-		section?: string;
+		universityId?: string;
+		teacherIds?: string[];
+		periodId?: string;
+		sectionId?: string;
 		ratings: { category: string; value: number }[];
+		overallRating?: number;
 		wouldRecommend: boolean;
-		comment?: string;
+		comment: string;
 		tips?: string;
 		studyStrategy?: string;
 	}) => api.post("/reviews/", data),

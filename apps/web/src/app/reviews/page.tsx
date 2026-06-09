@@ -53,9 +53,12 @@ interface Review {
 	professorName?: string;
 	period: string;
 	section?: string;
+	periodId?: string;
+	sectionId?: string;
+	teacherIds?: string[];
 	ratings: { category: string; value: number }[];
 	wouldRecommend: boolean;
-	comment?: string;
+	comment: string;
 	tips?: string;
 	studyStrategy?: string;
 	isVerified: boolean;
@@ -63,6 +66,7 @@ interface Review {
 }
 
 interface SubjectOption {
+	id: string;
 	code: string;
 	name: string;
 }
@@ -211,9 +215,9 @@ function ReviewsContent() {
 	const [form, setForm] = useState({
 		subject_code: "",
 		university_id: "",
-		professor_name: "",
 		period: "",
-		section: "",
+		sectionId: "",
+		teacherIds: [] as string[],
 		difficulty_rating: 3,
 		professor_rating: 3,
 		workload_rating: 3,
@@ -226,6 +230,8 @@ function ReviewsContent() {
 	const [formError, setFormError] = useState("");
 
 	const [periods, setPeriods] = useState<Period[]>([]);
+	const [sections, setSections] = useState<{ id: string; code: string; teacherIds: string[]; teachers: string[] }[]>([]);
+	const [loadingSections, setLoadingSections] = useState(false);
 
 	// Load periods
 	useEffect(() => {
@@ -235,7 +241,7 @@ function ReviewsContent() {
 				const fetchedPeriods = res.data as Period[];
 				setPeriods(fetchedPeriods);
 				if (fetchedPeriods.length > 0) {
-					setForm((prev) => ({ ...prev, period: fetchedPeriods[0].code }));
+					setForm((prev) => ({ ...prev, period: fetchedPeriods[0].id }));
 				}
 			})
 			.catch(() => {});
@@ -253,6 +259,7 @@ function ReviewsContent() {
 				const all: SubjectOption[] = (
 					res.data as { code: string; name: string; id: string }[]
 				).map((s) => ({
+					id: s.id,
 					code: s.code,
 					name: s.name,
 				}));
@@ -260,12 +267,37 @@ function ReviewsContent() {
 					res.data as { code: string; name: string; id: string }[]
 				)
 					.filter((s) => approvedIds.has(s.id))
-					.map((s) => ({ code: s.code, name: s.name }));
+					.map((s) => ({ id: s.id, code: s.code, name: s.name }));
 				setAllSubjects(all);
 				setSubjectOptions(approved);
 			})
 			.catch(() => {});
 	}, [user?.academicProgramIds, user?.approvedSubjects]);
+
+	// Load sections for selected subject & period
+	useEffect(() => {
+		const selectedSub = allSubjects.find((s) => s.code === form.subject_code);
+		if (!selectedSub?.id || !form.period) {
+			setSections([]);
+			setForm((prev) => ({ ...prev, sectionId: "", teacherIds: [] }));
+			return;
+		}
+
+		setLoadingSections(true);
+		subjectsAPI
+			.sections(selectedSub.id, form.period)
+			.then((res) => {
+				setSections(res.data);
+				setForm((prev) => ({ ...prev, sectionId: "", teacherIds: [] }));
+			})
+			.catch(() => {
+				setSections([]);
+				setForm((prev) => ({ ...prev, sectionId: "", teacherIds: [] }));
+			})
+			.finally(() => {
+				setLoadingSections(false);
+			});
+	}, [form.subject_code, form.period, allSubjects]);
 
 	// Close search dropdown on outside click
 	useEffect(() => {
@@ -344,17 +376,17 @@ function ReviewsContent() {
 		try {
 			await reviewsAPI.create({
 				subjectCode: form.subject_code,
-				universityId: user?.universityIds?.[0] || "",
-				professorName: form.professor_name || undefined,
-				period: form.period,
-				section: form.section || undefined,
+				universityId: user?.universityIds?.[0] || undefined,
+				teacherIds: form.teacherIds.length > 0 ? form.teacherIds : undefined,
+				periodId: form.period || undefined,
+				sectionId: form.sectionId || undefined,
 				ratings: [
 					{ category: "difficulty", value: form.difficulty_rating },
 					{ category: "professor", value: form.professor_rating },
 					{ category: "workload", value: form.workload_rating },
 				],
 				wouldRecommend: form.would_recommend,
-				comment: form.comment || undefined,
+				comment: form.comment,
 				tips: form.tips || undefined,
 				studyStrategy: form.study_strategy || undefined,
 			});
@@ -362,9 +394,9 @@ function ReviewsContent() {
 			setForm({
 				subject_code: "",
 				university_id: "",
-				professor_name: "",
-				period: periods.length > 0 ? periods[0].code : "",
-				section: "",
+				period: periods.length > 0 ? periods[0].id : "",
+				sectionId: "",
+				teacherIds: [],
 				difficulty_rating: 3,
 				professor_rating: 3,
 				workload_rating: 3,
@@ -552,7 +584,7 @@ function ReviewsContent() {
 								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
 							>
 								{periods.map((p) => (
-									<option key={p.id} value={p.code}>
+									<option key={p.id} value={p.id}>
 										{formatPeriod(p)}
 									</option>
 								))}
@@ -563,35 +595,33 @@ function ReviewsContent() {
 						</div>
 						<div>
 							<label
-								htmlFor="review-professor"
-								className="mb-1 block font-medium text-gray-700 text-sm"
-							>
-								Profesor
-							</label>
-							<input
-								id="review-professor"
-								value={form.professor_name}
-								onChange={(e) =>
-									setForm({ ...form, professor_name: e.target.value })
-								}
-								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-								placeholder="Nombre del profesor"
-							/>
-						</div>
-						<div>
-							<label
 								htmlFor="review-section"
 								className="mb-1 block font-medium text-gray-700 text-sm"
 							>
-								Sección
+								Sección / Profesor
 							</label>
-							<input
+							<select
 								id="review-section"
-								value={form.section}
-								onChange={(e) => setForm({ ...form, section: e.target.value })}
-								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-								placeholder="A, B, 001..."
-							/>
+								value={form.sectionId}
+								onChange={(e) => {
+									const secId = e.target.value;
+									const selectedSec = sections.find((s) => s.id === secId);
+									setForm({
+										...form,
+										sectionId: secId,
+										teacherIds: selectedSec ? selectedSec.teacherIds : [],
+									});
+								}}
+								disabled={loadingSections || !form.subject_code}
+								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
+							>
+								<option value="">Selecciona una sección</option>
+								{sections.map((s) => (
+									<option key={s.id} value={s.id}>
+										Sección {s.code || "Sin código"} {s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
+									</option>
+								))}
+							</select>
 						</div>
 					</div>
 
@@ -650,10 +680,11 @@ function ReviewsContent() {
 							htmlFor="review-comment"
 							className="mb-1 block font-medium text-gray-700 text-sm"
 						>
-							Comentario
+							Comentario *
 						</label>
 						<textarea
 							id="review-comment"
+							required
 							value={form.comment}
 							onChange={(e) => setForm({ ...form, comment: e.target.value })}
 							rows={3}
@@ -776,7 +807,7 @@ function ReviewsContent() {
 									<p className="mb-1 text-gray-500 text-xs">Dificultad</p>
 									<StarRating value={r.ratings?.find((rt) => rt.category === "difficulty")?.value || 0} />
 								</div>
-								{r.professorName && (
+								{r.ratings?.some((rt) => rt.category === "professor") && (
 									<div>
 										<p className="mb-1 text-gray-500 text-xs">Profesor</p>
 										<StarRating value={r.ratings?.find((rt) => rt.category === "professor")?.value || 0} />
