@@ -201,7 +201,7 @@ function SingleReviewForm({
 	subjectOptions: SubjectOption[];
 	allSubjects: SubjectOption[];
 	onUpdate: (id: string, updates: Partial<ReviewFormState>) => void;
-	onSave: (id: string, addAnother: boolean) => void;
+	onSave: (id: string) => void;
 }) {
 	const [sections, setSections] = useState<SectionOption[]>([]);
 	const [loadingSections, setLoadingSections] = useState(false);
@@ -239,7 +239,7 @@ function SingleReviewForm({
 				</div>
 				<div className="min-w-0 flex-1">
 					<p className="font-semibold text-green-800 text-sm">
-						Resena de {form.subject_code} guardada
+						Reseña de {form.subject_code} guardada
 					</p>
 				</div>
 				<span className="font-mono text-green-600 text-xs">#{index + 1}</span>
@@ -247,14 +247,14 @@ function SingleReviewForm({
 		);
 	}
 
-	const handleSubmit = (e: SyntheticEvent<HTMLFormElement>, addAnother: boolean) => {
+	const handleSubmit = (e: SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		onSave(form.id, addAnother);
+		onSave(form.id);
 	};
 
 	return (
 		<form
-			onSubmit={(e) => handleSubmit(e, false)}
+			onSubmit={handleSubmit}
 			className="panel-enter space-y-5 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8"
 		>
 			{/* Form header */}
@@ -481,15 +481,11 @@ function SingleReviewForm({
 			)}
 
 			{/* Action buttons */}
-			<div className="flex flex-col gap-3 sm:flex-row">
+			<div className="flex flex-col gap-3">
 				<button
-					type="button"
-					onClick={(e) => {
-						const fakeEvent = { preventDefault: () => {} } as SyntheticEvent<HTMLFormElement>;
-						handleSubmit(fakeEvent, true);
-					}}
-					disabled={form.saving || !form.subject_code || !form.comment}
-					className="group flex flex-1 items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+					type="submit"
+					disabled={form.saving || !form.subject_code || !form.comment || !form.period || !form.sectionId}
+					className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
 					{form.saving ? (
 						<>
@@ -498,16 +494,9 @@ function SingleReviewForm({
 						</>
 					) : (
 						<>
-							Guardar y agregar otra
+							Guardar reseña
 						</>
 					)}
-				</button>
-				<button
-					type="submit"
-					disabled={form.saving || !form.subject_code || !form.comment}
-					className="flex items-center justify-center gap-2 rounded-full border-2 border-primary/20 px-6 py-3.5 font-semibold text-primary transition-all hover:bg-primary/5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
-				>
-					Solo guardar
 				</button>
 			</div>
 		</form>
@@ -576,7 +565,7 @@ function EncuestaContent() {
 	);
 
 	const handleSave = useCallback(
-		async (formId: string, addAnother: boolean) => {
+		async (formId: string) => {
 			const form = forms.find((f) => f.id === formId);
 			if (!form) return;
 
@@ -603,17 +592,15 @@ function EncuestaContent() {
 				updateForm(formId, { saved: true, saving: false });
 				setSavedCount((c) => c + 1);
 
-				if (addAnother) {
-					const defaultPeriod = periods.length > 0 ? periods[0].id : "";
-					setForms((prev) => [...prev, createEmptyForm(defaultPeriod)]);
-					// Scroll to new form after render
-					setTimeout(() => {
-						lastFormRef.current?.scrollIntoView({
-							behavior: "smooth",
-							block: "start",
-						});
-					}, 100);
-				}
+				const defaultPeriod = periods.length > 0 ? periods[0].id : "";
+				setForms((prev) => [...prev, createEmptyForm(defaultPeriod)]);
+				// Scroll to new form after render
+				setTimeout(() => {
+					lastFormRef.current?.scrollIntoView({
+						behavior: "smooth",
+						block: "start",
+					});
+				}, 100);
 			} catch (err: unknown) {
 				updateForm(formId, {
 					saving: false,
