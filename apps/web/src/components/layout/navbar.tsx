@@ -70,6 +70,7 @@ export default function Navbar() {
 					{/* Desktop links */}
 					<div className="hidden items-center gap-1 md:flex">
 						{user &&
+							user.surveyCompleted &&
 							NAV_LINKS.map(({ href, label }) => (
 								<Link
 									key={href}
@@ -87,15 +88,17 @@ export default function Navbar() {
 					>
 						{user ? (
 							<>
-								<Link
-									href="/profile"
-									className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-sm transition-all hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700 hover:bg-primary/8" : "text-white/80 hover:text-white"}`}
-								>
-									<User size={15} />
-									<span className="hidden max-w-[80px] truncate sm:inline">
-										{user.username}
-									</span>
-								</Link>
+								{user.surveyCompleted && (
+									<Link
+										href="/profile"
+										className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-sm transition-all hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700 hover:bg-primary/8" : "text-white/80 hover:text-white"}`}
+									>
+										<User size={15} />
+										<span className="hidden max-w-[80px] truncate sm:inline">
+											{user.username}
+										</span>
+									</Link>
+								)}
 								<button
 									onClick={handleLogout}
 									className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-all hover:bg-red-50 hover:text-red-600 active:scale-90"
@@ -163,25 +166,29 @@ export default function Navbar() {
 				<div className="flex flex-col items-center gap-2">
 					{user ? (
 						<>
-							{NAV_LINKS.map(({ href, label, Icon }, i) => (
-								<Link
-									key={href}
-									href={href}
-									onClick={() => setMobileOpen(false)}
-									className={`reveal reveal-delay-${i + 1} flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
-								>
-									<Icon size={24} />
-									{label}
-								</Link>
-							))}
-							<Link
-								href="/profile"
-								onClick={() => setMobileOpen(false)}
-								className={`reveal reveal-delay-4 flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
-							>
-								<User size={24} />
-								{user.username}
-							</Link>
+							{user.surveyCompleted && (
+								<>
+									{NAV_LINKS.map(({ href, label, Icon }, i) => (
+										<Link
+											key={href}
+											href={href}
+											onClick={() => setMobileOpen(false)}
+											className={`reveal reveal-delay-${i + 1} flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
+										>
+											<Icon size={24} />
+											{label}
+										</Link>
+									))}
+									<Link
+										href="/profile"
+										onClick={() => setMobileOpen(false)}
+										className={`reveal reveal-delay-4 flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
+									>
+										<User size={24} />
+										{user.username}
+									</Link>
+								</>
+							)}
 							<button
 								onClick={handleLogout}
 								className={`reveal reveal-delay-4 mt-4 flex items-center gap-2 rounded-full px-6 py-3 font-semibold text-base text-red-500 transition-all hover:bg-red-50 active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
