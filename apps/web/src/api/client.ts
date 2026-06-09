@@ -99,18 +99,28 @@ export const surveyAPI = {
 };
 
 export function parseApiError(err: unknown, defaultMsg: string): string {
-	const detail = (err as { response?: { data?: { detail?: unknown } } })
-		?.response?.data?.detail;
-	if (Array.isArray(detail)) {
-		return detail
-			.map((d) =>
-				typeof d === "object" && d !== null && "msg" in d
-					? String((d as { msg: unknown }).msg)
-					: JSON.stringify(d),
-			)
-			.join(". ");
+	const data = (err as { response?: { data?: any } })?.response?.data;
+	if (data && typeof data === "object") {
+		if (data.detail) {
+			const detail = data.detail;
+			if (Array.isArray(detail)) {
+				return detail
+					.map((d) =>
+						typeof d === "object" && d !== null && "msg" in d
+							? String((d as { msg: any }).msg)
+							: JSON.stringify(d),
+					)
+					.join(". ");
+			}
+			if (typeof detail === "string") return detail;
+		}
+		if (typeof data.error === "string") {
+			return data.error;
+		}
+		if (typeof data.message === "string") {
+			return data.message;
+		}
 	}
-	if (typeof detail === "string") return detail;
 	return defaultMsg;
 }
 

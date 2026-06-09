@@ -226,12 +226,12 @@ const hashSubjectCodeToHex = (code: string) => {
 	for (let i = 0; i < code.length; i++) {
 		hash = code.charCodeAt(i) + ((hash << 5) - hash);
 	}
-	return Math.abs(hash).toString(16).padEnd(16, "0").slice(0, 16);
+	return Math.abs(hash).toString(16).padEnd(14, "0").slice(0, 14);
 };
 
 const generateMockSectionId = (subjectCode: string, secNumber: string) => {
 	const subjectHex = hashSubjectCodeToHex(subjectCode);
-	return `6666fa09${subjectHex}${secNumber.padStart(2, "0")}`.slice(0, 24);
+	return `6666fa09${subjectHex}${secNumber.padStart(2, "0")}`;
 };
 
 // Generar secciones mock estáticas utilizando los profesores mock
@@ -605,6 +605,17 @@ function EncuestaContent() {
 	const [finishing, setFinishing] = useState(false);
 	const lastFormRef = useRef<HTMLDivElement>(null);
 
+	const hasUnsavedChanges = useMemo(() => {
+		return forms.some(
+			(f) =>
+				!f.saved &&
+				(f.subject_code ||
+					f.comment.trim() ||
+					f.tips.trim() ||
+					f.study_strategy.trim()),
+		);
+	}, [forms]);
+
 	// Load periods (WARNING: Períodos estáticos mock)
 	useEffect(() => {
 		// TODO: Reemplazar por consulta real a la base de datos (periodsAPI.list()) en el futuro
@@ -705,19 +716,9 @@ function EncuestaContent() {
 	}, [periods]);
 
 	const handleFinish = async () => {
-		// Verificar si hay algún formulario con información escrita pero no guardada
-		const hasUnsavedChanges = forms.some(
-			(f) =>
-				!f.saved &&
-				(f.subject_code ||
-					f.comment.trim() ||
-					f.tips.trim() ||
-					f.study_strategy.trim())
-		);
-
 		if (hasUnsavedChanges) {
 			const confirmFinish = window.confirm(
-				"Tienes reseñas con información sin guardar. ¿Estás seguro de que deseas finalizar la encuesta sin guardarlas?"
+				"Tienes reseñas con información sin guardar. ¿Estás seguro de que deseas finalizar la encuesta sin guardarlas?",
 			);
 			if (!confirmFinish) return;
 		}
@@ -788,9 +789,9 @@ function EncuestaContent() {
 					<button
 						type="button"
 						onClick={handleFinish}
-						disabled={savedCount < 1 || finishing}
+						disabled={(savedCount < 1 && !hasUnsavedChanges) || finishing}
 						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${
-							savedCount >= 1
+							savedCount >= 1 || hasUnsavedChanges
 								? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
 								: "cursor-not-allowed bg-gray-200 text-gray-400"
 						}`}
