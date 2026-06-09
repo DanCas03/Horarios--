@@ -603,6 +603,7 @@ function EncuestaContent() {
 	const [surveyDone, setSurveyDone] = useState(false);
 	const [finishingError, setFinishingError] = useState("");
 	const [finishing, setFinishing] = useState(false);
+	const [showUnsavedModal, setShowUnsavedModal] = useState(false);
 	const lastFormRef = useRef<HTMLDivElement>(null);
 
 	const hasUnsavedChanges = useMemo(() => {
@@ -610,9 +611,14 @@ function EncuestaContent() {
 			(f) =>
 				!f.saved &&
 				(f.subject_code ||
+					f.sectionId ||
 					f.comment.trim() ||
 					f.tips.trim() ||
-					f.study_strategy.trim()),
+					f.study_strategy.trim() ||
+					f.difficulty_rating !== 3 ||
+					f.professor_rating !== 3 ||
+					f.workload_rating !== 3 ||
+					!f.would_recommend),
 		);
 	}, [forms]);
 
@@ -715,14 +721,7 @@ function EncuestaContent() {
 		}, 100);
 	}, [periods]);
 
-	const handleFinish = async () => {
-		if (hasUnsavedChanges) {
-			const confirmFinish = window.confirm(
-				"Tienes reseñas con información sin guardar. ¿Estás seguro de que deseas finalizar la encuesta sin guardarlas?",
-			);
-			if (!confirmFinish) return;
-		}
-
+	const executeFinish = async () => {
 		setFinishingError("");
 		setFinishing(true);
 		try {
@@ -734,6 +733,14 @@ function EncuestaContent() {
 			);
 		} finally {
 			setFinishing(false);
+		}
+	};
+
+	const handleFinish = async () => {
+		if (hasUnsavedChanges) {
+			setShowUnsavedModal(true);
+		} else {
+			await executeFinish();
 		}
 	};
 
@@ -789,9 +796,9 @@ function EncuestaContent() {
 					<button
 						type="button"
 						onClick={handleFinish}
-						disabled={(savedCount < 1 && !hasUnsavedChanges) || finishing}
+						disabled={savedCount < 1 || finishing}
 						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${
-							savedCount >= 1 || hasUnsavedChanges
+							savedCount >= 1
 								? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
 								: "cursor-not-allowed bg-gray-200 text-gray-400"
 						}`}
@@ -884,6 +891,39 @@ function EncuestaContent() {
 					Agregar otra materia
 				</button>
 			</div>
+
+			{/* Unsaved Changes Confirmation Modal */}
+			{showUnsavedModal && (
+				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+					<div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
+						<h3 className="font-bold text-gray-900 text-lg">
+							¿Finalizar sin guardar?
+						</h3>
+						<p className="mt-2 text-gray-500 text-sm">
+							Tienes reseñas con información sin guardar. ¿Estás seguro de que deseas finalizar la encuesta sin guardarlas?
+						</p>
+						<div className="mt-6 flex justify-end gap-3">
+							<button
+								type="button"
+								onClick={() => setShowUnsavedModal(false)}
+								className="rounded-full border border-gray-300 px-4 py-2 font-semibold text-gray-700 text-sm hover:bg-gray-50 active:scale-95 transition-all"
+							>
+								Cancelar
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									setShowUnsavedModal(false);
+									executeFinish();
+								}}
+								className="rounded-full bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 active:scale-95 transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)]"
+							>
+								Finalizar sin guardar
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
