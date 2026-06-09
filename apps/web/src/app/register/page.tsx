@@ -64,6 +64,11 @@ export default function RegisterPage() {
 			setError("Las contraseñas no coinciden");
 			return;
 		}
+		if (!selectedUni || !selectedProgram) {
+			setError("Debes seleccionar tu universidad y programa academico");
+			return;
+		}
+
 		if (password.length < 8) {
 			setError("La contraseña debe tener al menos 8 caracteres");
 			return;
@@ -78,7 +83,7 @@ export default function RegisterPage() {
 				selectedUni || undefined,
 				selectedProgram || undefined,
 			);
-			router.push("/pensum");
+			router.push("/encuesta");
 		} catch (err: unknown) {
 			setError(parseApiError(err, "Error al registrarse"));
 		} finally {
@@ -202,10 +207,9 @@ export default function RegisterPage() {
 							</div>
 						</div>
 
-						{/* Optional section */}
 						<div className="border-gray-50 border-t pt-5">
 							<p className="mb-4 font-semibold text-[10px] text-gray-300 uppercase tracking-[0.2em]">
-								Opcional — Configurar después
+								Informacion Academica
 							</p>
 							<div className="space-y-4">
 								<div>

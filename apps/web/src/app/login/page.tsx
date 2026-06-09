@@ -13,7 +13,7 @@ function LoginContent() {
 	const { login } = useAuth();
 	const router = useRouter();
 	const searchParams = useSearchParams();
-	const nextPath = (searchParams.get("next") || "/pensum") as Route;
+	const nextPath = (searchParams.get("next") || "/encuesta") as Route;
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
