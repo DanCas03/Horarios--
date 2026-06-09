@@ -425,6 +425,9 @@ function SingleReviewForm({
 					className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 					placeholder="Comparte tu experiencia con la materia..."
 				/>
+				<p className="mt-1.5 font-medium text-[11px] text-gray-400 leading-normal">
+					🔒 Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita insultar o ser malicioso, ya que dañará la encuesta y podría conllevar la inhabilitación de tu perfil.
+				</p>
 			</div>
 
 			{/* Collapsible extras */}
