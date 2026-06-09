@@ -20,6 +20,7 @@ import {
 	useState,
 } from "react";
 
+import Link from "next/link";
 import { parseApiError, periodsAPI, reviewsAPI, subjectsAPI } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
 import { useAuth } from "@/context/auth-context";
@@ -735,7 +736,13 @@ function EncuestaContent() {
 					<div className="flex items-center justify-between text-sm">
 						<span className="text-gray-600">
 							Has resenado <strong className="text-primary">{savedCount}</strong> de{" "}
-							<strong>{subjectOptions.length}</strong> materias aprobadas
+							<strong>{subjectOptions.length}</strong> materias aprobadas.
+							<Link
+								href="/encuesta/onboarding?edit=true"
+								className="ml-2.5 font-semibold text-primary text-xs hover:underline"
+							>
+								+ Modificar materias cursadas
+							</Link>
 						</span>
 						<span className="font-mono text-primary text-xs">
 							{subjectOptions.length > 0
