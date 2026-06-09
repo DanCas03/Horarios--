@@ -219,14 +219,14 @@ function OnboardingContent() {
 												onClick={() => toggleSubject(subject.id)}
 												className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
 													isSelected
-														? "bg-primary/8 ring-1 ring-primary/20"
+														? "bg-green-50 ring-1 ring-green-600/10"
 														: "hover:bg-gray-50"
 												}`}
 											>
 												<div
 													className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
 														isSelected
-															? "border-primary bg-primary"
+															? "border-green-600 bg-green-600"
 															: "border-gray-300"
 													}`}
 												>
@@ -236,10 +236,10 @@ function OnboardingContent() {
 												</div>
 												<div className="min-w-0 flex-1">
 													<div className="flex items-center gap-2">
-														<span className="font-mono font-semibold text-primary text-xs">
+														<span className={`font-mono font-semibold text-xs ${isSelected ? "text-green-700" : "text-primary"}`}>
 															{subject.code}
 														</span>
-														<span className="truncate text-gray-700 text-sm">
+														<span className={`truncate text-sm ${isSelected ? "text-green-900 font-medium" : "text-gray-700"}`}>
 															{subject.name}
 														</span>
 													</div>
