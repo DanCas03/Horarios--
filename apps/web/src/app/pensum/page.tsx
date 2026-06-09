@@ -376,7 +376,9 @@ function PensumContent() {
 																	{subject.credits !== 1 ? "s" : ""}
 																	{subject.prerequisites.length > 0 && (
 																		<span className="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600 text-xs">
-																			Pre: {subject.prerequisites.join(", ")}
+																			Pre: {subject.prerequisites
+																				.map((pId) => subjects.find((sub) => sub.id === pId)?.code ?? pId)
+																				.join(", ")}
 																		</span>
 																	)}
 																</p>

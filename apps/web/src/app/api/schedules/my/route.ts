@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
 	}
 
 	let resolvedPeriodId = periodId;
-	if (periodId && periodId.length !== 24) {
+	if (periodId && !/^[0-9a-fA-F]{24}$/.test(periodId)) {
 		const period = await prisma.period.findFirst({
 			where: {
 				code: periodId,
@@ -91,12 +91,27 @@ export async function GET(request: NextRequest) {
 		orderBy: { createdAt: "desc" },
 	});
 
+	// Map periodId -> code so the client can display a human-readable period.
+	const periodIds = Array.from(
+		new Set(schedules.map((s: any) => s.periodId).filter((id: any) => !!id)),
+	) as string[];
+	const periods = periodIds.length
+		? await prisma.period.findMany({
+				where: { id: { in: periodIds } },
+				select: { id: true, code: true },
+			})
+		: [];
+	const periodCodeById = new Map(periods.map((p: any) => [p.id, p.code]));
+
 	// Popular los sectionIds con la función cacheada
 	const populatedSchedules = await Promise.all(
 		schedules.map(async (schedule: any) => {
 			const blocks = await getPopulatedSections(schedule.sectionIds);
 			return {
 				...schedule,
+				period: schedule.periodId
+					? (periodCodeById.get(schedule.periodId) ?? schedule.periodId)
+					: "",
 				populatedBlocks: blocks,
 			};
 		})

@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 	}
 
 	let resolvedPeriodId = periodId;
-	if (periodId && periodId.length !== 24) {
+	if (periodId && !/^[0-9a-fA-F]{24}$/.test(periodId)) {
 		const period = await prisma.period.findFirst({
 			where: {
 				code: periodId,
