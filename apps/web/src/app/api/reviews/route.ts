@@ -80,6 +80,14 @@ export async function POST(request: Request) {
 		isVerified = approvedIds.has(subject.id);
 	}
 
+	// Bloquear reviews de materias no aprobadas
+	if (!isVerified) {
+		return NextResponse.json(
+			{ error: "Solo puedes hacer resenas de materias que hayas aprobado" },
+			{ status: 403 },
+		);
+	}
+
 	const review = await prisma.review.create({
 		data: {
 			subjectCode,
