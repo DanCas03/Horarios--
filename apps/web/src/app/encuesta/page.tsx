@@ -623,6 +623,23 @@ function EncuestaContent() {
 	}, [periods]);
 
 	const handleFinish = async () => {
+		// Verificar si hay algún formulario con información escrita pero no guardada
+		const hasUnsavedChanges = forms.some(
+			(f) =>
+				!f.saved &&
+				(f.subject_code ||
+					f.comment.trim() ||
+					f.tips.trim() ||
+					f.study_strategy.trim())
+		);
+
+		if (hasUnsavedChanges) {
+			const confirmFinish = window.confirm(
+				"Tienes reseñas con información sin guardar. ¿Estás seguro de que deseas finalizar la encuesta sin guardarlas?"
+			);
+			if (!confirmFinish) return;
+		}
+
 		setFinishingError("");
 		setFinishing(true);
 		try {
