@@ -223,9 +223,12 @@ function TeacherCombobox({
 
 	// Find the current selected teacher's name to display
 	const selectedTeacher = options.find((t) => t.id === value);
-	const displayName = value === "no-encuentro-profe" 
-		? "No encuentro mi profe" 
-		: (selectedTeacher ? selectedTeacher.name : "");
+	const displayName =
+		value === "no-encuentro-profe"
+			? "No encuentro mi profe"
+			: selectedTeacher
+				? selectedTeacher.name
+				: "";
 
 	useEffect(() => {
 		setQuery(displayName);
@@ -246,14 +249,18 @@ function TeacherCombobox({
 
 	// Filter options based on query
 	const filtered = options.filter((t) =>
-		t.name.toLowerCase().includes(query.toLowerCase())
+		t.name.toLowerCase().includes(query.toLowerCase()),
 	);
 
 	// "No encuentro mi profe" option
-	const specialOption = { id: "no-encuentro-profe", name: "No encuentro mi profe" };
+	const specialOption = {
+		id: "no-encuentro-profe",
+		name: "No encuentro mi profe",
+	};
 
 	// Check if special option should be in filtered list
-	const showSpecial = "no encuentro mi profe".includes(query.toLowerCase()) || query === "";
+	const showSpecial =
+		"no encuentro mi profe".includes(query.toLowerCase()) || query === "";
 
 	return (
 		<div ref={wrapperRef} className="relative">
@@ -286,7 +293,7 @@ function TeacherCombobox({
 									onChange(specialOption.id);
 									setOpen(false);
 								}}
-								className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-semibold text-primary hover:bg-primary/5 border-b border-gray-100"
+								className="flex w-full items-center gap-2 border-gray-100 border-b px-3 py-2 text-left font-semibold text-primary text-sm hover:bg-primary/5"
 							>
 								{specialOption.name}
 							</button>
@@ -473,11 +480,11 @@ function SingleReviewForm({
 
 			{/* Section */}
 			{isFallback ? (
-				<div className="space-y-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-4 animate-in fade-in slide-in-from-top-1 duration-200">
-					<p className="font-semibold text-amber-700 text-xs flex items-center gap-1.5">
+				<div className="fade-in slide-in-from-top-1 animate-in space-y-4 rounded-xl border border-gray-200 border-dashed bg-gray-50/50 p-4 duration-200">
+					<p className="flex items-center gap-1.5 font-semibold text-amber-700 text-xs">
 						⚠️ No se encontraron secciones para esta materia en este período.
 					</p>
-					
+
 					<div>
 						<label
 							htmlFor={`fallback-teacher-${form.id}`}
@@ -491,7 +498,10 @@ function SingleReviewForm({
 							onChange={(teacherId) => {
 								onUpdate(form.id, {
 									fallbackTeacherId: teacherId,
-									notFoundTeacherNames: teacherId === "no-encuentro-profe" ? form.notFoundTeacherNames : "",
+									notFoundTeacherNames:
+										teacherId === "no-encuentro-profe"
+											? form.notFoundTeacherNames
+											: "",
 								});
 							}}
 							options={allTeachers}
@@ -499,7 +509,7 @@ function SingleReviewForm({
 					</div>
 
 					{form.fallbackTeacherId === "no-encuentro-profe" && (
-						<div className="animate-in fade-in slide-in-from-top-1 duration-200">
+						<div className="fade-in slide-in-from-top-1 animate-in duration-200">
 							<label
 								htmlFor={`not-found-teacher-${form.id}`}
 								className="mb-1 block font-medium text-gray-700 text-sm"
@@ -511,7 +521,9 @@ function SingleReviewForm({
 								type="text"
 								required
 								value={form.notFoundTeacherNames || ""}
-								onChange={(e) => onUpdate(form.id, { notFoundTeacherNames: e.target.value })}
+								onChange={(e) =>
+									onUpdate(form.id, { notFoundTeacherNames: e.target.value })
+								}
 								placeholder="Escribe el nombre aquí..."
 								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							/>
@@ -694,10 +706,10 @@ function SingleReviewForm({
 						!form.comment ||
 						!form.period ||
 						(!isFallback && !form.sectionId) ||
-						(isFallback && (
-							!form.fallbackTeacherId ||
-							(form.fallbackTeacherId === "no-encuentro-profe" && !form.notFoundTeacherNames?.trim())
-						))
+						(isFallback &&
+							(!form.fallbackTeacherId ||
+								(form.fallbackTeacherId === "no-encuentro-profe" &&
+									!form.notFoundTeacherNames?.trim())))
 					}
 					className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
@@ -724,7 +736,10 @@ function EncuestaContent() {
 	const [subjectOptions, setSubjectOptions] = useState<SubjectOption[]>([]);
 	const [allSubjects, setAllSubjects] = useState<SubjectOption[]>([]);
 	const [academicProgramName, setAcademicProgramName] = useState("");
-	const [allTeachers, setAllTeachers] = useState<{ id: string; name: string }[]>([]);
+	const [allTeachers, setAllTeachers] = useState<
+		{ id: string; name: string }[]
+	>([]);
+	const [reviewedCodes, setReviewedCodes] = useState<Set<string>>(new Set());
 
 	// Load all teachers from database
 	useEffect(() => {
@@ -737,6 +752,22 @@ function EncuestaContent() {
 				console.error("Error al cargar profesores de la base de datos:", err);
 			});
 	}, []);
+
+	// Cargar materias ya reseñadas (para retomar con otras)
+	useEffect(() => {
+		if (!user) return;
+		reviewsAPI
+			.mine()
+			.then((res) => {
+				const codes = (res.data as { reviewedSubjectCodes: string[] })
+					.reviewedSubjectCodes;
+				setReviewedCodes(new Set(codes));
+			})
+			.catch((err) => {
+				console.error("Error al cargar reseñas previas:", err);
+			});
+	}, [user]);
+
 	const [savedCount, setSavedCount] = useState(0);
 	const [surveyDone, setSurveyDone] = useState(false);
 	const [finishingError, setFinishingError] = useState("");
@@ -759,6 +790,17 @@ function EncuestaContent() {
 					!f.would_recommend),
 		);
 	}, [forms]);
+
+	const pendingSubjectOptions = useMemo(
+		() => subjectOptions.filter((s) => !reviewedCodes.has(s.code)),
+		[subjectOptions, reviewedCodes],
+	);
+	const reviewedApprovedCount = useMemo(
+		() => subjectOptions.filter((s) => reviewedCodes.has(s.code)).length,
+		[subjectOptions, reviewedCodes],
+	);
+	const allReviewed =
+		subjectOptions.length > 0 && pendingSubjectOptions.length === 0;
 
 	// Load periods from database
 	useEffect(() => {
@@ -833,16 +875,20 @@ function EncuestaContent() {
 			) {
 				updateForm(formId, {
 					saving: false,
-					error: "El contenido contiene palabras inapropiadas o insultos. Por favor, mantén un tono respetuoso.",
+					error:
+						"El contenido contiene palabras inapropiadas o insultos. Por favor, mantén un tono respetuoso.",
 				});
 				return;
 			}
 
 			try {
 				const isFallback = !form.sectionId && !!form.fallbackTeacherId;
-				let teacherIds: string[] | undefined = undefined;
+				let teacherIds: string[] | undefined;
 				if (isFallback) {
-					if (form.fallbackTeacherId && form.fallbackTeacherId !== "no-encuentro-profe") {
+					if (
+						form.fallbackTeacherId &&
+						form.fallbackTeacherId !== "no-encuentro-profe"
+					) {
 						teacherIds = [form.fallbackTeacherId];
 					}
 				} else if (form.teacherIds.length > 0) {
@@ -864,13 +910,19 @@ function EncuestaContent() {
 					comment: form.comment,
 					tips: form.tips || undefined,
 					studyStrategy: form.study_strategy || undefined,
-					notFoundTeacherNames: isFallback && form.fallbackTeacherId === "no-encuentro-profe"
-						? form.notFoundTeacherNames || undefined
-						: undefined,
+					notFoundTeacherNames:
+						isFallback && form.fallbackTeacherId === "no-encuentro-profe"
+							? form.notFoundTeacherNames || undefined
+							: undefined,
 				});
 
 				updateForm(formId, { saved: true, saving: false });
 				setSavedCount((c) => c + 1);
+				setReviewedCodes((prev) => {
+					const next = new Set(prev);
+					next.add(form.subject_code);
+					return next;
+				});
 
 				const defaultPeriod = periods.length > 0 ? periods[0].id : "";
 				setForms((prev) => [...prev, createEmptyForm(defaultPeriod)]);
@@ -936,7 +988,8 @@ function EncuestaContent() {
 					</h1>
 					<p className="mx-auto mt-4 max-w-md text-gray-500">
 						Tus resenas ayudaran a otros estudiantes a tomar mejores decisiones.
-						Guardaste {savedCount} resena{savedCount !== 1 ? "s" : ""} en total.
+						Guardaste {savedCount} resena{savedCount !== 1 ? "s" : ""} en esta
+						sesion.
 					</p>
 					<a
 						href="/"
@@ -967,18 +1020,18 @@ function EncuestaContent() {
 
 				{/* Saved counter + finish button */}
 				<div className="flex items-center gap-3">
-					{savedCount > 0 && (
+					{reviewedApprovedCount > 0 && (
 						<span className="rounded-full bg-green-100 px-3 py-1.5 font-semibold text-green-700 text-sm">
-							{savedCount} resena{savedCount !== 1 ? "s" : ""} guardada
-							{savedCount !== 1 ? "s" : ""}
+							{reviewedApprovedCount} resena
+							{reviewedApprovedCount !== 1 ? "s" : ""}
 						</span>
 					)}
 					<button
 						type="button"
 						onClick={handleFinish}
-						disabled={savedCount < 1 || finishing}
+						disabled={reviewedApprovedCount < 1 || finishing}
 						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${
-							savedCount >= 1
+							reviewedApprovedCount >= 1
 								? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
 								: "cursor-not-allowed bg-gray-200 text-gray-400"
 						}`}
@@ -1039,8 +1092,8 @@ function EncuestaContent() {
 					<div className="flex items-center justify-between text-sm">
 						<span className="text-gray-600">
 							Has resenado{" "}
-							<strong className="text-primary">{savedCount}</strong> de{" "}
-							<strong>{subjectOptions.length}</strong> materias aprobadas.
+							<strong className="text-primary">{reviewedApprovedCount}</strong>{" "}
+							de <strong>{subjectOptions.length}</strong> materias aprobadas.
 							<Link
 								href="/encuesta/onboarding?edit=true"
 								className="ml-2.5 font-semibold text-primary text-xs hover:underline"
@@ -1050,7 +1103,9 @@ function EncuestaContent() {
 						</span>
 						<span className="font-mono text-primary text-xs">
 							{subjectOptions.length > 0
-								? Math.round((savedCount / subjectOptions.length) * 100)
+								? Math.round(
+										(reviewedApprovedCount / subjectOptions.length) * 100,
+									)
 								: 0}
 							%
 						</span>
@@ -1061,7 +1116,10 @@ function EncuestaContent() {
 							style={{
 								width: `${
 									subjectOptions.length > 0
-										? Math.min(100, (savedCount / subjectOptions.length) * 100)
+										? Math.min(
+												100,
+												(reviewedApprovedCount / subjectOptions.length) * 100,
+											)
 										: 0
 								}%`,
 							}}
@@ -1070,38 +1128,62 @@ function EncuestaContent() {
 				</div>
 			)}
 
-			{/* Review forms */}
-			<div className="space-y-6">
-				{forms.map((form, i) => (
-					<div
-						key={form.id}
-						ref={i === forms.length - 1 ? lastFormRef : undefined}
-					>
-						<SingleReviewForm
-							form={form}
-							index={i}
-							periods={periods}
-							subjectOptions={subjectOptions}
-							allSubjects={allSubjects}
-							allTeachers={allTeachers}
-							onUpdate={updateForm}
-							onSave={handleSave}
-						/>
+			{allReviewed ? (
+				/* Ya reseñó todas sus materias aprobadas */
+				<div className="panel-enter rounded-2xl bg-green-50 p-8 text-center ring-1 ring-green-200">
+					<div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100">
+						<ClipboardCheck className="h-7 w-7 text-green-600" />
 					</div>
-				))}
-			</div>
+					<h3 className="font-bold text-green-900 text-lg">
+						¡Ya reseñaste todas tus materias aprobadas!
+					</h3>
+					<p className="mx-auto mt-2 max-w-md text-green-800/90 text-sm">
+						Si cursaste materias nuevas, agrégalas a tus materias cursadas para
+						poder reseñarlas.
+					</p>
+					<Link
+						href="/encuesta/onboarding?edit=true"
+						className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-sm transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+					>
+						+ Modificar materias cursadas
+					</Link>
+				</div>
+			) : (
+				<>
+					{/* Review forms */}
+					<div className="space-y-6">
+						{forms.map((form, i) => (
+							<div
+								key={form.id}
+								ref={i === forms.length - 1 ? lastFormRef : undefined}
+							>
+								<SingleReviewForm
+									form={form}
+									index={i}
+									periods={periods}
+									subjectOptions={pendingSubjectOptions}
+									allSubjects={allSubjects}
+									allTeachers={allTeachers}
+									onUpdate={updateForm}
+									onSave={handleSave}
+								/>
+							</div>
+						))}
+					</div>
 
-			{/* Add another button */}
-			<div className="mt-8 flex justify-center">
-				<button
-					type="button"
-					onClick={addForm}
-					className="flex items-center gap-2 rounded-full border-2 border-gray-300 border-dashed px-6 py-3 font-medium text-gray-500 text-sm transition-all hover:border-primary hover:text-primary active:scale-[0.98]"
-				>
-					<PlusCircle size={18} />
-					Agregar otra materia
-				</button>
-			</div>
+					{/* Add another button */}
+					<div className="mt-8 flex justify-center">
+						<button
+							type="button"
+							onClick={addForm}
+							className="flex items-center gap-2 rounded-full border-2 border-gray-300 border-dashed px-6 py-3 font-medium text-gray-500 text-sm transition-all hover:border-primary hover:text-primary active:scale-[0.98]"
+						>
+							<PlusCircle size={18} />
+							Agregar otra materia
+						</button>
+					</div>
+				</>
+			)}
 
 			{/* Unsaved Changes Confirmation Modal */}
 			{showUnsavedModal && (
