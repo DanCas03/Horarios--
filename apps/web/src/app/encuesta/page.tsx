@@ -25,6 +25,7 @@ import {
 	periodsAPI,
 	reviewsAPI,
 	subjectsAPI,
+	teachersAPI,
 } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
 import { useAuth } from "@/context/auth-context";
@@ -70,6 +71,8 @@ interface ReviewFormState {
 	saving: boolean;
 	error: string;
 	showExtras: boolean;
+	fallbackTeacherId?: string;
+	notFoundTeacherNames?: string;
 }
 
 const formatPeriod = (p: Period) => {
@@ -105,6 +108,8 @@ const createEmptyForm = (defaultPeriodId: string): ReviewFormState => ({
 	saving: false,
 	error: "",
 	showExtras: false,
+	fallbackTeacherId: "",
+	notFoundTeacherNames: "",
 });
 
 // ─── SubjectCombobox ──────────────────────────────────────────────────────────
@@ -198,6 +203,114 @@ function SubjectCombobox({
 	);
 }
 
+// ─── TeacherCombobox ──────────────────────────────────────────────────────────
+
+function TeacherCombobox({
+	id,
+	value,
+	onChange,
+	options,
+}: {
+	id?: string;
+	value: string;
+	onChange: (teacherId: string) => void;
+	options: { id: string; name: string }[];
+}) {
+	const [query, setQuery] = useState("");
+	const [open, setOpen] = useState(false);
+	const wrapperRef = useRef<HTMLDivElement>(null);
+
+	// Find the current selected teacher's name to display
+	const selectedTeacher = options.find((t) => t.id === value);
+	const displayName = value === "no-encuentro-profe" 
+		? "No encuentro mi profe" 
+		: (selectedTeacher ? selectedTeacher.name : "");
+
+	useEffect(() => {
+		setQuery(displayName);
+	}, [displayName]);
+
+	useEffect(() => {
+		const handler = (e: MouseEvent) => {
+			if (
+				wrapperRef.current &&
+				!wrapperRef.current.contains(e.target as Node)
+			) {
+				setOpen(false);
+			}
+		};
+		document.addEventListener("mousedown", handler);
+		return () => document.removeEventListener("mousedown", handler);
+	}, []);
+
+	// Filter options based on query
+	const filtered = options.filter((t) =>
+		t.name.toLowerCase().includes(query.toLowerCase())
+	);
+
+	// "No encuentro mi profe" option
+	const specialOption = { id: "no-encuentro-profe", name: "No encuentro mi profe" };
+
+	// Check if special option should be in filtered list
+	const showSpecial = "no encuentro mi profe".includes(query.toLowerCase()) || query === "";
+
+	return (
+		<div ref={wrapperRef} className="relative">
+			<div className="relative">
+				<input
+					id={id}
+					required
+					value={query}
+					onChange={(e: ChangeEvent<HTMLInputElement>) => {
+						setQuery(e.target.value);
+						setOpen(true);
+					}}
+					onFocus={() => setOpen(true)}
+					placeholder="Buscar profesor..."
+					className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-8 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+				/>
+				<ChevronDown
+					size={15}
+					className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-gray-400"
+				/>
+			</div>
+
+			{open && (showSpecial || filtered.length > 0) && (
+				<ul className="absolute z-20 mt-1 max-h-52 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+					{showSpecial && (
+						<li key={specialOption.id}>
+							<button
+								type="button"
+								onMouseDown={() => {
+									onChange(specialOption.id);
+									setOpen(false);
+								}}
+								className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm font-semibold text-primary hover:bg-primary/5 border-b border-gray-100"
+							>
+								{specialOption.name}
+							</button>
+						</li>
+					)}
+					{filtered.map((t) => (
+						<li key={t.id}>
+							<button
+								type="button"
+								onMouseDown={() => {
+									onChange(t.id);
+									setOpen(false);
+								}}
+								className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-primary/5"
+							>
+								<span className="truncate text-gray-700">{t.name}</span>
+							</button>
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	);
+}
+
 // ─── SingleReviewForm ─────────────────────────────────────────────────────────
 
 function SingleReviewForm({
@@ -206,6 +319,7 @@ function SingleReviewForm({
 	periods,
 	subjectOptions,
 	allSubjects,
+	allTeachers,
 	onUpdate,
 	onSave,
 }: {
@@ -214,18 +328,30 @@ function SingleReviewForm({
 	periods: Period[];
 	subjectOptions: SubjectOption[];
 	allSubjects: SubjectOption[];
+	allTeachers: { id: string; name: string }[];
 	onUpdate: (id: string, updates: Partial<ReviewFormState>) => void;
 	onSave: (id: string) => void;
 }) {
 	const [sections, setSections] = useState<SectionOption[]>([]);
 	const [loadingSections, setLoadingSections] = useState(false);
 
+	const isFallback =
+		!loadingSections &&
+		!!form.subject_code &&
+		!!form.period &&
+		sections.length === 0;
+
 	// Load sections when subject/period changes
 	useEffect(() => {
 		const selectedSub = allSubjects.find((s) => s.code === form.subject_code);
 		if (!selectedSub?.id || !form.period) {
 			setSections([]);
-			onUpdate(form.id, { sectionId: "", teacherIds: [] });
+			onUpdate(form.id, {
+				sectionId: "",
+				teacherIds: [],
+				fallbackTeacherId: "",
+				notFoundTeacherNames: "",
+			});
 			return;
 		}
 
@@ -234,12 +360,22 @@ function SingleReviewForm({
 			.sections(selectedSub.id, form.period)
 			.then((res) => {
 				setSections(res.data as SectionOption[]);
-				onUpdate(form.id, { sectionId: "", teacherIds: [] });
+				onUpdate(form.id, {
+					sectionId: "",
+					teacherIds: [],
+					fallbackTeacherId: "",
+					notFoundTeacherNames: "",
+				});
 			})
 			.catch((err) => {
 				console.error("Error al cargar secciones de la base de datos:", err);
 				setSections([]);
-				onUpdate(form.id, { sectionId: "", teacherIds: [] });
+				onUpdate(form.id, {
+					sectionId: "",
+					teacherIds: [],
+					fallbackTeacherId: "",
+					notFoundTeacherNames: "",
+				});
 			})
 			.finally(() => {
 				setLoadingSections(false);
@@ -335,36 +471,84 @@ function SingleReviewForm({
 			</div>
 
 			{/* Section */}
-			<div>
-				<label
-					htmlFor={`review-section-${form.id}`}
-					className="mb-1 block font-medium text-gray-700 text-sm"
-				>
-					Seccion / Profesor
-				</label>
-				<select
-					id={`review-section-${form.id}`}
-					value={form.sectionId}
-					onChange={(e) => {
-						const secId = e.target.value;
-						const selectedSec = sections.find((s) => s.id === secId);
-						onUpdate(form.id, {
-							sectionId: secId,
-							teacherIds: selectedSec ? selectedSec.teacherIds : [],
-						});
-					}}
-					disabled={loadingSections || !form.subject_code}
-					className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-				>
-					<option value="">Selecciona una seccion</option>
-					{sections.map((s) => (
-						<option key={s.id} value={s.id}>
-							Seccion {s.code || "Sin codigo"}{" "}
-							{s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
-						</option>
-					))}
-				</select>
-			</div>
+			{isFallback ? (
+				<div className="space-y-4 rounded-xl border border-dashed border-gray-200 bg-gray-50/50 p-4 animate-in fade-in slide-in-from-top-1 duration-200">
+					<p className="font-semibold text-amber-700 text-xs flex items-center gap-1.5">
+						⚠️ No se encontraron secciones para esta materia en este período.
+					</p>
+					
+					<div>
+						<label
+							htmlFor={`fallback-teacher-${form.id}`}
+							className="mb-1 block font-medium text-gray-700 text-sm"
+						>
+							Buscar Profesor *
+						</label>
+						<TeacherCombobox
+							id={`fallback-teacher-${form.id}`}
+							value={form.fallbackTeacherId || ""}
+							onChange={(teacherId) => {
+								onUpdate(form.id, {
+									fallbackTeacherId: teacherId,
+									notFoundTeacherNames: teacherId === "no-encuentro-profe" ? form.notFoundTeacherNames : "",
+								});
+							}}
+							options={allTeachers}
+						/>
+					</div>
+
+					{form.fallbackTeacherId === "no-encuentro-profe" && (
+						<div className="animate-in fade-in slide-in-from-top-1 duration-200">
+							<label
+								htmlFor={`not-found-teacher-${form.id}`}
+								className="mb-1 block font-medium text-gray-700 text-sm"
+							>
+								Nombre completo del profesor *
+							</label>
+							<input
+								id={`not-found-teacher-${form.id}`}
+								type="text"
+								required
+								value={form.notFoundTeacherNames || ""}
+								onChange={(e) => onUpdate(form.id, { notFoundTeacherNames: e.target.value })}
+								placeholder="Escribe el nombre aquí..."
+								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+							/>
+						</div>
+					)}
+				</div>
+			) : (
+				<div>
+					<label
+						htmlFor={`review-section-${form.id}`}
+						className="mb-1 block font-medium text-gray-700 text-sm"
+					>
+						Seccion / Profesor
+					</label>
+					<select
+						id={`review-section-${form.id}`}
+						value={form.sectionId}
+						onChange={(e) => {
+							const secId = e.target.value;
+							const selectedSec = sections.find((s) => s.id === secId);
+							onUpdate(form.id, {
+								sectionId: secId,
+								teacherIds: selectedSec ? selectedSec.teacherIds : [],
+							});
+						}}
+						disabled={loadingSections || !form.subject_code}
+						className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+					>
+						<option value="">Selecciona una seccion</option>
+						{sections.map((s) => (
+							<option key={s.id} value={s.id}>
+								Seccion {s.code || "Sin codigo"}{" "}
+								{s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
+							</option>
+						))}
+					</select>
+				</div>
+			)}
 
 			{/* Ratings */}
 			<div className="grid grid-cols-3 gap-4">
@@ -508,7 +692,11 @@ function SingleReviewForm({
 						!form.subject_code ||
 						!form.comment ||
 						!form.period ||
-						!form.sectionId
+						(!isFallback && !form.sectionId) ||
+						(isFallback && (
+							!form.fallbackTeacherId ||
+							(form.fallbackTeacherId === "no-encuentro-profe" && !form.notFoundTeacherNames?.trim())
+						))
 					}
 					className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
@@ -535,6 +723,19 @@ function EncuestaContent() {
 	const [subjectOptions, setSubjectOptions] = useState<SubjectOption[]>([]);
 	const [allSubjects, setAllSubjects] = useState<SubjectOption[]>([]);
 	const [academicProgramName, setAcademicProgramName] = useState("");
+	const [allTeachers, setAllTeachers] = useState<{ id: string; name: string }[]>([]);
+
+	// Load all teachers from database
+	useEffect(() => {
+		teachersAPI
+			.list()
+			.then((res) => {
+				setAllTeachers(res.data as { id: string; name: string }[]);
+			})
+			.catch((err) => {
+				console.error("Error al cargar profesores de la base de datos:", err);
+			});
+	}, []);
 	const [savedCount, setSavedCount] = useState(0);
 	const [surveyDone, setSurveyDone] = useState(false);
 	const [finishingError, setFinishingError] = useState("");
@@ -624,10 +825,20 @@ function EncuestaContent() {
 			updateForm(formId, { saving: true, error: "" });
 
 			try {
+				const isFallback = !form.sectionId && !!form.fallbackTeacherId;
+				let teacherIds: string[] | undefined = undefined;
+				if (isFallback) {
+					if (form.fallbackTeacherId && form.fallbackTeacherId !== "no-encuentro-profe") {
+						teacherIds = [form.fallbackTeacherId];
+					}
+				} else if (form.teacherIds.length > 0) {
+					teacherIds = form.teacherIds;
+				}
+
 				await reviewsAPI.create({
 					subjectCode: form.subject_code,
 					universityId: user?.universityIds?.[0] || undefined,
-					teacherIds: form.teacherIds.length > 0 ? form.teacherIds : undefined,
+					teacherIds,
 					periodId: form.period || undefined,
 					sectionId: form.sectionId || undefined,
 					ratings: [
@@ -639,6 +850,9 @@ function EncuestaContent() {
 					comment: form.comment,
 					tips: form.tips || undefined,
 					studyStrategy: form.study_strategy || undefined,
+					notFoundTeacherNames: isFallback && form.fallbackTeacherId === "no-encuentro-profe"
+						? form.notFoundTeacherNames || undefined
+						: undefined,
 				});
 
 				updateForm(formId, { saved: true, saving: false });
@@ -855,6 +1069,7 @@ function EncuestaContent() {
 							periods={periods}
 							subjectOptions={subjectOptions}
 							allSubjects={allSubjects}
+							allTeachers={allTeachers}
 							onUpdate={updateForm}
 							onSave={handleSave}
 						/>

@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Suspense } from "react";
 
 import Footer from "./footer";
 import Navbar from "./navbar";
@@ -20,13 +19,9 @@ export default function SiteLayout({
 
 	return (
 		<div className="flex min-h-[100dvh] flex-col">
-			<Suspense fallback={null}>
-				<Navbar />
-			</Suspense>
+			<Navbar />
 			<main className="flex-1 pt-20">{children}</main>
-			<Suspense fallback={null}>
-				<Footer />
-			</Suspense>
+			<Footer />
 		</div>
 	);
 }

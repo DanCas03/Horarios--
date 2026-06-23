@@ -132,7 +132,12 @@ export const reviewsAPI = {
 		comment: string;
 		tips?: string;
 		studyStrategy?: string;
+		notFoundTeacherNames?: string;
 	}) => api.post("/reviews/", data),
+};
+
+export const teachersAPI = {
+	list: () => api.get("/teachers"),
 };
 
 export const schedulesAPI = {

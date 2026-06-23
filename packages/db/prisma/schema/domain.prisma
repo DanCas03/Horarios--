@@ -175,6 +175,7 @@ model Review {
   ratings        Rating[]
   overallRating  Int?     @map("overall_rating")
   teacherIds     String[] @map("teacher_ids") @db.ObjectId
+  notFoundTeacherNames String? @map("not_found_teacher_names")
 
   @@map("reviews")
 }

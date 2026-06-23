@@ -35,6 +35,7 @@ export async function POST(request: Request) {
 		comment: string;
 		tips?: string;
 		studyStrategy?: string;
+		notFoundTeacherNames?: string;
 	};
 
 	const {
@@ -49,6 +50,7 @@ export async function POST(request: Request) {
 		comment,
 		tips,
 		studyStrategy,
+		notFoundTeacherNames,
 	} = payload;
 
 	if (!subjectCode || !ratings || wouldRecommend === undefined) {
@@ -106,6 +108,7 @@ export async function POST(request: Request) {
 			tips,
 			studyStrategy,
 			isVerified,
+			notFoundTeacherNames,
 		},
 	});
 

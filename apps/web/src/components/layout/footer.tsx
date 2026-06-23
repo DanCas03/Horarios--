@@ -3,12 +3,15 @@
 import { GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function Footer() {
+function FooterContent() {
 	const searchParams = useSearchParams();
-	const isFirstTime = searchParams.get("firstTime") === "true";
+	const isNavDisabled =
+		searchParams.get("firstTime") === "true" ||
+		searchParams.get("disableNav") === "true";
 
-	if (isFirstTime) return null;
+	if (isNavDisabled) return null;
 
 	return (
 		<footer className="mt-auto border-gray-100 border-t bg-white py-16 text-gray-400">
@@ -86,3 +89,12 @@ export default function Footer() {
 		</footer>
 	);
 }
+
+export default function Footer() {
+	return (
+		<Suspense fallback={null}>
+			<FooterContent />
+		</Suspense>
+	);
+}
+
