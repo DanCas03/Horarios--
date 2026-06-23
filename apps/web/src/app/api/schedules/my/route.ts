@@ -1,21 +1,25 @@
 import prisma from "@horaios/db";
+import { unstable_cache } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
-import { unstable_cache } from "next/cache";
 
 // Función cacheada por Next.js para popular las secciones y armar los bloques.
 // Almacenará en caché el resultado para no recargar la BD con datos estáticos de secciones.
 const getPopulatedSections = unstable_cache(
 	async (sectionIds: string[]) => {
 		if (!sectionIds || sectionIds.length === 0) return [];
-		
+
 		const sections = await prisma.section.findMany({
 			where: { id: { in: sectionIds } },
 		});
 
 		// Obtenemos los subjects y teachers referenciados
-		const subjectIds = sections.map((s: any) => s.subjectId).filter((id: any) => !!id) as string[];
-		const allTeacherIds = Array.from(new Set(sections.flatMap((s: any) => s.teacherIds)));
+		const subjectIds = sections
+			.map((s) => s.subjectId)
+			.filter((id): id is string => !!id);
+		const allTeacherIds = Array.from(
+			new Set(sections.flatMap((s) => s.teacherIds)),
+		);
 
 		const subjects = await prisma.subject.findMany({
 			where: { id: { in: subjectIds } },
@@ -25,10 +29,14 @@ const getPopulatedSections = unstable_cache(
 			where: { id: { in: allTeacherIds } },
 		});
 
-		return sections.map((section: any) => {
-			const subject = subjects.find((s: any) => s.id === section.subjectId);
-			const sectionTeachers = teachers.filter((t: any) => section.teacherIds.includes(t.id));
-			const professorNames = sectionTeachers.map((t: any) => `${t.name1} ${t.surname1}`).join(", ");
+		return sections.map((section) => {
+			const subject = subjects.find((s) => s.id === section.subjectId);
+			const sectionTeachers = teachers.filter((t) =>
+				section.teacherIds.includes(t.id),
+			);
+			const professorNames = sectionTeachers
+				.map((t) => `${t.name1} ${t.surname1}`)
+				.join(", ");
 
 			return {
 				sectionId: section.id,
@@ -45,7 +53,7 @@ const getPopulatedSections = unstable_cache(
 		});
 	},
 	["populated-sections"], // Etiqueta de caché
-	{ revalidate: 3600 } // Revalidar cada hora si cambian los datos base
+	{ revalidate: 3600 }, // Revalidar cada hora si cambian los datos base
 );
 
 /**
@@ -65,7 +73,10 @@ export async function GET(request: NextRequest) {
 	});
 
 	if (!profile) {
-		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+		return NextResponse.json(
+			{ error: "Perfil no encontrado" },
+			{ status: 404 },
+		);
 	}
 
 	let resolvedPeriodId = periodId;
@@ -93,19 +104,21 @@ export async function GET(request: NextRequest) {
 
 	// Map periodId -> code so the client can display a human-readable period.
 	const periodIds = Array.from(
-		new Set(schedules.map((s: any) => s.periodId).filter((id: any) => !!id)),
-	) as string[];
+		new Set(
+			schedules.map((s) => s.periodId).filter((id): id is string => !!id),
+		),
+	);
 	const periods = periodIds.length
 		? await prisma.period.findMany({
 				where: { id: { in: periodIds } },
 				select: { id: true, code: true },
 			})
 		: [];
-	const periodCodeById = new Map(periods.map((p: any) => [p.id, p.code]));
+	const periodCodeById = new Map(periods.map((p) => [p.id, p.code]));
 
 	// Popular los sectionIds con la función cacheada
 	const populatedSchedules = await Promise.all(
-		schedules.map(async (schedule: any) => {
+		schedules.map(async (schedule) => {
 			const blocks = await getPopulatedSections(schedule.sectionIds);
 			return {
 				...schedule,
@@ -114,7 +127,7 @@ export async function GET(request: NextRequest) {
 					: "",
 				populatedBlocks: blocks,
 			};
-		})
+		}),
 	);
 
 	return NextResponse.json(populatedSchedules);

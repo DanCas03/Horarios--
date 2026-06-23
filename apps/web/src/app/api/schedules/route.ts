@@ -32,7 +32,10 @@ export async function POST(request: Request) {
 	});
 
 	if (!profile) {
-		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+		return NextResponse.json(
+			{ error: "Perfil no encontrado" },
+			{ status: 404 },
+		);
 	}
 
 	let resolvedPeriodId = periodId;
@@ -46,7 +49,10 @@ export async function POST(request: Request) {
 		if (period) {
 			resolvedPeriodId = period.id;
 		} else {
-			return NextResponse.json({ error: "Periodo no encontrado" }, { status: 404 });
+			return NextResponse.json(
+				{ error: "Periodo no encontrado" },
+				{ status: 404 },
+			);
 		}
 	}
 

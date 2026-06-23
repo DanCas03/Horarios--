@@ -2,7 +2,6 @@
 
 import { BookOpen, Calendar, MessageSquare, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
 
 import { useAuth } from "@/context/auth-context";
 import { useReveal } from "@/hooks/use-reveal";
@@ -79,6 +78,7 @@ export default function Home() {
 									Ir a Mi Pensum
 									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
 										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+											<title>Icono flecha al pensum</title>
 											<path
 												d="M2 10L10 2M10 2H4M10 2V8"
 												stroke="currentColor"
@@ -103,6 +103,7 @@ export default function Home() {
 												viewBox="0 0 12 12"
 												fill="none"
 											>
+												<title>Icono flecha comenzar</title>
 												<path
 													d="M2 10L10 2M10 2H4M10 2V8"
 													stroke="currentColor"
@@ -257,6 +258,7 @@ export default function Home() {
 									Crear Cuenta Gratis
 									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
 										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+											<title>Icono flecha crear cuenta</title>
 											<path
 												d="M2 10L10 2M10 2H4M10 2V8"
 												stroke="currentColor"

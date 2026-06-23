@@ -1,13 +1,8 @@
 "use client";
 
-import {
-	BookOpen,
-	Building2,
-	CheckCircle,
-	Save,
-	User as UserIcon,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { BookOpen, CheckCircle, Save } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 import api, { academicProgramsAPI, universitiesAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
@@ -26,8 +21,14 @@ interface AcademicProgram {
 
 function ProfileContent() {
 	const { user, refreshUser } = useAuth();
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const isFirstTime = searchParams.get("firstTime") === "true";
+
 	const [universities, setUniversities] = useState<University[]>([]);
-	const [academicPrograms, setAcademicPrograms] = useState<AcademicProgram[]>([]);
+	const [academicPrograms, setAcademicPrograms] = useState<AcademicProgram[]>(
+		[],
+	);
 	const [selectedUni, setSelectedUni] = useState(
 		user?.universityIds?.[0] || "",
 	);
@@ -55,7 +56,21 @@ function ProfileContent() {
 		}
 	}, [selectedUni]);
 
+	useEffect(() => {
+		if (
+			isFirstTime &&
+			user?.universityIds?.length &&
+			user?.academicProgramIds?.length
+		) {
+			router.replace("/encuesta");
+		}
+	}, [isFirstTime, user, router]);
+
 	const handleSave = async () => {
+		if (isFirstTime && (!selectedUni || !selectedProgram)) {
+			alert("Por favor selecciona tu universidad y carrera para continuar.");
+			return;
+		}
 		setSaving(true);
 		try {
 			await api.put("/auth/me", {
@@ -65,6 +80,9 @@ function ProfileContent() {
 			await refreshUser();
 			setSaved(true);
 			setTimeout(() => setSaved(false), 2000);
+			if (isFirstTime) {
+				router.push("/encuesta/onboarding");
+			}
 		} catch {
 			alert("Error al guardar perfil");
 		} finally {
@@ -78,6 +96,21 @@ function ProfileContent() {
 
 	return (
 		<div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
+			{/* First time registration banner */}
+			{isFirstTime && (
+				<div className="mb-8 flex items-center gap-3.5 rounded-2xl border border-amber-200/60 bg-amber-50 p-5 text-amber-900 shadow-sm ring-1 ring-amber-500/5">
+					<CheckCircle className="h-6 w-6 flex-shrink-0 animate-pulse text-amber-600" />
+					<div>
+						<p className="font-bold text-sm">Registro casi completo</p>
+						<p className="mt-0.5 font-medium text-amber-700/90 text-xs leading-relaxed">
+							Para poder personalizar tu experiencia, planificar tus horarios y
+							acceder a las encuestas, por favor selecciona tu universidad y
+							carrera.
+						</p>
+					</div>
+				</div>
+			)}
+
 			{/* Header */}
 			<div className="mb-12">
 				<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm ring-1 ring-black/5">
@@ -99,9 +132,9 @@ function ProfileContent() {
 					<div className="grid grid-cols-2 gap-6">
 						<div className="rounded-xl bg-gray-50 px-5 py-4 ring-1 ring-black/5">
 							<p className="mb-1 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
-								Usuario
+								Nombre
 							</p>
-							<p className="font-bold text-gray-900">{user?.username}</p>
+							<p className="font-bold text-gray-900">{user?.name}</p>
 						</div>
 						<div className="rounded-xl bg-gray-50 px-5 py-4 ring-1 ring-black/5">
 							<p className="mb-1 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
@@ -122,10 +155,14 @@ function ProfileContent() {
 
 					<div className="space-y-4">
 						<div>
-							<label className="mb-1.5 block font-medium text-gray-700 text-sm">
+							<label
+								htmlFor="university-select"
+								className="mb-1.5 block font-medium text-gray-700 text-sm"
+							>
 								Universidad
 							</label>
 							<select
+								id="university-select"
 								value={selectedUni}
 								onChange={(e) => {
 									setSelectedUni(e.target.value);
@@ -144,10 +181,14 @@ function ProfileContent() {
 
 						{selectedUni && (
 							<div>
-								<label className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider">
+								<label
+									htmlFor="program-select"
+									className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider"
+								>
 									Programa Académico
 								</label>
 								<select
+									id="program-select"
 									value={selectedProgram}
 									onChange={(e) => setSelectedProgram(e.target.value)}
 									className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
@@ -164,6 +205,7 @@ function ProfileContent() {
 
 						{/* Pill save button */}
 						<button
+							type="button"
 							onClick={handleSave}
 							disabled={saving}
 							className="group mt-2 flex items-center gap-3 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-[0_4px_16px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:opacity-50 disabled:hover:translate-y-0"
@@ -216,7 +258,15 @@ function ProfileContent() {
 export default function ProfilePage() {
 	return (
 		<ProtectedRoute>
-			<ProfileContent />
+			<Suspense
+				fallback={
+					<div className="flex min-h-screen items-center justify-center">
+						<span className="h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+					</div>
+				}
+			>
+				<ProfileContent />
+			</Suspense>
 		</ProtectedRoute>
 	);
 }

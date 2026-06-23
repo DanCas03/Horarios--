@@ -20,7 +20,10 @@ export async function PUT(
 	});
 
 	if (!profile) {
-		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+		return NextResponse.json(
+			{ error: "Perfil no encontrado" },
+			{ status: 404 },
+		);
 	}
 
 	// Verificar que el horario pertenece al usuario
@@ -36,13 +39,12 @@ export async function PUT(
 	}
 
 	const body = await request.json();
-	const { universityId, periodId, scheduleType, sectionIds } =
-		body as {
-			universityId?: string;
-			periodId?: string;
-			scheduleType?: string;
-			sectionIds?: string[];
-		};
+	const { universityId, periodId, scheduleType, sectionIds } = body as {
+		universityId?: string;
+		periodId?: string;
+		scheduleType?: string;
+		sectionIds?: string[];
+	};
 
 	const updated = await prisma.schedule.update({
 		where: { id },
@@ -75,7 +77,10 @@ export async function DELETE(
 	});
 
 	if (!profile) {
-		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+		return NextResponse.json(
+			{ error: "Perfil no encontrado" },
+			{ status: 404 },
+		);
 	}
 
 	const existing = await prisma.schedule.findFirst({

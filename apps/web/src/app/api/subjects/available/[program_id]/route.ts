@@ -30,7 +30,7 @@ export async function GET(
 	const approvedIds = new Set(
 		(profile?.approvedSubjects ?? [])
 			.map((s: any) => (s as ApprovedSubjectItem).subjectId)
-			.filter((id: any) => !!id)
+			.filter((id: any) => !!id),
 	);
 
 	// Obtener el plan de estudios activo
@@ -51,7 +51,9 @@ export async function GET(
 	const availablePlanSubjects = planSubjects.filter((ps: any) => {
 		if (!ps.subjectId || approvedIds.has(ps.subjectId)) return false;
 		// Tiene que tener aprobados todos los prerrequisitos (identificados por subjectId)
-		return ps.prerequisiteIds.every((prereqId: any) => approvedIds.has(prereqId));
+		return ps.prerequisiteIds.every((prereqId: any) =>
+			approvedIds.has(prereqId),
+		);
 	});
 
 	const availableSubjectIds = availablePlanSubjects
@@ -69,12 +71,14 @@ export async function GET(
 
 	// Mapear con información de prerrequisitos/semestre
 	const result = availableSubjects.map((subject: any) => {
-		const planSubject = availablePlanSubjects.find((ps: any) => ps.subjectId === subject.id);
+		const planSubject = availablePlanSubjects.find(
+			(ps: any) => ps.subjectId === subject.id,
+		);
 		return {
 			...subject,
 			semesterSuggested: planSubject?.suggestedTerm || null,
 			prerequisites: planSubject?.prerequisiteIds || [],
-			corequisites: planSubject?.corequisiteIds || []
+			corequisites: planSubject?.corequisiteIds || [],
 		};
 	});
 

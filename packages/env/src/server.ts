@@ -3,7 +3,10 @@ import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
 const getDeploymentUrl = () => {
-	if (process.env.VERCEL_ENV === "production" && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+	if (
+		process.env.VERCEL_ENV === "production" &&
+		process.env.VERCEL_PROJECT_PRODUCTION_URL
+	) {
 		return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
 	}
 	if (process.env.VERCEL_BRANCH_URL) {
@@ -19,14 +22,10 @@ export const env = createEnv({
 	server: {
 		DATABASE_URL: z.string().min(1),
 		BETTER_AUTH_SECRET: z.string().min(32),
-		BETTER_AUTH_URL: z.preprocess(
-			(val) => val ?? getDeploymentUrl(),
-			z.string().url()
-		),
-		CORS_ORIGIN: z.preprocess(
-			(val) => val ?? getDeploymentUrl(),
-			z.string().url()
-		),
+		BETTER_AUTH_URL: z.preprocess((val) => val ?? getDeploymentUrl(), z.url()),
+		GOOGLE_CLIENT_ID: z.string().min(1),
+		GOOGLE_CLIENT_SECRET: z.string().min(1),
+		CORS_ORIGIN: z.preprocess((val) => val ?? getDeploymentUrl(), z.url()),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])
 			.default("development"),
