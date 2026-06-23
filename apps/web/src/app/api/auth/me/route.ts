@@ -56,11 +56,27 @@ export async function PUT(request: Request) {
 		academicProgramIds?: string[];
 	};
 
+	// Detectar cambio de carrera para invalidar las materias aprobadas del
+	// pensum anterior (las reseñas se conservan, están atadas a subjectCode).
+	const existing = await prisma.userProfile.findUnique({
+		where: { userId: session.user.id },
+		select: { academicProgramIds: true },
+	});
+
+	const programChanged =
+		academicProgramIds !== undefined &&
+		JSON.stringify([...academicProgramIds].sort()) !==
+			JSON.stringify([...(existing?.academicProgramIds ?? [])].sort());
+
 	const profile = await prisma.userProfile.upsert({
 		where: { userId: session.user.id },
 		update: {
 			...(universityIds !== undefined && { universityIds }),
 			...(academicProgramIds !== undefined && { academicProgramIds }),
+			...(programChanged && {
+				approvedSubjects: [],
+				totalApprovedCredits: 0,
+			}),
 		},
 		create: {
 			userId: session.user.id,
