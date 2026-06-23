@@ -3,7 +3,6 @@
 import {
 	BookOpen,
 	Calendar,
-	GraduationCap,
 	LogOut,
 	MessageSquare,
 	Settings,
@@ -14,6 +13,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
+import Logo from "@/components/logo";
 import { useAuth } from "@/context/auth-context";
 
 const NAV_LINKS = [
@@ -68,9 +68,9 @@ function NavbarContent() {
 					{/* Logo */}
 					{isNavDisabled ? (
 						<div
-							className={`mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight opacity-50 cursor-not-allowed ${scrolled ? "text-primary" : "text-white"}`}
+							className={`mr-2 flex cursor-not-allowed items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight opacity-50 ${scrolled ? "text-primary" : "text-white"}`}
 						>
-							<GraduationCap className="h-5 w-5 text-accent" />
+							<Logo className="h-5 w-5 text-accent" />
 							<span className="hidden sm:inline">Guía Estudiantil</span>
 						</div>
 					) : (
@@ -78,7 +78,7 @@ function NavbarContent() {
 							href="/"
 							className={`mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight transition-opacity hover:opacity-80 ${scrolled ? "text-primary" : "text-white"}`}
 						>
-							<GraduationCap className="h-5 w-5 text-accent" />
+							<Logo className="h-5 w-5 text-accent" />
 							<span className="hidden sm:inline">Guía Estudiantil</span>
 						</Link>
 					)}
@@ -93,7 +93,7 @@ function NavbarContent() {
 									return (
 										<span
 											key={href}
-											className={`rounded-full px-4 py-1.5 font-medium text-sm opacity-40 cursor-not-allowed ${scrolled ? "text-gray-400" : "text-white/40"}`}
+											className={`cursor-not-allowed rounded-full px-4 py-1.5 font-medium text-sm opacity-40 ${scrolled ? "text-gray-400" : "text-white/40"}`}
 										>
 											{label}
 										</span>
@@ -117,10 +117,10 @@ function NavbarContent() {
 					>
 						{user ? (
 							<>
-								{user.surveyCompleted && (
-									isNavDisabled ? (
+								{user.surveyCompleted &&
+									(isNavDisabled ? (
 										<span
-											className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-sm opacity-40 cursor-not-allowed ${scrolled ? "text-gray-400" : "text-white/40"}`}
+											className={`flex cursor-not-allowed items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-sm opacity-40 ${scrolled ? "text-gray-400" : "text-white/40"}`}
 										>
 											<User size={15} />
 											<span className="hidden max-w-[80px] truncate sm:inline">
@@ -137,12 +137,11 @@ function NavbarContent() {
 												{user.name}
 											</span>
 										</Link>
-									)
-								)}
+									))}
 								<button
 									onClick={handleLogout}
 									disabled={isNavDisabled}
-									className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-all hover:bg-red-50 hover:text-red-600 active:scale-90 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+									className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-all hover:bg-red-50 hover:text-red-600 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
 									title="Cerrar sesión"
 								>
 									<LogOut size={15} />
@@ -152,7 +151,7 @@ function NavbarContent() {
 							<>
 								{isNavDisabled ? (
 									<span
-										className={`rounded-full px-4 py-1.5 font-medium text-sm opacity-40 cursor-not-allowed ${scrolled ? "text-gray-400" : "text-white/40"}`}
+										className={`cursor-not-allowed rounded-full px-4 py-1.5 font-medium text-sm opacity-40 ${scrolled ? "text-gray-400" : "text-white/40"}`}
 									>
 										Iniciar Sesión
 									</span>
@@ -165,9 +164,7 @@ function NavbarContent() {
 									</Link>
 								)}
 								{isNavDisabled ? (
-									<div
-										className="flex items-center gap-2 rounded-full bg-accent opacity-40 cursor-not-allowed px-4 py-1.5 font-semibold text-primary-dark text-sm"
-									>
+									<div className="flex cursor-not-allowed items-center gap-2 rounded-full bg-accent px-4 py-1.5 font-semibold text-primary-dark text-sm opacity-40">
 										Registrarse
 									</div>
 								) : (
@@ -177,7 +174,12 @@ function NavbarContent() {
 									>
 										Registrarse
 										<span className="flex h-5 w-5 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px]">
-											<svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+											<svg
+												width="10"
+												height="10"
+												viewBox="0 0 10 10"
+												fill="none"
+											>
 												<title>Flecha de registro</title>
 												<path
 													d="M2 8L8 2M8 2H3M8 2V7"
@@ -199,7 +201,11 @@ function NavbarContent() {
 						className={`relative ml-1 flex h-9 w-9 items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90 md:hidden ${scrolled ? "text-gray-700" : "text-white"}`}
 						onClick={() => !isNavDisabled && setMobileOpen(!mobileOpen)}
 						disabled={isNavDisabled}
-						style={isNavDisabled ? { opacity: 0.4, cursor: "not-allowed" } : undefined}
+						style={
+							isNavDisabled
+								? { opacity: 0.4, cursor: "not-allowed" }
+								: undefined
+						}
 						aria-label="Menú"
 					>
 						<span
@@ -285,8 +291,8 @@ function NavbarContent() {
 const NavbarSkeleton = () => (
 	<header className="pointer-events-none fixed top-0 right-0 left-0 z-50 flex justify-center">
 		<nav className="pointer-events-auto mt-4 flex items-center gap-1 rounded-full border border-white/20 bg-primary/85 px-3 py-2 shadow-[0_4px_24px_rgba(31,54,83,0.3)] backdrop-blur-xl">
-			<div className="mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight text-white">
-				<GraduationCap className="h-5 w-5 text-accent" />
+			<div className="mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm text-white tracking-tight">
+				<Logo className="h-5 w-5 text-accent" />
 				<span className="hidden sm:inline">Guía Estudiantil</span>
 			</div>
 		</nav>
@@ -300,4 +306,3 @@ export default function Navbar() {
 		</Suspense>
 	);
 }
-

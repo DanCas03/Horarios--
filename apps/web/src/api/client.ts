@@ -120,6 +120,7 @@ export const reviewsAPI = {
 		}),
 	byProfessor: (teacherId: string) =>
 		api.get(`/reviews/professor/${teacherId}`),
+	mine: () => api.get("/reviews/mine"),
 	create: (data: {
 		subjectCode: string;
 		universityId?: string;

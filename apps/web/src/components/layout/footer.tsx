@@ -1,9 +1,9 @@
 "use client";
 
-import { GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import Logo from "@/components/logo";
 
 function FooterContent() {
 	const searchParams = useSearchParams();
@@ -20,7 +20,7 @@ function FooterContent() {
 					{/* Brand */}
 					<div className="max-w-xs">
 						<div className="mb-4 flex items-center gap-2">
-							<GraduationCap className="h-6 w-6 text-accent" />
+							<Logo className="h-6 w-6 text-accent" />
 							<span className="font-extrabold text-gray-900 tracking-tight">
 								Guía Estudiantil
 							</span>
@@ -97,4 +97,3 @@ export default function Footer() {
 		</Suspense>
 	);
 }
-

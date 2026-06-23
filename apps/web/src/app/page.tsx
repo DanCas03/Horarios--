@@ -1,36 +1,52 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import { BookOpen, Calendar, MessageSquare, TrendingUp } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
+import { useState } from "react";
 
 import { useAuth } from "@/context/auth-context";
 import { useReveal } from "@/hooks/use-reveal";
 
-const features = [
+type Feature = {
+	icon: LucideIcon;
+	title: string;
+	desc: string;
+	href?: Route;
+	comingSoon?: boolean;
+};
+
+const features: Feature[] = [
 	{
 		icon: BookOpen,
 		title: "Seguimiento de Pensum",
 		desc: "Visualiza tu avance académico, marca materias aprobadas y conoce tus prelaciones automáticamente.",
+		href: "/pensum",
 	},
 	{
 		icon: Calendar,
 		title: "Planificación de Horarios",
 		desc: "Organiza tus próximos semestres con materias tentativas y genera horarios óptimos.",
+		comingSoon: true,
 	},
 	{
 		icon: MessageSquare,
 		title: "Reseñas Anónimas",
 		desc: "Comparte y consulta opiniones sobre materias y profesores de forma completamente anónima.",
+		href: "/reviews",
 	},
 	{
 		icon: TrendingUp,
 		title: "Análisis Inteligente",
 		desc: "Recibe sugerencias basadas en tu progreso, dificultad y objetivos académicos.",
+		comingSoon: true,
 	},
 ];
 
 export default function Home() {
 	const { user } = useAuth();
+	const [tooltip, setTooltip] = useState<{ x: number; y: number } | null>(null);
 	useReveal();
 
 	return (
@@ -127,58 +143,53 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* ─── UNIVERSITIES (Asymmetric Z-Axis cards) ──────────────────── */}
+			{/* ─── SURVEY CTA (reemplaza cartas de universidades) ──────────── */}
 			<section className="relative z-10 mx-auto -mt-12 max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div className="grid gap-6 md:grid-cols-2 md:items-start">
-					{/* Double-Bezel card — UCAB */}
-					<div className="reveal rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
-						<div className="group relative cursor-pointer overflow-hidden rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(13,95,56,0.1)]">
-							<div className="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-ucab-green to-ucab-gold" />
-							<div className="mb-6 flex items-center gap-4">
-								<div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ucab-green/8 ring-1 ring-ucab-green/15 transition-colors group-hover:bg-ucab-green/12">
-									<span className="font-extrabold text-sm text-ucab-green tracking-tight">
-										UCAB
-									</span>
+				<div className="reveal rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
+					<div className="relative overflow-hidden rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] sm:p-10">
+						<div className="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-primary to-accent" />
+						<div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:justify-between">
+							<div className="max-w-xl">
+								<div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/8 ring-1 ring-primary/15">
+									<MessageSquare className="h-6 w-6 text-primary" />
 								</div>
-								<div>
-									<h3 className="font-extrabold text-gray-900 text-xl tracking-tight">
-										Universidad Católica
-									</h3>
-									<p className="font-medium text-gray-400 text-sm">
-										Sistema Semestral
-									</p>
-								</div>
+								<h3 className="font-extrabold text-2xl text-gray-900 tracking-tight">
+									{user
+										? user.surveyCompleted
+											? "Retoma la encuesta"
+											: "Continúa tu encuesta"
+										: "Comparte tus reseñas"}
+								</h3>
+								<p className="mt-2 text-gray-500 text-sm leading-relaxed">
+									{user
+										? user.surveyCompleted
+											? "¿Cursaste otras materias? Vuelve a la encuesta y reseña las que te faltan. Las que ya reseñaste quedan guardadas."
+											: "Termina de reseñar tus materias cursadas para ayudar a la comunidad estudiantil."
+										: "Regístrate para reseñar tus materias y ayudar a otros estudiantes a decidir."}
+								</p>
 							</div>
-							<p className="text-gray-500 text-sm leading-relaxed">
-								Accede al pensum de todas las carreras de la UCAB, planifica tus
-								semestres y consulta reseñas de la comunidad.
-							</p>
-						</div>
-					</div>
-
-					{/* Double-Bezel card — UNIMET (offset) */}
-					<div className="reveal reveal-delay-2 rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5 md:mt-16">
-						<div className="group relative cursor-pointer overflow-hidden rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_20px_48px_rgba(17,54,89,0.1)]">
-							<div className="absolute top-0 left-0 h-0.5 w-full bg-gradient-to-r from-unimet-blue to-unimet-gold" />
-							<div className="mb-6 flex items-center gap-4">
-								<div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-unimet-blue/8 ring-1 ring-unimet-blue/15 transition-colors group-hover:bg-unimet-blue/12">
-									<span className="font-extrabold text-sm text-unimet-blue tracking-tight">
-										UNIMET
-									</span>
-								</div>
-								<div>
-									<h3 className="font-extrabold text-gray-900 text-xl tracking-tight">
-										Universidad Metropolitana
-									</h3>
-									<p className="font-medium text-gray-400 text-sm">
-										Sistema Trimestral
-									</p>
-								</div>
-							</div>
-							<p className="text-gray-500 text-sm leading-relaxed">
-								Explora los programas de la UNIMET, marca tu progreso y organiza
-								tus trimestres de forma eficiente.
-							</p>
+							<Link
+								href={user ? "/encuesta" : "/register"}
+								className="group flex flex-shrink-0 items-center gap-3 rounded-full bg-primary px-7 py-4 font-bold text-white shadow-[0_8px_24px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(31,54,83,0.45)] active:scale-[0.98]"
+							>
+								{user
+									? user.surveyCompleted
+										? "Retomar encuesta"
+										: "Continuar encuesta"
+									: "Comenzar ahora"}
+								<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
+									<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+										<title>Icono flecha encuesta</title>
+										<path
+											d="M2 10L10 2M10 2H4M10 2V8"
+											stroke="currentColor"
+											strokeWidth="2"
+											strokeLinecap="round"
+											strokeLinejoin="round"
+										/>
+									</svg>
+								</span>
+							</Link>
 						</div>
 					</div>
 				</div>
@@ -207,11 +218,9 @@ export default function Home() {
 
 				{/* Feature grid — asymmetric bento */}
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-					{features.map((f, i) => (
-						<div
-							key={f.title}
-							className={`reveal reveal-delay-${i + 1} rounded-[2rem] bg-black/[0.02] p-2 ring-1 ring-black/5 ${i === 0 ? "lg:col-span-2" : ""}`}
-						>
+					{features.map((f, i) => {
+						const wrapperClass = `reveal reveal-delay-${i + 1} block rounded-[2rem] bg-black/[0.02] p-2 ring-1 ring-black/5 ${i === 0 ? "lg:col-span-2" : ""}`;
+						const inner = (
 							<div className="group h-full rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_24px_48px_rgb(0,0,0,0.06)]">
 								<div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 ring-1 ring-black/5 transition-all duration-500 group-hover:scale-105 group-hover:bg-primary group-hover:ring-primary">
 									<f.icon className="h-6 w-6 text-gray-500 transition-colors duration-300 group-hover:text-white" />
@@ -223,8 +232,37 @@ export default function Home() {
 									{f.desc}
 								</p>
 							</div>
-						</div>
-					))}
+						);
+
+						if (f.comingSoon) {
+							return (
+								// biome-ignore lint/a11y/noStaticElementInteractions: tarjeta no accionable; solo muestra el tooltip "Próximamente" al pasar el cursor
+								<div
+									key={f.title}
+									className={`${wrapperClass} cursor-default`}
+									onMouseEnter={(e) =>
+										setTooltip({ x: e.clientX, y: e.clientY })
+									}
+									onMouseMove={(e) =>
+										setTooltip({ x: e.clientX, y: e.clientY })
+									}
+									onMouseLeave={() => setTooltip(null)}
+								>
+									{inner}
+								</div>
+							);
+						}
+
+						return (
+							<Link
+								key={f.title}
+								href={f.href as Route}
+								className={wrapperClass}
+							>
+								{inner}
+							</Link>
+						);
+					})}
 				</div>
 			</section>
 
@@ -273,6 +311,15 @@ export default function Home() {
 						</div>
 					</div>
 				</section>
+			)}
+
+			{tooltip && (
+				<div
+					className="pointer-events-none fixed z-50 rounded-full bg-primary-dark px-3 py-1.5 font-semibold text-white text-xs shadow-lg"
+					style={{ left: tooltip.x + 14, top: tooltip.y + 14 }}
+				>
+					Próximamente
+				</div>
 			)}
 		</div>
 	);
