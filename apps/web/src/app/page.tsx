@@ -28,7 +28,7 @@ const features: Feature[] = [
 		icon: Calendar,
 		title: "Planificación de Horarios",
 		desc: "Organiza tus próximos semestres con materias tentativas y genera horarios óptimos.",
-		href: "/schedule",
+		comingSoon: true,
 	},
 	{
 		icon: MessageSquare,
