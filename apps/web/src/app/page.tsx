@@ -1,36 +1,52 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import { BookOpen, Calendar, MessageSquare, TrendingUp } from "lucide-react";
+import type { Route } from "next";
 import Link from "next/link";
+import { useState } from "react";
 
 import { useAuth } from "@/context/auth-context";
 import { useReveal } from "@/hooks/use-reveal";
 
-const features = [
+type Feature = {
+	icon: LucideIcon;
+	title: string;
+	desc: string;
+	href?: Route;
+	comingSoon?: boolean;
+};
+
+const features: Feature[] = [
 	{
 		icon: BookOpen,
 		title: "Seguimiento de Pensum",
 		desc: "Visualiza tu avance académico, marca materias aprobadas y conoce tus prelaciones automáticamente.",
+		href: "/pensum",
 	},
 	{
 		icon: Calendar,
 		title: "Planificación de Horarios",
 		desc: "Organiza tus próximos semestres con materias tentativas y genera horarios óptimos.",
+		href: "/schedule",
 	},
 	{
 		icon: MessageSquare,
 		title: "Reseñas Anónimas",
 		desc: "Comparte y consulta opiniones sobre materias y profesores de forma completamente anónima.",
+		href: "/reviews",
 	},
 	{
 		icon: TrendingUp,
 		title: "Análisis Inteligente",
 		desc: "Recibe sugerencias basadas en tu progreso, dificultad y objetivos académicos.",
+		comingSoon: true,
 	},
 ];
 
 export default function Home() {
 	const { user } = useAuth();
+	const [tooltip, setTooltip] = useState<{ x: number; y: number } | null>(null);
 	useReveal();
 
 	return (
@@ -202,11 +218,9 @@ export default function Home() {
 
 				{/* Feature grid — asymmetric bento */}
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-					{features.map((f, i) => (
-						<div
-							key={f.title}
-							className={`reveal reveal-delay-${i + 1} rounded-[2rem] bg-black/[0.02] p-2 ring-1 ring-black/5 ${i === 0 ? "lg:col-span-2" : ""}`}
-						>
+					{features.map((f, i) => {
+						const wrapperClass = `reveal reveal-delay-${i + 1} block rounded-[2rem] bg-black/[0.02] p-2 ring-1 ring-black/5 ${i === 0 ? "lg:col-span-2" : ""}`;
+						const inner = (
 							<div className="group h-full rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_24px_48px_rgb(0,0,0,0.06)]">
 								<div className="mb-8 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 ring-1 ring-black/5 transition-all duration-500 group-hover:scale-105 group-hover:bg-primary group-hover:ring-primary">
 									<f.icon className="h-6 w-6 text-gray-500 transition-colors duration-300 group-hover:text-white" />
@@ -218,8 +232,37 @@ export default function Home() {
 									{f.desc}
 								</p>
 							</div>
-						</div>
-					))}
+						);
+
+						if (f.comingSoon) {
+							return (
+								// biome-ignore lint/a11y/noStaticElementInteractions: tarjeta no accionable; solo muestra el tooltip "Próximamente" al pasar el cursor
+								<div
+									key={f.title}
+									className={`${wrapperClass} cursor-default`}
+									onMouseEnter={(e) =>
+										setTooltip({ x: e.clientX, y: e.clientY })
+									}
+									onMouseMove={(e) =>
+										setTooltip({ x: e.clientX, y: e.clientY })
+									}
+									onMouseLeave={() => setTooltip(null)}
+								>
+									{inner}
+								</div>
+							);
+						}
+
+						return (
+							<Link
+								key={f.title}
+								href={f.href as Route}
+								className={wrapperClass}
+							>
+								{inner}
+							</Link>
+						);
+					})}
 				</div>
 			</section>
 
@@ -268,6 +311,15 @@ export default function Home() {
 						</div>
 					</div>
 				</section>
+			)}
+
+			{tooltip && (
+				<div
+					className="pointer-events-none fixed z-50 rounded-full bg-primary-dark px-3 py-1.5 font-semibold text-white text-xs shadow-lg"
+					style={{ left: tooltip.x + 14, top: tooltip.y + 14 }}
+				>
+					Próximamente
+				</div>
 			)}
 		</div>
 	);
