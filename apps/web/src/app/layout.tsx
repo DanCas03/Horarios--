@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Guía Estudiantil",
 	description: "Planifica tu carrera, pensum, horarios y reseñas.",
+	icons: {
+		apple: "/favicon/apple-touch-icon.png",
+	},
+	manifest: "/favicon/site.webmanifest",
 };
 
 export default function RootLayout({
