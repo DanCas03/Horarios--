@@ -28,6 +28,7 @@ import {
 	teachersAPI,
 } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
+import ChangeCareerModal from "@/components/encuesta/change-career-modal";
 import { useAuth } from "@/context/auth-context";
 import { hasProfanity } from "@/lib/profanity";
 
@@ -773,6 +774,7 @@ function EncuestaContent() {
 	const [finishingError, setFinishingError] = useState("");
 	const [finishing, setFinishing] = useState(false);
 	const [showUnsavedModal, setShowUnsavedModal] = useState(false);
+	const [showChangeCareer, setShowChangeCareer] = useState(false);
 	const lastFormRef = useRef<HTMLDivElement>(null);
 
 	const hasUnsavedChanges = useMemo(() => {
@@ -1016,6 +1018,22 @@ function EncuestaContent() {
 					<p className="mt-2 text-gray-500 text-sm">
 						Comparte tu experiencia con las materias que cursaste
 					</p>
+					{academicProgramName && (
+						<button
+							type="button"
+							onClick={() => setShowChangeCareer(true)}
+							className="mt-1.5 text-gray-400 text-xs transition-colors hover:text-primary"
+						>
+							Carrera:{" "}
+							<span className="font-medium text-gray-600">
+								{academicProgramName}
+							</span>{" "}
+							·{" "}
+							<span className="font-semibold text-primary underline">
+								Cambiar
+							</span>
+						</button>
+					)}
 				</div>
 
 				{/* Saved counter + finish button */}
@@ -1218,6 +1236,11 @@ function EncuestaContent() {
 					</div>
 				</div>
 			)}
+
+			<ChangeCareerModal
+				open={showChangeCareer}
+				onClose={() => setShowChangeCareer(false)}
+			/>
 		</div>
 	);
 }

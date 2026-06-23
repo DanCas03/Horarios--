@@ -12,6 +12,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { parseApiError, subjectsAPI } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
+import ChangeCareerModal from "@/components/encuesta/change-career-modal";
 import { useAuth } from "@/context/auth-context";
 
 interface PensumSubject {
@@ -36,6 +37,7 @@ function OnboardingContent() {
 	const [collapsedSemesters, setCollapsedSemesters] = useState<Set<number>>(
 		new Set(),
 	);
+	const [showChangeCareer, setShowChangeCareer] = useState(false);
 
 	// Si ya tiene materias aprobadas y no está editando, ir directo a encuesta
 	useEffect(() => {
@@ -175,6 +177,16 @@ function OnboardingContent() {
 					Marca las materias que ya aprobaste. Solo podras hacer resenas de
 					estas materias.
 				</p>
+				<button
+					type="button"
+					onClick={() => setShowChangeCareer(true)}
+					className="mt-3 text-gray-400 text-xs transition-colors hover:text-primary"
+				>
+					¿Carrera equivocada?{" "}
+					<span className="font-semibold text-primary underline">
+						Cambiar carrera
+					</span>
+				</button>
 			</div>
 
 			{error && (
@@ -338,6 +350,11 @@ function OnboardingContent() {
 					)}
 				</button>
 			</div>
+
+			<ChangeCareerModal
+				open={showChangeCareer}
+				onClose={() => setShowChangeCareer(false)}
+			/>
 		</div>
 	);
 }
