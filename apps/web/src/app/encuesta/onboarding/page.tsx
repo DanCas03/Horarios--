@@ -21,6 +21,7 @@ interface PensumSubject {
 	name: string;
 	credits: number;
 	semesterSuggested: number | null;
+	prerequisites: string[];
 }
 
 function OnboardingContent() {
@@ -89,27 +90,100 @@ function OnboardingContent() {
 		return Array.from(map.entries()).sort(([a], [b]) => a - b);
 	}, [subjects]);
 
-	const toggleSubject = useCallback((id: string) => {
-		setSelectedIds((prev) => {
-			const next = new Set(prev);
-			if (next.has(id)) next.delete(id);
-			else next.add(id);
-			return next;
-		});
-	}, []);
+	const toggleSubject = useCallback(
+		(id: string) => {
+			setSelectedIds((prev) => {
+				const next = new Set(prev);
+				if (next.has(id)) {
+					// We are deselecting. We must recursively remove all subjects that depend on this one.
+					const toRemove = new Set<string>([id]);
+					let addedAny = true;
+					while (addedAny) {
+						addedAny = false;
+						for (const s of subjects) {
+							if (next.has(s.id) && !toRemove.has(s.id)) {
+								const hasPrereqInToRemove = s.prerequisites?.some((p) =>
+									toRemove.has(p),
+								);
+								if (hasPrereqInToRemove) {
+									toRemove.add(s.id);
+									addedAny = true;
+								}
+							}
+						}
+					}
+					for (const rId of toRemove) {
+						next.delete(rId);
+					}
+				} else {
+					// We are selecting. We only allow it if prerequisites are met.
+					const subject = subjects.find((s) => s.id === id);
+					const prereqsMet =
+						subject?.prerequisites?.every((pId) => next.has(pId)) ?? true;
+					if (prereqsMet) {
+						next.add(id);
+					}
+				}
+				return next;
+			});
+		},
+		[subjects],
+	);
 
-	const toggleSemester = useCallback((semesterSubjects: PensumSubject[]) => {
-		setSelectedIds((prev) => {
-			const next = new Set(prev);
-			const allSelected = semesterSubjects.every((s) => next.has(s.id));
-			if (allSelected) {
-				for (const s of semesterSubjects) next.delete(s.id);
-			} else {
-				for (const s of semesterSubjects) next.add(s.id);
-			}
-			return next;
-		});
-	}, []);
+	const toggleSemester = useCallback(
+		(semesterSubjects: PensumSubject[]) => {
+			setSelectedIds((prev) => {
+				const next = new Set(prev);
+				// Check if all selectable subjects in the semester are currently selected
+				const selectableSubjects = semesterSubjects.filter(
+					(s) =>
+						next.has(s.id) ||
+						(s.prerequisites?.every((pId) => next.has(pId)) ?? true),
+				);
+				const allSelectableSelected = selectableSubjects.every((s) =>
+					next.has(s.id),
+				);
+
+				if (allSelectableSelected) {
+					// Deselect all subjects in this semester and recursively deselect dependents
+					const toRemove = new Set<string>(semesterSubjects.map((s) => s.id));
+					let addedAny = true;
+					while (addedAny) {
+						addedAny = false;
+						for (const s of subjects) {
+							if (next.has(s.id) && !toRemove.has(s.id)) {
+								if (s.prerequisites?.some((p) => toRemove.has(p))) {
+									toRemove.add(s.id);
+									addedAny = true;
+								}
+							}
+						}
+					}
+					for (const rId of toRemove) {
+						next.delete(rId);
+					}
+				} else {
+					// Select all selectable subjects in this semester, repeating to handle same-semester dependencies
+					let addedAny = true;
+					while (addedAny) {
+						addedAny = false;
+						for (const s of semesterSubjects) {
+							if (!next.has(s.id)) {
+								const prereqsMet =
+									s.prerequisites?.every((pId) => next.has(pId)) ?? true;
+								if (prereqsMet) {
+									next.add(s.id);
+									addedAny = true;
+								}
+							}
+						}
+					}
+				}
+				return next;
+			});
+		},
+		[subjects],
+	);
 
 	const toggleCollapse = useCallback((sem: number) => {
 		setCollapsedSemesters((prev) => {
@@ -268,22 +342,40 @@ function OnboardingContent() {
 								<div className="border-gray-50 border-t px-3 pb-3">
 									{semSubjects.map((subject) => {
 										const isSelected = selectedIds.has(subject.id);
+										const prereqsMet =
+											subject.prerequisites?.every((pId) =>
+												selectedIds.has(pId),
+											) ?? true;
+										const isDisabled = !isSelected && !prereqsMet;
+
 										return (
 											<button
 												type="button"
 												key={subject.id}
 												onClick={() => toggleSubject(subject.id)}
-												className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
+												disabled={isDisabled}
+												className={`mt-1 flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-all ${
 													isSelected
-														? "bg-green-50 ring-1 ring-green-600/10"
-														: "hover:bg-gray-50"
+														? "bg-green-50 ring-1 ring-green-600/10 active:scale-[0.98]"
+														: isDisabled
+															? "cursor-not-allowed bg-gray-50/50 opacity-50"
+															: "hover:bg-gray-50 active:scale-[0.98]"
 												}`}
+												title={
+													isDisabled
+														? "Faltan materias prerrequisito por aprobar"
+														: isSelected
+															? "Desmarcar materia"
+															: "Marcar materia como aprobada"
+												}
 											>
 												<div
-													className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
+													className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
 														isSelected
 															? "border-green-600 bg-green-600"
-															: "border-gray-300"
+															: isDisabled
+																? "border-gray-200 bg-gray-100"
+																: "border-gray-300"
 													}`}
 												>
 													{isSelected && (
@@ -291,20 +383,58 @@ function OnboardingContent() {
 													)}
 												</div>
 												<div className="min-w-0 flex-1">
-													<div className="flex items-center gap-2">
+													<div className="flex flex-wrap items-center gap-x-2">
 														<span
-															className={`font-mono font-semibold text-xs ${isSelected ? "text-green-700" : "text-primary"}`}
+															className={`font-mono font-semibold text-xs ${
+																isSelected
+																	? "text-green-700"
+																	: isDisabled
+																		? "text-gray-400"
+																		: "text-primary"
+															}`}
 														>
 															{subject.code}
 														</span>
 														<span
-															className={`truncate text-sm ${isSelected ? "font-medium text-green-900" : "text-gray-700"}`}
+															className={`truncate text-sm ${
+																isSelected
+																	? "font-medium text-green-900"
+																	: isDisabled
+																		? "text-gray-400"
+																		: "text-gray-700"
+															}`}
 														>
 															{subject.name}
 														</span>
 													</div>
+													{subject.prerequisites &&
+														subject.prerequisites.length > 0 && (
+															<div className="mt-1.5 flex flex-wrap items-center gap-1">
+																<span className="font-medium text-[10px] text-gray-400">
+																	Requisitos:
+																</span>
+																{subject.prerequisites.map((pId) => {
+																	const pCode =
+																		subjects.find((s) => s.id === pId)?.code ??
+																		pId;
+																	const met = selectedIds.has(pId);
+																	return (
+																		<span
+																			key={pId}
+																			className={`inline-flex items-center rounded px-1.5 py-0.5 font-semibold text-[9px] ${
+																				met
+																					? "bg-green-100 text-green-700"
+																					: "bg-amber-100 text-amber-700"
+																			}`}
+																		>
+																			{pCode}
+																		</span>
+																	);
+																})}
+															</div>
+														)}
 												</div>
-												<span className="flex-shrink-0 text-gray-400 text-xs">
+												<span className="mt-0.5 flex-shrink-0 text-gray-400 text-xs">
 													{subject.credits} cr
 												</span>
 											</button>
