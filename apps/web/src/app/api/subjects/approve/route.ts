@@ -57,7 +57,8 @@ export async function POST(request: Request) {
 		where: { userId: session.user.id },
 	});
 
-	const approvedSubjects = (profile?.approvedSubjects ?? []) as ApprovedSubjectItem[];
+	const approvedSubjects = (profile?.approvedSubjects ??
+		[]) as ApprovedSubjectItem[];
 
 	// Verificar que no esté ya aprobada
 	if (approvedSubjects.some((s) => s.subjectId === subjectId)) {
@@ -86,7 +87,7 @@ export async function POST(request: Request) {
 	});
 
 	return NextResponse.json({
-		message: `Materia marcada como aprobada`,
+		message: "Materia marcada como aprobada",
 		totalApprovedCredits: updatedProfile.totalApprovedCredits,
 	});
 }

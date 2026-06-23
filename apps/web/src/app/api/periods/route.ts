@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
 	});
 
 	if (!profile) {
-		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+		return NextResponse.json(
+			{ error: "Perfil no encontrado" },
+			{ status: 404 },
+		);
 	}
 
 	const universityId = requestedUniversityId || profile.universityIds[0];
@@ -26,7 +29,7 @@ export async function GET(request: NextRequest) {
 	if (!universityId) {
 		return NextResponse.json(
 			{ error: "No se ha especificado la universidad" },
-			{ status: 400 }
+			{ status: 400 },
 		);
 	}
 
@@ -45,7 +48,7 @@ export async function GET(request: NextRequest) {
 		console.error("Error al obtener periodos:", error);
 		return NextResponse.json(
 			{ error: "Error al obtener periodos" },
-			{ status: 500 }
+			{ status: 500 },
 		);
 	}
 }

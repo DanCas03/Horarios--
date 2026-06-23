@@ -12,8 +12,13 @@ import {
 	Trash2,
 	X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { parseApiError, periodsAPI, schedulesAPI, subjectsAPI } from "@/api/client";
+import { useCallback, useEffect, useState } from "react";
+import {
+	parseApiError,
+	periodsAPI,
+	schedulesAPI,
+	subjectsAPI,
+} from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
@@ -33,8 +38,13 @@ const formatPeriod = (p: Period) => {
 		label += ` - ${p.termType}`;
 	}
 	if (p.start && p.end) {
-		const startMonth = new Date(p.start).toLocaleDateString("es-ES", { month: "long" });
-		const endMonth = new Date(p.end).toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+		const startMonth = new Date(p.start).toLocaleDateString("es-ES", {
+			month: "long",
+		});
+		const endMonth = new Date(p.end).toLocaleDateString("es-ES", {
+			month: "long",
+			year: "numeric",
+		});
 		const capStart = startMonth.charAt(0).toUpperCase() + startMonth.slice(1);
 		const capEnd = endMonth.charAt(0).toUpperCase() + endMonth.slice(1);
 		label += ` (${capStart} - ${capEnd})`;
@@ -76,18 +86,6 @@ interface AvailableSubject {
 	semester_suggested: number;
 }
 
-interface RawScheduleBlock {
-	subjectCode?: string;
-	subjectName?: string;
-	section: string;
-	professor?: string;
-	day: string;
-	startTime: string;
-	endTime: string;
-	classroom?: string;
-	modality: string;
-}
-
 interface RawSchedule {
 	id: string;
 	period: string;
@@ -102,18 +100,23 @@ const normalizeSchedule = (raw: RawSchedule): Schedule => ({
 	_id: raw.id,
 	period: raw.period,
 	schedule_type: raw.scheduleType,
-	blocks: (raw.scheduleType === "current" ? raw.customBlocks ?? [] : []).map((b: any) => ({
-		subject_code: b.subjectCode ?? "",
-		subject_name: b.subjectName,
-		section: b.section,
-		professor: b.professor,
-		day: b.day,
-		start_time: b.startTime,
-		end_time: b.endTime,
-		classroom: b.classroom,
-		modality: b.modality,
-	})),
-	tentative_subjects: (raw.scheduleType === "tentative" ? raw.customBlocks ?? [] : []).map((s: any) => ({
+	blocks: (raw.scheduleType === "current" ? (raw.customBlocks ?? []) : []).map(
+		(b: any) => ({
+			subject_code: b.subjectCode ?? "",
+			subject_name: b.subjectName,
+			section: b.section,
+			professor: b.professor,
+			day: b.day,
+			start_time: b.startTime,
+			end_time: b.endTime,
+			classroom: b.classroom,
+			modality: b.modality,
+		}),
+	),
+	tentative_subjects: (raw.scheduleType === "tentative"
+		? (raw.customBlocks ?? [])
+		: []
+	).map((s: any) => ({
 		subject_code: s.subjectCode ?? "",
 		subject_name: s.subjectName,
 		priority: s.priority,
@@ -179,16 +182,12 @@ function ScheduleContent() {
 	// Expand/collapse for existing schedules
 	const [expandedId, setExpandedId] = useState<string | null>(null);
 
-	useEffect(() => {
-		loadData();
-	}, []);
-
-	const loadData = async () => {
+	const loadData = useCallback(async () => {
 		setLoading(true);
 		try {
 			const schedRes = await schedulesAPI.my();
 			setSchedules((schedRes.data as RawSchedule[]).map(normalizeSchedule));
-			
+
 			const periodsRes = await periodsAPI.list();
 			const fetchedPeriods = periodsRes.data as Period[];
 			setPeriods(fetchedPeriods);
@@ -223,7 +222,11 @@ function ScheduleContent() {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [user?.academicProgramIds]);
+
+	useEffect(() => {
+		loadData();
+	}, [loadData]);
 
 	// ── Tentative handlers ──────────────────────────────────────────────────────
 	const toggleSubject = (code: string) => {
@@ -254,7 +257,9 @@ function ScheduleContent() {
 					priority: 1,
 				};
 			});
-			await schedulesAPI.createTentative(tentativePeriod.trim(), { customBlocks: subjects });
+			await schedulesAPI.createTentative(tentativePeriod.trim(), {
+				customBlocks: subjects,
+			});
 			setSelected(new Set());
 			setTentativePeriod("");
 			await loadData();
@@ -501,7 +506,7 @@ function ScheduleContent() {
 											id="tentative-period"
 											value={tentativePeriod}
 											onChange={(e) => setTentativePeriod(e.target.value)}
-											className="w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
+											className="w-48 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 										>
 											{periods.map((p) => (
 												<option key={p.id} value={p.id}>
@@ -509,7 +514,9 @@ function ScheduleContent() {
 												</option>
 											))}
 											{periods.length === 0 && (
-												<option value={tentativePeriod}>{tentativePeriod || "Sin periodos"}</option>
+												<option value={tentativePeriod}>
+													{tentativePeriod || "Sin periodos"}
+												</option>
 											)}
 										</select>
 									</div>
@@ -611,7 +618,7 @@ function ScheduleContent() {
 									id="current-period"
 									value={currentPeriod}
 									onChange={(e) => setCurrentPeriod(e.target.value)}
-									className="w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
+									className="w-48 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 								>
 									{periods.map((p) => (
 										<option key={p.id} value={p.id}>
@@ -619,7 +626,9 @@ function ScheduleContent() {
 										</option>
 									))}
 									{periods.length === 0 && (
-										<option value={currentPeriod}>{currentPeriod || "Sin periodos"}</option>
+										<option value={currentPeriod}>
+											{currentPeriod || "Sin periodos"}
+										</option>
 									)}
 								</select>
 							</div>

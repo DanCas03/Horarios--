@@ -6,6 +6,7 @@ import {
 	GraduationCap,
 	LogOut,
 	MessageSquare,
+	Settings,
 	User,
 } from "lucide-react";
 import type { Route } from "next";
@@ -19,6 +20,7 @@ const NAV_LINKS = [
 	{ href: "/pensum" as Route, label: "Pensum", Icon: BookOpen },
 	{ href: "/schedule" as Route, label: "Horarios", Icon: Calendar },
 	{ href: "/reviews" as Route, label: "Reseñas", Icon: MessageSquare },
+	{ href: "/admin" as Route, label: "Admin", Icon: Settings },
 ];
 
 export default function Navbar() {
@@ -69,9 +71,10 @@ export default function Navbar() {
 
 					{/* Desktop links */}
 					<div className="hidden items-center gap-1 md:flex">
-						{user &&
-							user.surveyCompleted &&
-							NAV_LINKS.map(({ href, label }) => (
+						{user?.surveyCompleted &&
+							NAV_LINKS.filter(
+								({ href }) => href !== "/admin" || user?.role === "admin",
+							).map(({ href, label }) => (
 								<Link
 									key={href}
 									href={href}
@@ -95,7 +98,7 @@ export default function Navbar() {
 									>
 										<User size={15} />
 										<span className="hidden max-w-[80px] truncate sm:inline">
-											{user.username}
+											{user.name}
 										</span>
 									</Link>
 								)}
@@ -122,6 +125,7 @@ export default function Navbar() {
 									Registrarse
 									<span className="flex h-5 w-5 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px]">
 										<svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+											<title>Flecha de registro</title>
 											<path
 												d="M2 8L8 2M8 2H3M8 2V7"
 												stroke="currentColor"
@@ -168,7 +172,9 @@ export default function Navbar() {
 						<>
 							{user.surveyCompleted && (
 								<>
-									{NAV_LINKS.map(({ href, label, Icon }, i) => (
+									{NAV_LINKS.filter(
+										({ href }) => href !== "/admin" || user?.role === "admin",
+									).map(({ href, label, Icon }, i) => (
 										<Link
 											key={href}
 											href={href}
@@ -185,7 +191,7 @@ export default function Navbar() {
 										className={`reveal reveal-delay-4 flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
 									>
 										<User size={24} />
-										{user.username}
+										{user.name}
 									</Link>
 								</>
 							)}

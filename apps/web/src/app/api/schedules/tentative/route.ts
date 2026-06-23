@@ -33,7 +33,10 @@ export async function POST(request: NextRequest) {
 	});
 
 	if (!profile) {
-		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+		return NextResponse.json(
+			{ error: "Perfil no encontrado" },
+			{ status: 404 },
+		);
 	}
 
 	const universityId = profile.universityIds[0] ?? "";
@@ -49,7 +52,10 @@ export async function POST(request: NextRequest) {
 		if (period) {
 			resolvedPeriodId = period.id;
 		} else {
-			return NextResponse.json({ error: "Periodo no encontrado" }, { status: 404 });
+			return NextResponse.json(
+				{ error: "Periodo no encontrado" },
+				{ status: 404 },
+			);
 		}
 	}
 

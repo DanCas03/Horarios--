@@ -3,40 +3,28 @@
 	"ui": "tui",
 	"tasks": {
 		"build": {
-			"dependsOn": [
-				"^build", "^db:generate"
-			],
-			"inputs": [
-				"$TURBO_DEFAULT$",
-				".env*"
-			],
-			"outputs": [
-				"dist/**",
-				".next/**"
-			],
+			"dependsOn": ["^build", "^db:generate"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**", ".next/**"],
 			"env": [
 				"NEXT_PUBLIC_API_URL",
 				"DATABASE_URL",
 				"BETTER_AUTH_SECRET",
 				"BETTER_AUTH_URL",
 				"CORS_ORIGIN",
+				"GOOGLE_CLIENT_ID",
+				"GOOGLE_CLIENT_SECRET",
 				"NODE_ENV"
 			]
 		},
 		"lint": {
-			"dependsOn": [
-				"^lint"
-			]
+			"dependsOn": ["^lint"]
 		},
 		"check-types": {
-			"dependsOn": [
-				"^check-types"
-			]
+			"dependsOn": ["^check-types"]
 		},
 		"dev": {
-			"dependsOn": [
-				"^db:generate"
-			],
+			"dependsOn": ["^db:generate"],
 			"cache": false,
 			"persistent": true
 		},

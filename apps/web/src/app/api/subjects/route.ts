@@ -10,11 +10,13 @@ export async function GET(request: NextRequest) {
 	const sp = request.nextUrl.searchParams;
 	const universityId = sp.get("university_id");
 	const subjectType = sp.get("subject_type");
+	const academicUnitId = sp.get("academic_unit_id") || sp.get("academicUnitId");
 
 	const subjects = await prisma.subject.findMany({
 		where: {
 			...(universityId && { universityId }),
 			...(subjectType && { subjectType }),
+			...(academicUnitId && { academicUnitId }),
 		},
 		orderBy: { name: "asc" },
 	});
@@ -37,6 +39,7 @@ export async function POST(request: Request) {
 	const usualAvailability = body.usualAvailability ?? body.usual_availability;
 	const description = body.description;
 	const isActive = body.isActive ?? true;
+	const academicUnitId = body.academicUnitId ?? body.academic_unit_id;
 
 	if (!name || !code || !universityId || credits === undefined) {
 		return NextResponse.json(
@@ -50,6 +53,7 @@ export async function POST(request: Request) {
 			name,
 			code,
 			universityId,
+			academicUnitId,
 			credits,
 			subjectType: subjectType ?? "obligatoria",
 			modality: modality ?? "presencial",

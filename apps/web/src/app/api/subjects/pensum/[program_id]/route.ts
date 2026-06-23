@@ -19,7 +19,7 @@ export async function GET(
 	if (!activePlan) {
 		return NextResponse.json(
 			{ error: "No hay un plan de estudios activo para este programa" },
-			{ status: 404 }
+			{ status: 404 },
 		);
 	}
 
@@ -43,12 +43,14 @@ export async function GET(
 
 	// 4. Mapear la respuesta para incluir el semestre sugerido
 	const result = subjects.map((subject: any) => {
-		const planSubject = planSubjects.find((ps: any) => ps.subjectId === subject.id);
+		const planSubject = planSubjects.find(
+			(ps: any) => ps.subjectId === subject.id,
+		);
 		return {
 			...subject,
 			semesterSuggested: planSubject?.suggestedTerm || null,
 			prerequisites: planSubject?.prerequisiteIds || [],
-			corequisites: planSubject?.corequisiteIds || []
+			corequisites: planSubject?.corequisiteIds || [],
 		};
 	});
 

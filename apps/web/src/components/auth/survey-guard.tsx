@@ -35,7 +35,10 @@ export default function SurveyGuard({
 			return;
 		}
 
-		if (requireApprovedSubjects && (!user.approvedSubjects || user.approvedSubjects.length === 0)) {
+		if (
+			requireApprovedSubjects &&
+			(!user.approvedSubjects || user.approvedSubjects.length === 0)
+		) {
 			router.replace("/encuesta/onboarding");
 			return;
 		}
@@ -43,7 +46,11 @@ export default function SurveyGuard({
 
 	if (loading) return <Spinner />;
 	if (!user) return null;
-	if (requireApprovedSubjects && (!user.approvedSubjects || user.approvedSubjects.length === 0)) return null;
+	if (
+		requireApprovedSubjects &&
+		(!user.approvedSubjects || user.approvedSubjects.length === 0)
+	)
+		return null;
 
 	return <>{children}</>;
 }

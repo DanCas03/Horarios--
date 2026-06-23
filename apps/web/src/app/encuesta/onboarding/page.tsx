@@ -1,8 +1,14 @@
 "use client";
 
-import { BookOpen, Check, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import {
+	BookOpen,
+	Check,
+	ChevronDown,
+	ChevronRight,
+	Loader2,
+} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState, Suspense } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { parseApiError, subjectsAPI } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
@@ -27,11 +33,18 @@ function OnboardingContent() {
 	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState("");
-	const [collapsedSemesters, setCollapsedSemesters] = useState<Set<number>>(new Set());
+	const [collapsedSemesters, setCollapsedSemesters] = useState<Set<number>>(
+		new Set(),
+	);
 
 	// Si ya tiene materias aprobadas y no está editando, ir directo a encuesta
 	useEffect(() => {
-		if (!isEditing && user && user.approvedSubjects && user.approvedSubjects.length > 0) {
+		if (
+			!isEditing &&
+			user &&
+			user.approvedSubjects &&
+			user.approvedSubjects.length > 0
+		) {
 			router.replace("/encuesta");
 		}
 	}, [user, router, isEditing]);
@@ -42,7 +55,7 @@ function OnboardingContent() {
 			const initialApproved = new Set(
 				user.approvedSubjects
 					.map((s) => s.subjectId)
-					.filter((id): id is string => !!id)
+					.filter((id): id is string => !!id),
 			);
 			setSelectedIds(initialApproved);
 		}
@@ -69,7 +82,7 @@ function OnboardingContent() {
 		for (const s of subjects) {
 			const sem = s.semesterSuggested ?? 0;
 			if (!map.has(sem)) map.set(sem, []);
-			map.get(sem)!.push(s);
+			map.get(sem)?.push(s);
 		}
 		return Array.from(map.entries()).sort(([a], [b]) => a - b);
 	}, [subjects]);
@@ -116,11 +129,15 @@ function OnboardingContent() {
 			const currentApprovedIds = new Set(
 				user?.approvedSubjects
 					?.map((s) => s.subjectId)
-					.filter((id): id is string => !!id) ?? []
+					.filter((id): id is string => !!id) ?? [],
 			);
 
-			const toApprove = Array.from(selectedIds).filter((id) => !currentApprovedIds.has(id));
-			const toUnapprove = Array.from(currentApprovedIds).filter((id) => !selectedIds.has(id));
+			const toApprove = Array.from(selectedIds).filter(
+				(id) => !currentApprovedIds.has(id),
+			);
+			const toUnapprove = Array.from(currentApprovedIds).filter(
+				(id) => !selectedIds.has(id),
+			);
 
 			await Promise.all([
 				...toApprove.map((subjectId) => subjectsAPI.approve({ subjectId })),
@@ -155,7 +172,8 @@ function OnboardingContent() {
 					Selecciona tus materias cursadas
 				</h1>
 				<p className="mt-3 text-gray-500 text-sm">
-					Marca las materias que ya aprobaste. Solo podras hacer resenas de estas materias.
+					Marca las materias que ya aprobaste. Solo podras hacer resenas de
+					estas materias.
 				</p>
 			</div>
 
@@ -168,7 +186,8 @@ function OnboardingContent() {
 			{/* Counter */}
 			<div className="mb-6 flex items-center justify-between rounded-xl bg-primary/5 px-4 py-3">
 				<span className="font-medium text-gray-700 text-sm">
-					{selectedIds.size} materia{selectedIds.size !== 1 ? "s" : ""} seleccionada{selectedIds.size !== 1 ? "s" : ""}
+					{selectedIds.size} materia{selectedIds.size !== 1 ? "s" : ""}{" "}
+					seleccionada{selectedIds.size !== 1 ? "s" : ""}
 				</span>
 				{selectedIds.size > 0 && (
 					<button
@@ -186,8 +205,10 @@ function OnboardingContent() {
 				{bySemester.map(([semester, semSubjects]) => {
 					const isCollapsed = collapsedSemesters.has(semester);
 					const allSelected = semSubjects.every((s) => selectedIds.has(s.id));
-					const someSelected = semSubjects.some((s) => selectedIds.has(s.id));
-					const selectedCount = semSubjects.filter((s) => selectedIds.has(s.id)).length;
+					const _someSelected = semSubjects.some((s) => selectedIds.has(s.id));
+					const selectedCount = semSubjects.filter((s) =>
+						selectedIds.has(s.id),
+					).length;
 
 					return (
 						<div
@@ -232,7 +253,7 @@ function OnboardingContent() {
 
 							{/* Subject list */}
 							{!isCollapsed && (
-								<div className="border-t border-gray-50 px-3 pb-3">
+								<div className="border-gray-50 border-t px-3 pb-3">
 									{semSubjects.map((subject) => {
 										const isSelected = selectedIds.has(subject.id);
 										return (
@@ -259,10 +280,14 @@ function OnboardingContent() {
 												</div>
 												<div className="min-w-0 flex-1">
 													<div className="flex items-center gap-2">
-														<span className={`font-mono font-semibold text-xs ${isSelected ? "text-green-700" : "text-primary"}`}>
+														<span
+															className={`font-mono font-semibold text-xs ${isSelected ? "text-green-700" : "text-primary"}`}
+														>
 															{subject.code}
 														</span>
-														<span className={`truncate text-sm ${isSelected ? "text-green-900 font-medium" : "text-gray-700"}`}>
+														<span
+															className={`truncate text-sm ${isSelected ? "font-medium text-green-900" : "text-gray-700"}`}
+														>
 															{subject.name}
 														</span>
 													</div>
@@ -295,9 +320,11 @@ function OnboardingContent() {
 						</>
 					) : (
 						<>
-							Confirmar {selectedIds.size} materia{selectedIds.size !== 1 ? "s" : ""} y continuar
+							Confirmar {selectedIds.size} materia
+							{selectedIds.size !== 1 ? "s" : ""} y continuar
 							<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
 								<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+									<title>Flecha de confirmación</title>
 									<path
 										d="M2 10L10 2M10 2H4M10 2V8"
 										stroke="currentColor"
@@ -318,7 +345,13 @@ function OnboardingContent() {
 export default function OnboardingPage() {
 	return (
 		<SurveyGuard requireApprovedSubjects={false}>
-			<Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+			<Suspense
+				fallback={
+					<div className="flex min-h-[60vh] items-center justify-center">
+						<Loader2 className="h-8 w-8 animate-spin text-primary" />
+					</div>
+				}
+			>
 				<OnboardingContent />
 			</Suspense>
 		</SurveyGuard>

@@ -1,15 +1,15 @@
 "use client";
 
 import {
+	AlertTriangle,
 	Check,
 	ChevronDown,
-	ChevronUp,
 	ClipboardCheck,
-	Loader2,
 	MessageSquare,
 	PlusCircle,
 	Star,
 } from "lucide-react";
+import Link from "next/link";
 import {
 	type ChangeEvent,
 	type SyntheticEvent,
@@ -19,9 +19,13 @@ import {
 	useRef,
 	useState,
 } from "react";
-
-import Link from "next/link";
-import { parseApiError, periodsAPI, reviewsAPI, subjectsAPI } from "@/api/client";
+import {
+	academicProgramsAPI,
+	parseApiError,
+	periodsAPI,
+	reviewsAPI,
+	subjectsAPI,
+} from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
 import { useAuth } from "@/context/auth-context";
 
@@ -72,8 +76,13 @@ const formatPeriod = (p: Period) => {
 	let label = p.code;
 	if (p.termType) label += ` - ${p.termType}`;
 	if (p.start && p.end) {
-		const startMonth = new Date(p.start).toLocaleDateString("es-ES", { month: "long" });
-		const endMonth = new Date(p.end).toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+		const startMonth = new Date(p.start).toLocaleDateString("es-ES", {
+			month: "long",
+		});
+		const endMonth = new Date(p.end).toLocaleDateString("es-ES", {
+			month: "long",
+			year: "numeric",
+		});
 		label += ` (${startMonth.charAt(0).toUpperCase() + startMonth.slice(1)} - ${endMonth.charAt(0).toUpperCase() + endMonth.slice(1)})`;
 	}
 	return label;
@@ -121,7 +130,10 @@ function SubjectCombobox({
 
 	useEffect(() => {
 		const handler = (e: MouseEvent) => {
-			if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+			if (
+				wrapperRef.current &&
+				!wrapperRef.current.contains(e.target as Node)
+			) {
 				setOpen(false);
 			}
 		};
@@ -149,7 +161,9 @@ function SubjectCombobox({
 						setOpen(true);
 					}}
 					onFocus={() => setOpen(true)}
-					placeholder={options.length > 0 ? "Buscar materia cursada..." : "Ej: MAT-1115"}
+					placeholder={
+						options.length > 0 ? "Buscar materia cursada..." : "Ej: MAT-1115"
+					}
 					className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-8 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 				/>
 				<ChevronDown
@@ -184,99 +198,6 @@ function SubjectCombobox({
 	);
 }
 
-// WARNING: Mockup temporales de períodos y profesores
-const MOCK_PERIODS: Period[] = [
-	{ id: "6666fa07e67b5720f68eaa01", code: "2025-2026/1", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa02", code: "2025-2026/2", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa03", code: "2025-2026/3", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa04", code: "2024-2025/1", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa05", code: "2024-2025/2", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa06", code: "2024-2025/3", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa07", code: "2023-2024/1", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa08", code: "2023-2024/2", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa09", code: "2023-2024/3", termType: "Semestre" },
-	{ id: "6666fa07e67b5720f68eaa0a", code: "2022-2023/1", termType: "Semestre" },
-];
-
-const MOCK_PROFESSORS = [
-	{ id: "6666fa08e67b5720f68eaa11", name: "Prof. Alejandro Silva" },
-	{ id: "6666fa08e67b5720f68eaa12", name: "Prof. Beatriz Mendoza" },
-	{ id: "6666fa08e67b5720f68eaa13", name: "Prof. Carlos Gutierrez" },
-	{ id: "6666fa08e67b5720f68eaa14", name: "Prof. Diana Martinez" },
-	{ id: "6666fa08e67b5720f68eaa15", name: "Prof. Eduardo Gomez" },
-	{ id: "6666fa08e67b5720f68eaa16", name: "Prof. Fernanda Ruiz" },
-	{ id: "6666fa08e67b5720f68eaa17", name: "Prof. Gerardo Ponce" },
-	{ id: "6666fa08e67b5720f68eaa18", name: "Prof. Helena Castro" },
-	{ id: "6666fa08e67b5720f68eaa19", name: "Prof. Ignacio Ortiz" },
-	{ id: "6666fa08e67b5720f68eaa1a", name: "Prof. Julia Delgado" },
-	{ id: "6666fa08e67b5720f68eaa1b", name: "Prof. Kevin Salazar" },
-	{ id: "6666fa08e67b5720f68eaa1c", name: "Prof. Laura Benitez" },
-	{ id: "6666fa08e67b5720f68eaa1d", name: "Prof. Manuel Cardenas" },
-	{ id: "6666fa08e67b5720f68eaa1e", name: "Prof. Natalia Flores" },
-	{ id: "6666fa08e67b5720f68eaa1f", name: "Prof. Oscar Medina" },
-	{ id: "6666fa08e67b5720f68eaa20", name: "Prof. Patricia Herrera" },
-	{ id: "6666fa08e67b5720f68eaa21", name: "Prof. Ricardo Soto" },
-	{ id: "6666fa08e67b5720f68eaa22", name: "Prof. Sandra Pardo" },
-	{ id: "6666fa08e67b5720f68eaa23", name: "Prof. Tomas Aguilar" },
-	{ id: "6666fa08e67b5720f68eaa24", name: "Prof. Valeria Mendez" },
-];
-
-const hashSubjectCodeToHex = (code: string) => {
-	let hash = 0;
-	for (let i = 0; i < code.length; i++) {
-		hash = code.charCodeAt(i) + ((hash << 5) - hash);
-	}
-	return Math.abs(hash).toString(16).padEnd(14, "0").slice(0, 14);
-};
-
-const generateMockSectionId = (subjectCode: string, secNumber: string) => {
-	const subjectHex = hashSubjectCodeToHex(subjectCode);
-	return `6666fa09${subjectHex}${secNumber.padStart(2, "0")}`;
-};
-
-// Generar secciones mock estáticas utilizando los profesores mock
-const generateMockSections = (subjectCode: string): SectionOption[] => {
-	if (!subjectCode) return [];
-	return [
-		{
-			id: generateMockSectionId(subjectCode, "1"),
-			code: "1",
-			teacherIds: [MOCK_PROFESSORS[0].id, MOCK_PROFESSORS[1].id],
-			teachers: [MOCK_PROFESSORS[0].name, MOCK_PROFESSORS[1].name],
-		},
-		{
-			id: generateMockSectionId(subjectCode, "2"),
-			code: "2",
-			teacherIds: [MOCK_PROFESSORS[2].id],
-			teachers: [MOCK_PROFESSORS[2].name],
-		},
-		{
-			id: generateMockSectionId(subjectCode, "3"),
-			code: "3",
-			teacherIds: [MOCK_PROFESSORS[3].id, MOCK_PROFESSORS[4].id],
-			teachers: [MOCK_PROFESSORS[3].name, MOCK_PROFESSORS[4].name],
-		},
-		{
-			id: generateMockSectionId(subjectCode, "4"),
-			code: "4",
-			teacherIds: [MOCK_PROFESSORS[5].id],
-			teachers: [MOCK_PROFESSORS[5].name],
-		},
-		{
-			id: generateMockSectionId(subjectCode, "5"),
-			code: "5",
-			teacherIds: [MOCK_PROFESSORS[6].id, MOCK_PROFESSORS[7].id],
-			teachers: [MOCK_PROFESSORS[6].name, MOCK_PROFESSORS[7].name],
-		},
-		{
-			id: generateMockSectionId(subjectCode, "6"),
-			code: "6",
-			teacherIds: [MOCK_PROFESSORS[8].id],
-			teachers: [MOCK_PROFESSORS[8].name],
-		},
-	];
-};
-
 // ─── SingleReviewForm ─────────────────────────────────────────────────────────
 
 function SingleReviewForm({
@@ -299,7 +220,7 @@ function SingleReviewForm({
 	const [sections, setSections] = useState<SectionOption[]>([]);
 	const [loadingSections, setLoadingSections] = useState(false);
 
-	// Load sections when subject/period changes (WARNING: Secciones estáticas mock)
+	// Load sections when subject/period changes
 	useEffect(() => {
 		const selectedSub = allSubjects.find((s) => s.code === form.subject_code);
 		if (!selectedSub?.id || !form.period) {
@@ -309,14 +230,22 @@ function SingleReviewForm({
 		}
 
 		setLoadingSections(true);
-		// TODO: Reemplazar por llamada real a base de datos en el futuro.
-		// subjectsAPI.sections(selectedSub.id, form.period)
-		const mockSec = generateMockSections(form.subject_code);
-		setSections(mockSec);
-		onUpdate(form.id, { sectionId: "", teacherIds: [] });
-		setLoadingSections(false);
+		subjectsAPI
+			.sections(selectedSub.id, form.period)
+			.then((res) => {
+				setSections(res.data as SectionOption[]);
+				onUpdate(form.id, { sectionId: "", teacherIds: [] });
+			})
+			.catch((err) => {
+				console.error("Error al cargar secciones de la base de datos:", err);
+				setSections([]);
+				onUpdate(form.id, { sectionId: "", teacherIds: [] });
+			})
+			.finally(() => {
+				setLoadingSections(false);
+			});
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [form.subject_code, form.period, allSubjects]);
+	}, [form.subject_code, form.period, allSubjects, onUpdate, form.id]);
 
 	// If saved, show collapsed card
 	if (form.saved) {
@@ -479,9 +408,9 @@ function SingleReviewForm({
 
 			{/* Recommend */}
 			<div className="flex items-center gap-3">
-				<label className="font-medium text-gray-700 text-sm">
+				<span className="font-medium text-gray-700 text-sm">
 					Recomiendas esta materia?
-				</label>
+				</span>
 				<button
 					type="button"
 					onClick={() =>
@@ -515,7 +444,9 @@ function SingleReviewForm({
 					placeholder="Comparte tu experiencia con la materia..."
 				/>
 				<p className="mt-1.5 font-medium text-[11px] text-gray-400 leading-normal">
-					🔒 Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita insultar o ser malicioso, ya que dañará la encuesta y podría conllevar la inhabilitación de tu perfil.
+					🔒 Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita
+					insultar o ser malicioso, ya que dañará la encuesta y podría conllevar
+					la inhabilitación de tu perfil.
 				</p>
 			</div>
 
@@ -572,7 +503,13 @@ function SingleReviewForm({
 			<div className="flex flex-col gap-3">
 				<button
 					type="submit"
-					disabled={form.saving || !form.subject_code || !form.comment || !form.period || !form.sectionId}
+					disabled={
+						form.saving ||
+						!form.subject_code ||
+						!form.comment ||
+						!form.period ||
+						!form.sectionId
+					}
 					className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
 					{form.saving ? (
@@ -581,9 +518,7 @@ function SingleReviewForm({
 							Guardando...
 						</>
 					) : (
-						<>
-							Guardar reseña
-						</>
+						<>Guardar reseña</>
 					)}
 				</button>
 			</div>
@@ -599,6 +534,7 @@ function EncuestaContent() {
 	const [periods, setPeriods] = useState<Period[]>([]);
 	const [subjectOptions, setSubjectOptions] = useState<SubjectOption[]>([]);
 	const [allSubjects, setAllSubjects] = useState<SubjectOption[]>([]);
+	const [academicProgramName, setAcademicProgramName] = useState("");
 	const [savedCount, setSavedCount] = useState(0);
 	const [surveyDone, setSurveyDone] = useState(false);
 	const [finishingError, setFinishingError] = useState("");
@@ -622,24 +558,33 @@ function EncuestaContent() {
 		);
 	}, [forms]);
 
-	// Load periods (WARNING: Períodos estáticos mock)
+	// Load periods from database
 	useEffect(() => {
-		// TODO: Reemplazar por consulta real a la base de datos (periodsAPI.list()) en el futuro
-		const fetchedPeriods = MOCK_PERIODS;
-		setPeriods(fetchedPeriods);
-		// Initialize first form with default period
-		if (fetchedPeriods.length > 0) {
-			setForms([createEmptyForm(fetchedPeriods[0].id)]);
-		} else {
-			setForms([createEmptyForm("")]);
-		}
-	}, []);
+		periodsAPI
+			.list(user?.universityIds?.[0] || undefined)
+			.then((res) => {
+				const fetchedPeriods = res.data as Period[];
+				setPeriods(fetchedPeriods);
+				// Initialize first form with default period
+				if (fetchedPeriods.length > 0) {
+					setForms([createEmptyForm(fetchedPeriods[0].id)]);
+				} else {
+					setForms([createEmptyForm("")]);
+				}
+			})
+			.catch((err) => {
+				console.error("Error al cargar períodos de la base de datos:", err);
+				setForms([createEmptyForm("")]);
+			});
+	}, [user?.universityIds]);
 
-	// Load pensum subjects
+	// Load pensum subjects & program name
 	useEffect(() => {
 		if (!user?.academicProgramIds?.[0]) return;
+		const programId = user.academicProgramIds[0];
+
 		subjectsAPI
-			.pensum(user.academicProgramIds[0])
+			.pensum(programId)
 			.then((res) => {
 				const approvedIds = new Set(
 					user.approvedSubjects?.map((s) => s.subjectId) || [],
@@ -650,6 +595,14 @@ function EncuestaContent() {
 				const approved = all.filter((s) => approvedIds.has(s.id));
 				setAllSubjects(all);
 				setSubjectOptions(approved);
+			})
+			.catch(() => {});
+
+		academicProgramsAPI
+			.get(programId)
+			.then((res) => {
+				const programData = res.data as { name: string };
+				setAcademicProgramName(programData.name || "");
 			})
 			.catch(() => {});
 	}, [user?.academicProgramIds, user?.approvedSubjects]);
@@ -728,9 +681,7 @@ function EncuestaContent() {
 			await completeSurvey();
 			setSurveyDone(true);
 		} catch (err: unknown) {
-			setFinishingError(
-				parseApiError(err, "Error al finalizar la encuesta"),
-			);
+			setFinishingError(parseApiError(err, "Error al finalizar la encuesta"));
 		} finally {
 			setFinishing(false);
 		}
@@ -790,7 +741,8 @@ function EncuestaContent() {
 				<div className="flex items-center gap-3">
 					{savedCount > 0 && (
 						<span className="rounded-full bg-green-100 px-3 py-1.5 font-semibold text-green-700 text-sm">
-							{savedCount} resena{savedCount !== 1 ? "s" : ""} guardada{savedCount !== 1 ? "s" : ""}
+							{savedCount} resena{savedCount !== 1 ? "s" : ""} guardada
+							{savedCount !== 1 ? "s" : ""}
 						</span>
 					)}
 					<button
@@ -824,12 +776,42 @@ function EncuestaContent() {
 				</div>
 			)}
 
+			{/* Warning when no approved subjects in this program */}
+			{subjectOptions.length === 0 && (
+				<div className="panel-enter mb-8 rounded-2xl border border-amber-200 bg-amber-50/70 p-5 text-amber-900 shadow-sm backdrop-blur-sm">
+					<div className="flex items-start gap-4">
+						<div className="mt-0.5 rounded-xl bg-amber-100 p-2 text-amber-800">
+							<AlertTriangle size={20} />
+						</div>
+						<div className="space-y-2">
+							<h3 className="font-bold text-amber-900 text-base">
+								No tienes materias aprobadas registradas para tu carrera actual
+							</h3>
+							<p className="text-amber-800/95 text-sm leading-relaxed">
+								Para poder realizar la encuesta, necesitas registrar las
+								materias que has cursado y aprobado en tu plan de estudios de{" "}
+								<strong>{academicProgramName || "tu carrera"}</strong>.
+							</p>
+							<div className="pt-2">
+								<Link
+									href="/encuesta/onboarding?edit=true"
+									className="inline-flex items-center gap-1.5 rounded-full bg-amber-600 px-5 py-2 font-semibold text-white text-xs shadow-[0_4px_12px_rgba(217,119,6,0.3)] transition-all hover:bg-amber-700 active:scale-[0.98]"
+								>
+									+ Modificar materias cursadas
+								</Link>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
+
 			{/* Progress bar */}
 			{subjectOptions.length > 0 && (
 				<div className="mb-8 rounded-xl bg-primary/5 px-4 py-3">
 					<div className="flex items-center justify-between text-sm">
 						<span className="text-gray-600">
-							Has resenado <strong className="text-primary">{savedCount}</strong> de{" "}
+							Has resenado{" "}
+							<strong className="text-primary">{savedCount}</strong> de{" "}
 							<strong>{subjectOptions.length}</strong> materias aprobadas.
 							<Link
 								href="/encuesta/onboarding?edit=true"
@@ -885,7 +867,7 @@ function EncuestaContent() {
 				<button
 					type="button"
 					onClick={addForm}
-					className="flex items-center gap-2 rounded-full border-2 border-dashed border-gray-300 px-6 py-3 font-medium text-gray-500 text-sm transition-all hover:border-primary hover:text-primary active:scale-[0.98]"
+					className="flex items-center gap-2 rounded-full border-2 border-gray-300 border-dashed px-6 py-3 font-medium text-gray-500 text-sm transition-all hover:border-primary hover:text-primary active:scale-[0.98]"
 				>
 					<PlusCircle size={18} />
 					Agregar otra materia
@@ -895,18 +877,19 @@ function EncuestaContent() {
 			{/* Unsaved Changes Confirmation Modal */}
 			{showUnsavedModal && (
 				<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-					<div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-200">
+					<div className="fade-in zoom-in-95 w-full max-w-md animate-in rounded-2xl bg-white p-6 shadow-xl ring-1 ring-black/5 duration-200">
 						<h3 className="font-bold text-gray-900 text-lg">
 							¿Finalizar sin guardar?
 						</h3>
 						<p className="mt-2 text-gray-500 text-sm">
-							Tienes reseñas con información sin guardar. ¿Estás seguro de que deseas finalizar la encuesta sin guardarlas?
+							Tienes reseñas con información sin guardar. ¿Estás seguro de que
+							deseas finalizar la encuesta sin guardarlas?
 						</p>
 						<div className="mt-6 flex justify-end gap-3">
 							<button
 								type="button"
 								onClick={() => setShowUnsavedModal(false)}
-								className="rounded-full border border-gray-300 px-4 py-2 font-semibold text-gray-700 text-sm hover:bg-gray-50 active:scale-95 transition-all"
+								className="rounded-full border border-gray-300 px-4 py-2 font-semibold text-gray-700 text-sm transition-all hover:bg-gray-50 active:scale-95"
 							>
 								Cancelar
 							</button>
@@ -916,7 +899,7 @@ function EncuestaContent() {
 									setShowUnsavedModal(false);
 									executeFinish();
 								}}
-								className="rounded-full bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 active:scale-95 transition-all shadow-[0_4px_12px_rgba(220,38,38,0.2)]"
+								className="rounded-full bg-red-600 px-4 py-2 font-semibold text-white shadow-[0_4px_12px_rgba(220,38,38,0.2)] transition-all hover:bg-red-700 active:scale-95"
 							>
 								Finalizar sin guardar
 							</button>

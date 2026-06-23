@@ -5,7 +5,6 @@ import {
 	BookOpen,
 	CheckCircle,
 	CheckSquare,
-	ChevronDown,
 	ChevronRight,
 	Circle,
 	Loader2,
@@ -53,7 +52,10 @@ function PensumContent() {
 	useEffect(() => {
 		const programId = user?.academicProgramIds?.[0];
 		if (programId) {
-			Promise.all([subjectsAPI.pensum(programId), academicProgramsAPI.get(programId)])
+			Promise.all([
+				subjectsAPI.pensum(programId),
+				academicProgramsAPI.get(programId),
+			])
 				.then(([subRes, progRes]) => {
 					setSubjects(subRes.data);
 					setProgram(progRes.data);
@@ -260,9 +262,7 @@ function PensumContent() {
 					.map(([sem, semSubjects]) => {
 						const semNum = Number(sem);
 						const isExpanded = expandedSemester === semNum;
-						const allApproved = semSubjects.every((s) =>
-							approvedIds.has(s.id),
-						);
+						const allApproved = semSubjects.every((s) => approvedIds.has(s.id));
 						const canApproveAll =
 							!allApproved &&
 							semSubjects.some(
@@ -297,11 +297,7 @@ function PensumContent() {
 											Semestre {sem}
 										</span>
 										<span className="font-medium text-gray-400 text-sm">
-											(
-											{
-												semSubjects.filter((s) => approvedIds.has(s.id))
-													.length
-											}
+											({semSubjects.filter((s) => approvedIds.has(s.id)).length}
 											/{semSubjects.length} aprobadas)
 										</span>
 									</button>
@@ -376,8 +372,14 @@ function PensumContent() {
 																	{subject.credits !== 1 ? "s" : ""}
 																	{subject.prerequisites.length > 0 && (
 																		<span className="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600 text-xs">
-																			Pre: {subject.prerequisites
-																				.map((pId) => subjects.find((sub) => sub.id === pId)?.code ?? pId)
+																			Pre:{" "}
+																			{subject.prerequisites
+																				.map(
+																					(pId) =>
+																						subjects.find(
+																							(sub) => sub.id === pId,
+																						)?.code ?? pId,
+																				)
 																				.join(", ")}
 																		</span>
 																	)}

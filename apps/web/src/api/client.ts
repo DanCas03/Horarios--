@@ -45,11 +45,36 @@ export const periodsAPI = {
 		}),
 };
 
+export const academicUnitsAPI = {
+	list: (universityId?: string) =>
+		api.get("/academic-units", {
+			params: universityId ? { university_id: universityId } : {},
+		}),
+	create: (data: {
+		name: string;
+		code?: string | null;
+		universityId: string;
+		isExtracurricular?: boolean;
+		parentId?: string | null;
+	}) => api.post("/academic-units", data),
+	update: (
+		id: string,
+		data: {
+			name?: string;
+			code?: string | null;
+			isExtracurricular?: boolean;
+			parentId?: string | null;
+		},
+	) => api.put(`/academic-units/${id}`, data),
+	delete: (id: string) => api.delete(`/academic-units/${id}`),
+};
+
 export const subjectsAPI = {
 	list: (params?: {
 		academic_program_id?: string;
 		university_id?: string;
 		semester?: number;
+		academic_unit_id?: string;
 	}) => api.get("/subjects/", { params }),
 	pensum: (programId: string) => api.get(`/subjects/pensum/${programId}`),
 	get: (id: string) => api.get(`/subjects/${id}`),
@@ -60,6 +85,32 @@ export const subjectsAPI = {
 		api.delete(`/subjects/approve/${subjectId}`),
 	sections: (subjectId: string, periodId?: string) =>
 		api.get("/sections", { params: { subjectId, periodId } }),
+	create: (data: {
+		name: string;
+		code: string;
+		universityId: string;
+		credits: number;
+		subjectType?: string;
+		modality?: string;
+		usualAvailability?: string;
+		description?: string;
+		academicUnitId?: string;
+	}) => api.post("/subjects", data),
+	update: (
+		id: string,
+		data: {
+			name?: string;
+			code?: string;
+			credits?: number;
+			modality?: string;
+			subjectType?: string;
+			academicUnitId?: string | null;
+			description?: string | null;
+			isActive?: boolean;
+			usualAvailability?: string | null;
+		},
+	) => api.put(`/subjects/${id}`, data),
+	delete: (id: string) => api.delete(`/subjects/${id}`),
 };
 
 export const reviewsAPI = {
@@ -89,9 +140,49 @@ export const schedulesAPI = {
 		api.get("/schedules/my", { params }),
 	create: (data: unknown) => api.post("/schedules", data),
 	update: (id: string, data: unknown) => api.put(`/schedules/${id}`, data),
-	createTentative: (periodId: string, data: { sectionIds?: string[]; customBlocks?: any[] }) =>
-		api.post(`/schedules/tentative?periodId=${periodId}`, data),
+	createTentative: (
+		periodId: string,
+		data: { sectionIds?: string[]; customBlocks?: any[] },
+	) => api.post(`/schedules/tentative?periodId=${periodId}`, data),
 	delete: (id: string) => api.delete(`/schedules/${id}`),
+};
+
+export const studyPlansAPI = {
+	list: (academicProgramId?: string) =>
+		api.get("/study-plans", {
+			params: academicProgramId
+				? { academic_program_id: academicProgramId }
+				: {},
+		}),
+	create: (data: {
+		name: string;
+		academicProgramId: string;
+		isActive?: boolean;
+	}) => api.post("/study-plans", data),
+	update: (id: string, data: { name?: string; isActive?: boolean }) =>
+		api.put(`/study-plans/${id}`, data),
+	delete: (id: string) => api.delete(`/study-plans/${id}`),
+};
+
+export const studyPlanSubjectsAPI = {
+	list: (studyPlanId: string) =>
+		api.get("/study-plan-subjects", { params: { study_plan_id: studyPlanId } }),
+	assign: (data: {
+		studyPlanId: string;
+		subjectId: string;
+		suggestedTerm: number;
+		prerequisiteIds?: string[];
+		corequisiteIds?: string[];
+	}) => api.post("/study-plan-subjects", data),
+	update: (
+		id: string,
+		data: {
+			suggestedTerm?: number;
+			prerequisiteIds?: string[];
+			corequisiteIds?: string[];
+		},
+	) => api.put(`/study-plan-subjects/${id}`, data),
+	delete: (id: string) => api.delete(`/study-plan-subjects/${id}`),
 };
 
 export const surveyAPI = {

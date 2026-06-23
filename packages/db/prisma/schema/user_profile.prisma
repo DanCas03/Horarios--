@@ -22,7 +22,6 @@ model UserProfile {
   id                   String                @id @default(auto()) @map("_id") @db.ObjectId
   userId               String?               @unique @map("user_id")
   user                 User?                 @relation(fields: [userId], references: [id], onDelete: Cascade)
-  username             String?
   universityIds        String[]              @map("university_ids")
   academicProgramIds   String[]              @map("academic_program_ids") @db.ObjectId
   approvedSubjects     ApprovedSubjectItem[] @map("approved_subjects")
