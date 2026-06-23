@@ -1,6 +1,7 @@
 import prisma from "@horaios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
+import { hasProfanity } from "@/lib/profanity";
 
 type RatingInput = {
 	category: string;
@@ -56,6 +57,18 @@ export async function POST(request: Request) {
 	if (!subjectCode || !ratings || wouldRecommend === undefined) {
 		return NextResponse.json(
 			{ error: "Faltan campos requeridos" },
+			{ status: 400 },
+		);
+	}
+
+	if (
+		hasProfanity(comment) ||
+		(tips && hasProfanity(tips)) ||
+		(studyStrategy && hasProfanity(studyStrategy)) ||
+		(notFoundTeacherNames && hasProfanity(notFoundTeacherNames))
+	) {
+		return NextResponse.json(
+			{ error: "El contenido contiene palabras inapropiadas o insultos." },
 			{ status: 400 },
 		);
 	}

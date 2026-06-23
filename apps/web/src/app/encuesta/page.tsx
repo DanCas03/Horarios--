@@ -29,6 +29,7 @@ import {
 } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
 import { useAuth } from "@/context/auth-context";
+import { hasProfanity } from "@/lib/profanity";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -823,6 +824,19 @@ function EncuestaContent() {
 			if (!form) return;
 
 			updateForm(formId, { saving: true, error: "" });
+
+			if (
+				hasProfanity(form.comment) ||
+				hasProfanity(form.tips) ||
+				hasProfanity(form.study_strategy) ||
+				hasProfanity(form.notFoundTeacherNames || "")
+			) {
+				updateForm(formId, {
+					saving: false,
+					error: "El contenido contiene palabras inapropiadas o insultos. Por favor, mantén un tono respetuoso.",
+				});
+				return;
+			}
 
 			try {
 				const isFallback = !form.sectionId && !!form.fallbackTeacherId;

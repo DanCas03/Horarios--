@@ -9,6 +9,7 @@
 		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@2toad/profanity": "^3.3.0",
 		"@horaios/auth": "workspace:*",
 		"@horaios/db": "workspace:*",
 		"@horaios/env": "workspace:*",
