@@ -19,7 +19,12 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { parseApiError, periodsAPI, reviewsAPI, subjectsAPI } from "@/api/client";
+import {
+	parseApiError,
+	periodsAPI,
+	reviewsAPI,
+	subjectsAPI,
+} from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import { useAuth } from "@/context/auth-context";
 
@@ -38,8 +43,13 @@ const formatPeriod = (p: Period) => {
 		label += ` - ${p.termType}`;
 	}
 	if (p.start && p.end) {
-		const startMonth = new Date(p.start).toLocaleDateString("es-ES", { month: "long" });
-		const endMonth = new Date(p.end).toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+		const startMonth = new Date(p.start).toLocaleDateString("es-ES", {
+			month: "long",
+		});
+		const endMonth = new Date(p.end).toLocaleDateString("es-ES", {
+			month: "long",
+			year: "numeric",
+		});
 		const capStart = startMonth.charAt(0).toUpperCase() + startMonth.slice(1);
 		const capEnd = endMonth.charAt(0).toUpperCase() + endMonth.slice(1);
 		label += ` (${capStart} - ${capEnd})`;
@@ -230,7 +240,9 @@ function ReviewsContent() {
 	const [formError, setFormError] = useState("");
 
 	const [periods, setPeriods] = useState<Period[]>([]);
-	const [sections, setSections] = useState<{ id: string; code: string; teacherIds: string[]; teachers: string[] }[]>([]);
+	const [sections, setSections] = useState<
+		{ id: string; code: string; teacherIds: string[]; teachers: string[] }[]
+	>([]);
 	const [loadingSections, setLoadingSections] = useState(false);
 
 	// Load periods
@@ -581,7 +593,7 @@ function ReviewsContent() {
 								required
 								value={form.period}
 								onChange={(e) => setForm({ ...form, period: e.target.value })}
-								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
+								className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							>
 								{periods.map((p) => (
 									<option key={p.id} value={p.id}>
@@ -589,7 +601,9 @@ function ReviewsContent() {
 									</option>
 								))}
 								{periods.length === 0 && (
-									<option value={form.period}>{form.period || "Sin periodos"}</option>
+									<option value={form.period}>
+										{form.period || "Sin periodos"}
+									</option>
 								)}
 							</select>
 						</div>
@@ -613,12 +627,13 @@ function ReviewsContent() {
 									});
 								}}
 								disabled={loadingSections || !form.subject_code}
-								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 bg-white"
+								className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							>
 								<option value="">Selecciona una sección</option>
 								{sections.map((s) => (
 									<option key={s.id} value={s.id}>
-										Sección {s.code || "Sin código"} {s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
+										Sección {s.code || "Sin código"}{" "}
+										{s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
 									</option>
 								))}
 							</select>
@@ -657,9 +672,9 @@ function ReviewsContent() {
 					</div>
 
 					<div className="flex items-center gap-3">
-						<label className="font-medium text-gray-700 text-sm">
+						<span className="font-medium text-gray-700 text-sm">
 							¿Recomiendas esta materia?
-						</label>
+						</span>
 						<button
 							type="button"
 							onClick={() =>
@@ -744,6 +759,7 @@ function ReviewsContent() {
 								Publicar Reseña (Anónima)
 								<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
 									<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+										<title>Flecha de publicación</title>
 										<path
 											d="M2 10L10 2M10 2H4M10 2V8"
 											stroke="currentColor"
@@ -805,17 +821,32 @@ function ReviewsContent() {
 							<div className="mb-4 grid grid-cols-3 gap-4">
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Dificultad</p>
-									<StarRating value={r.ratings?.find((rt) => rt.category === "difficulty")?.value || 0} />
+									<StarRating
+										value={
+											r.ratings?.find((rt) => rt.category === "difficulty")
+												?.value || 0
+										}
+									/>
 								</div>
 								{r.ratings?.some((rt) => rt.category === "professor") && (
 									<div>
 										<p className="mb-1 text-gray-500 text-xs">Profesor</p>
-										<StarRating value={r.ratings?.find((rt) => rt.category === "professor")?.value || 0} />
+										<StarRating
+											value={
+												r.ratings?.find((rt) => rt.category === "professor")
+													?.value || 0
+											}
+										/>
 									</div>
 								)}
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Carga</p>
-									<StarRating value={r.ratings?.find((rt) => rt.category === "workload")?.value || 0} />
+									<StarRating
+										value={
+											r.ratings?.find((rt) => rt.category === "workload")
+												?.value || 0
+										}
+									/>
 								</div>
 							</div>
 

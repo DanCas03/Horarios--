@@ -71,7 +71,7 @@ export async function DELETE(
 	});
 
 	return NextResponse.json({
-		message: `Materia desmarcada como aprobada`,
+		message: "Materia desmarcada como aprobada",
 		totalApprovedCredits: newTotal,
 	});
 }

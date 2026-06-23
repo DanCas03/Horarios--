@@ -24,7 +24,7 @@ model University {
   logoUrl   String   @map("logo_url")
   website   String
   location  String
-  createdAt DateTime @default(now()) @map("created_at")
+  createdAt DateTime? @default(now()) @map("created_at")
 
   @@map("universities")
 }
@@ -68,6 +68,7 @@ model Subject {
   modality          String
   subjectType       String    @map("subject_type")
   universityId      String?   @map("university_id") @db.ObjectId
+  academicUnitId    String?   @map("academic_unit_id") @db.ObjectId
   description       String?
   avgDifficulty     Float?    @map("avg_difficulty")
   avgApprovalRate   Float?    @map("avg_approval_rate")
@@ -107,8 +108,9 @@ model AcademicUnit {
   code              String?
   name              String?
   isExtracurricular Boolean? @map("is_extracurricular")
+  parentId          String?  @map("parent_id") @db.ObjectId
 
-  @@map("academic_unit")
+  @@map("academic_units")
 }
 
 // =============================================================================

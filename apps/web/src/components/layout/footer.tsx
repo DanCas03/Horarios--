@@ -1,7 +1,15 @@
+"use client";
+
 import { GraduationCap } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function Footer() {
+	const searchParams = useSearchParams();
+	const isFirstTime = searchParams.get("firstTime") === "true";
+
+	if (isFirstTime) return null;
+
 	return (
 		<footer className="mt-auto border-gray-100 border-t bg-white py-16 text-gray-400">
 			<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

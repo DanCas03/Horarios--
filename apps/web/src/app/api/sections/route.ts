@@ -26,9 +26,11 @@ export async function GET(request: NextRequest) {
 
 	// Obtener los nombres de los profesores asociados
 	const teacherIds = Array.from(
-		new Set(sections.flatMap((s: any) => s.teacherIds).filter((id: any) => !!id)),
+		new Set(
+			sections.flatMap((s: any) => s.teacherIds).filter((id: any) => !!id),
+		),
 	) as string[];
-	
+
 	const teachers = teacherIds.length
 		? await prisma.teacher.findMany({
 				where: { id: { in: teacherIds } },

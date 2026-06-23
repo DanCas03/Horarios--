@@ -17,8 +17,9 @@ RUN turbo prune web --docker
 FROM base AS builder
 # First install the dependencies (as they change less often)
 COPY --from=prepare /app/out/json/ .
-# Copy prisma directory before bun install so postinstall `prisma generate` succeeds
+# Copy prisma directory and turbo.json before bun install so postinstall `prisma generate` succeeds
 COPY --from=prepare /app/out/full/packages/db/prisma/ ./packages/db/prisma/
+COPY --from=prepare /app/out/full/turbo.json ./turbo.json
 RUN bun install
 # Build the project
 COPY --from=prepare /app/out/full/ .

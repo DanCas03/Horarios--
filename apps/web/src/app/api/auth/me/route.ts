@@ -33,11 +33,12 @@ export async function GET() {
 		name: session.user.name,
 		email: session.user.email,
 		image: session.user.image,
-		username: profile.username,
+		role: session.user.role,
 		universityIds: profile.universityIds,
 		academicProgramIds: profile.academicProgramIds,
 		approvedSubjects: profile.approvedSubjects,
 		totalApprovedCredits: profile.totalApprovedCredits,
+		surveyCompleted: profile.surveyCompleted,
 	});
 }
 
@@ -50,8 +51,7 @@ export async function PUT(request: Request) {
 	if (errorResponse) return errorResponse;
 
 	const body = await request.json();
-	const { username, universityIds, academicProgramIds } = body as {
-		username?: string;
+	const { universityIds, academicProgramIds } = body as {
 		universityIds?: string[];
 		academicProgramIds?: string[];
 	};
@@ -59,13 +59,11 @@ export async function PUT(request: Request) {
 	const profile = await prisma.userProfile.upsert({
 		where: { userId: session.user.id },
 		update: {
-			...(username !== undefined && { username }),
 			...(universityIds !== undefined && { universityIds }),
 			...(academicProgramIds !== undefined && { academicProgramIds }),
 		},
 		create: {
 			userId: session.user.id,
-			username: username ?? null,
 			universityIds: universityIds ?? [],
 			academicProgramIds: academicProgramIds ?? [],
 			approvedSubjects: [],
@@ -77,7 +75,7 @@ export async function PUT(request: Request) {
 		id: session.user.id,
 		name: session.user.name,
 		email: session.user.email,
-		username: profile.username,
+		role: session.user.role,
 		universityIds: profile.universityIds,
 		academicProgramIds: profile.academicProgramIds,
 		approvedSubjects: profile.approvedSubjects,

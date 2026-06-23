@@ -10,7 +10,7 @@ type RatingInput = {
 type ApprovedSubjectItem = {
 	subjectId?: string | null;
 	grade?: number | null;
-	period?: any | null;
+	period?: unknown | null;
 };
 
 /**
@@ -63,7 +63,10 @@ export async function POST(request: Request) {
 		where: { userId: session.user.id },
 	});
 	if (!profile) {
-		return NextResponse.json({ error: "Perfil no encontrado" }, { status: 404 });
+		return NextResponse.json(
+			{ error: "Perfil no encontrado" },
+			{ status: 404 },
+		);
 	}
 
 	const subject = await prisma.subject.findFirst({
@@ -75,9 +78,17 @@ export async function POST(request: Request) {
 		const approvedIds = new Set(
 			(profile.approvedSubjects ?? [])
 				.map((s) => (s as ApprovedSubjectItem).subjectId)
-				.filter(id => !!id)
+				.filter((id) => !!id),
 		);
 		isVerified = approvedIds.has(subject.id);
+	}
+
+	// Bloquear reviews de materias no aprobadas
+	if (!isVerified) {
+		return NextResponse.json(
+			{ error: "Solo puedes hacer resenas de materias que hayas aprobado" },
+			{ status: 403 },
+		);
 	}
 
 	const review = await prisma.review.create({
@@ -125,7 +136,9 @@ async function updateSubjectStats(subjectCode: string) {
 	let diffCount = 0;
 
 	for (const r of verifiedReviews) {
-		const diffRating = r.ratings.find(rt => rt.category === "difficulty" || rt.category === "dificultad");
+		const diffRating = r.ratings.find(
+			(rt) => rt.category === "difficulty" || rt.category === "dificultad",
+		);
 		if (diffRating) {
 			diffSum += diffRating.value;
 			diffCount++;

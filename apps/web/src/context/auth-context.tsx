@@ -24,17 +24,19 @@ export interface UserProfile {
 	name: string;
 	email: string;
 	image?: string | null;
-	username?: string | null;
+	role?: string | null;
 	universityIds: string[];
 	academicProgramIds: string[];
 	approvedSubjects: ApprovedSubject[];
 	totalApprovedCredits: number;
+	surveyCompleted: boolean;
 }
 
 interface AuthContextType {
 	user: UserProfile | null;
 	loading: boolean;
 	login: (email: string, password: string) => Promise<void>;
+	loginWithGoogle: (callbackURL?: string) => Promise<void>;
 	register: (
 		email: string,
 		name: string,
@@ -44,6 +46,7 @@ interface AuthContextType {
 	) => Promise<void>;
 	logout: () => Promise<void>;
 	refreshUser: () => Promise<void>;
+	completeSurvey: () => Promise<void>;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -104,9 +107,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		setUser(null);
 	};
 
+	const loginWithGoogle = async (callbackURL?: string) => {
+		await authClient.signIn.social({
+			provider: "google",
+			callbackURL: callbackURL || `${window.location.origin}/dashboard`,
+		});
+	};
+
+	const completeSurvey = useCallback(async () => {
+		await axios.patch("/api/auth/me/survey", {}, { withCredentials: true });
+		await refreshUser();
+	}, [refreshUser]);
+
 	return (
 		<AuthContext.Provider
-			value={{ user, loading, login, register, logout, refreshUser }}
+			value={{
+				user,
+				loading,
+				login,
+				loginWithGoogle,
+				register,
+				logout,
+				refreshUser,
+				completeSurvey,
+			}}
 		>
 			{children}
 		</AuthContext.Provider>

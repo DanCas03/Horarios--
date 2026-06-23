@@ -21,13 +21,18 @@ export default function ProtectedRoute({
 	const pathname = usePathname();
 
 	useEffect(() => {
-		if (!loading && !user) {
-			router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
+		if (!loading) {
+			if (!user) {
+				router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
+			} else if (pathname?.startsWith("/admin") && user.role !== "admin") {
+				router.replace("/dashboard");
+			}
 		}
 	}, [loading, pathname, router, user]);
 
 	if (loading) return <Spinner />;
-	if (!user) return null;
+	if (!user || (pathname?.startsWith("/admin") && user.role !== "admin"))
+		return null;
 
 	return <>{children}</>;
 }

@@ -6,11 +6,12 @@ import {
 	GraduationCap,
 	LogOut,
 	MessageSquare,
+	Settings,
 	User,
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { useAuth } from "@/context/auth-context";
@@ -19,11 +20,14 @@ const NAV_LINKS = [
 	{ href: "/pensum" as Route, label: "Pensum", Icon: BookOpen },
 	{ href: "/schedule" as Route, label: "Horarios", Icon: Calendar },
 	{ href: "/reviews" as Route, label: "Reseñas", Icon: MessageSquare },
+	{ href: "/admin" as Route, label: "Admin", Icon: Settings },
 ];
 
 export default function Navbar() {
 	const { user, logout } = useAuth();
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const isFirstTime = searchParams.get("firstTime") === "true";
 	const [mobileOpen, setMobileOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
 
@@ -60,8 +64,15 @@ export default function Navbar() {
 				>
 					{/* Logo */}
 					<Link
-						href="/"
-						className={`mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight transition-opacity hover:opacity-80 ${scrolled ? "text-primary" : "text-white"}`}
+						href={isFirstTime ? "#" : "/"}
+						onClick={(e) => {
+							if (isFirstTime) e.preventDefault();
+						}}
+						className={`mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight transition-opacity ${
+							isFirstTime
+								? "opacity-50 cursor-not-allowed pointer-events-none"
+								: "hover:opacity-80"
+						} ${scrolled ? "text-primary" : "text-white"}`}
 					>
 						<GraduationCap className="h-5 w-5 text-accent" />
 						<span className="hidden sm:inline">Guía Estudiantil</span>
@@ -69,12 +80,21 @@ export default function Navbar() {
 
 					{/* Desktop links */}
 					<div className="hidden items-center gap-1 md:flex">
-						{user &&
-							NAV_LINKS.map(({ href, label }) => (
+						{user?.surveyCompleted &&
+							NAV_LINKS.filter(
+								({ href }) => href !== "/admin" || user?.role === "admin",
+							).map(({ href, label }) => (
 								<Link
 									key={href}
-									href={href}
-									className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all duration-300 hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700 hover:bg-primary/8 hover:text-primary" : "text-white/80 hover:text-white"}`}
+									href={isFirstTime ? "#" : href}
+									onClick={(e) => {
+										if (isFirstTime) e.preventDefault();
+									}}
+									className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all duration-300 ${
+										isFirstTime
+											? "opacity-50 pointer-events-none cursor-not-allowed"
+											: "hover:bg-white/15 active:scale-95"
+									} ${scrolled ? "text-gray-700 hover:bg-primary/8 hover:text-primary" : "text-white/80 hover:text-white"}`}
 								>
 									{label}
 								</Link>
@@ -87,18 +107,32 @@ export default function Navbar() {
 					>
 						{user ? (
 							<>
-								<Link
-									href="/profile"
-									className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-sm transition-all hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700 hover:bg-primary/8" : "text-white/80 hover:text-white"}`}
-								>
-									<User size={15} />
-									<span className="hidden max-w-[80px] truncate sm:inline">
-										{user.username}
-									</span>
-								</Link>
+								{user.surveyCompleted && (
+									<Link
+										href={isFirstTime ? "#" : "/profile"}
+										onClick={(e) => {
+											if (isFirstTime) e.preventDefault();
+										}}
+										className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-sm transition-all ${
+											isFirstTime
+												? "opacity-50 pointer-events-none cursor-not-allowed"
+												: "hover:bg-white/15 active:scale-95"
+										} ${scrolled ? "text-gray-700 hover:bg-primary/8" : "text-white/80 hover:text-white"}`}
+									>
+										<User size={15} />
+										<span className="hidden max-w-[80px] truncate sm:inline">
+											{user.name}
+										</span>
+									</Link>
+								)}
 								<button
 									onClick={handleLogout}
-									className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-all hover:bg-red-50 hover:text-red-600 active:scale-90"
+									disabled={isFirstTime}
+									className={`flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-all ${
+										isFirstTime
+											? "opacity-50 pointer-events-none cursor-not-allowed"
+											: "hover:bg-red-50 hover:text-red-600 active:scale-90"
+									}`}
 									title="Cerrar sesión"
 								>
 									<LogOut size={15} />
@@ -107,18 +141,33 @@ export default function Navbar() {
 						) : (
 							<>
 								<Link
-									href="/login"
-									className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700" : "text-white/80 hover:text-white"}`}
+									href={isFirstTime ? "#" : "/login"}
+									onClick={(e) => {
+										if (isFirstTime) e.preventDefault();
+									}}
+									className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all ${
+										isFirstTime
+											? "opacity-50 pointer-events-none cursor-not-allowed"
+											: "hover:bg-white/15 active:scale-95"
+									} ${scrolled ? "text-gray-700" : "text-white/80 hover:text-white"}`}
 								>
 									Iniciar Sesión
 								</Link>
 								<Link
-									href="/register"
-									className="group flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 font-semibold text-primary-dark text-sm shadow-[0_2px_8px_rgba(229,156,36,0.4)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(229,156,36,0.5)] active:scale-95"
+									href={isFirstTime ? "#" : "/register"}
+									onClick={(e) => {
+										if (isFirstTime) e.preventDefault();
+									}}
+									className={`group flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 font-semibold text-primary-dark text-sm shadow-[0_2px_8px_rgba(229,156,36,0.4)] transition-all duration-300 ${
+										isFirstTime
+											? "opacity-50 pointer-events-none cursor-not-allowed"
+											: "hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(229,156,36,0.5)] active:scale-95"
+									}`}
 								>
 									Registrarse
 									<span className="flex h-5 w-5 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px]">
 										<svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+											<title>Flecha de registro</title>
 											<path
 												d="M2 8L8 2M8 2H3M8 2V7"
 												stroke="currentColor"
@@ -135,7 +184,12 @@ export default function Navbar() {
 
 					{/* Mobile hamburger */}
 					<button
-						className={`relative ml-1 flex h-9 w-9 items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90 md:hidden ${scrolled ? "text-gray-700" : "text-white"}`}
+						disabled={isFirstTime}
+						className={`relative ml-1 flex h-9 w-9 items-center justify-center rounded-full transition-all md:hidden ${
+							isFirstTime
+								? "opacity-50 pointer-events-none cursor-not-allowed"
+								: "hover:bg-white/15 active:scale-90"
+						} ${scrolled ? "text-gray-700" : "text-white"}`}
 						onClick={() => setMobileOpen(!mobileOpen)}
 						aria-label="Menú"
 					>
@@ -163,25 +217,31 @@ export default function Navbar() {
 				<div className="flex flex-col items-center gap-2">
 					{user ? (
 						<>
-							{NAV_LINKS.map(({ href, label, Icon }, i) => (
-								<Link
-									key={href}
-									href={href}
-									onClick={() => setMobileOpen(false)}
-									className={`reveal reveal-delay-${i + 1} flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
-								>
-									<Icon size={24} />
-									{label}
-								</Link>
-							))}
-							<Link
-								href="/profile"
-								onClick={() => setMobileOpen(false)}
-								className={`reveal reveal-delay-4 flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
-							>
-								<User size={24} />
-								{user.username}
-							</Link>
+							{user.surveyCompleted && (
+								<>
+									{NAV_LINKS.filter(
+										({ href }) => href !== "/admin" || user?.role === "admin",
+									).map(({ href, label, Icon }, i) => (
+										<Link
+											key={href}
+											href={href}
+											onClick={() => setMobileOpen(false)}
+											className={`reveal reveal-delay-${i + 1} flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
+										>
+											<Icon size={24} />
+											{label}
+										</Link>
+									))}
+									<Link
+										href="/profile"
+										onClick={() => setMobileOpen(false)}
+										className={`reveal reveal-delay-4 flex items-center gap-3 rounded-full px-8 py-4 font-bold text-2xl text-gray-900 transition-all hover:bg-primary/5 hover:text-primary active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
+									>
+										<User size={24} />
+										{user.name}
+									</Link>
+								</>
+							)}
 							<button
 								onClick={handleLogout}
 								className={`reveal reveal-delay-4 mt-4 flex items-center gap-2 rounded-full px-6 py-3 font-semibold text-base text-red-500 transition-all hover:bg-red-50 active:scale-95 ${mobileOpen ? "is-visible" : ""}`}

@@ -43,10 +43,7 @@ export async function POST(request: Request) {
 	};
 
 	if (!name) {
-		return NextResponse.json(
-			{ error: "name es requerido" },
-			{ status: 400 },
-		);
+		return NextResponse.json({ error: "name es requerido" }, { status: 400 });
 	}
 
 	const program = await prisma.academicProgram.create({

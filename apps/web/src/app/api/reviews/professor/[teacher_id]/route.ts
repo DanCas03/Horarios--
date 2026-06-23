@@ -6,7 +6,7 @@ import { type NextRequest, NextResponse } from "next/server";
  * Retorna las reseñas de un profesor (anónimas).
  */
 export async function GET(
-	request: NextRequest,
+	_request: NextRequest,
 	{ params }: { params: Promise<{ teacher_id: string }> },
 ) {
 	const { teacher_id } = await params;
@@ -20,14 +20,16 @@ export async function GET(
 
 	// Obtener los ObjectIds de periodos, secciones y profesores para popularlos en memoria
 	const periodIds = Array.from(
-		new Set(reviews.map((r: any) => r.periodId).filter((id: any) => !!id)),
-	) as string[];
+		new Set(reviews.map((r) => r.periodId).filter((id): id is string => !!id)),
+	);
 	const sectionIds = Array.from(
-		new Set(reviews.map((r: any) => r.sectionId).filter((id: any) => !!id)),
-	) as string[];
+		new Set(reviews.map((r) => r.sectionId).filter((id): id is string => !!id)),
+	);
 	const allTeacherIds = Array.from(
-		new Set(reviews.flatMap((r: any) => r.teacherIds).filter((id: any) => !!id)),
-	) as string[];
+		new Set(
+			reviews.flatMap((r) => r.teacherIds).filter((id): id is string => !!id),
+		),
+	);
 
 	const periods = periodIds.length
 		? await prisma.period.findMany({
@@ -44,14 +46,20 @@ export async function GET(
 	const teachers = allTeacherIds.length
 		? await prisma.teacher.findMany({
 				where: { id: { in: allTeacherIds } },
-				select: { id: true, name1: true, name2: true, surname1: true, surname2: true },
+				select: {
+					id: true,
+					name1: true,
+					name2: true,
+					surname1: true,
+					surname2: true,
+				},
 			})
 		: [];
 
-	const periodCodeById = new Map(periods.map((p: any) => [p.id, p.code]));
-	const sectionCodeById = new Map(sections.map((s: any) => [s.id, s.code]));
+	const periodCodeById = new Map(periods.map((p) => [p.id, p.code]));
+	const sectionCodeById = new Map(sections.map((s) => [s.id, s.code]));
 	const teacherNameById = new Map(
-		teachers.map((t: any) => {
+		teachers.map((t) => {
 			const name = [t.name1, t.name2, t.surname1, t.surname2]
 				.filter(Boolean)
 				.join(" ");
@@ -59,14 +67,18 @@ export async function GET(
 		}),
 	);
 
-	const populatedReviews = reviews.map(({ userProfileId: _upId, ...rest }: any) => {
+	const populatedReviews = reviews.map(({ userProfileId: _upId, ...rest }) => {
 		const profNames = rest.teacherIds
 			.map((id: string) => teacherNameById.get(id))
-			.filter(Boolean);
+			.filter((name): name is string => !!name);
 		return {
 			...rest,
-			period: rest.periodId ? (periodCodeById.get(rest.periodId) ?? rest.periodId) : "",
-			section: rest.sectionId ? (sectionCodeById.get(rest.sectionId) ?? rest.sectionId) : "",
+			period: rest.periodId
+				? (periodCodeById.get(rest.periodId) ?? rest.periodId)
+				: "",
+			section: rest.sectionId
+				? (sectionCodeById.get(rest.sectionId) ?? rest.sectionId)
+				: "",
 			professorName: profNames.length > 0 ? profNames.join(", ") : undefined,
 		};
 	});
