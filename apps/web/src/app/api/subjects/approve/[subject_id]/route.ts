@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
@@ -55,7 +55,10 @@ export async function DELETE(
 		where: { id: subject_id },
 	});
 	const creditsToRemove = subject?.credits ?? 0;
-	const newTotal = Math.max(0, profile.totalApprovedCredits - creditsToRemove);
+	const newTotal = Math.max(
+		0,
+		profile.totalApprovedCredits - creditsToRemove,
+	);
 
 	// Filtrar la materia del array
 	const updatedList = approvedSubjects.filter(

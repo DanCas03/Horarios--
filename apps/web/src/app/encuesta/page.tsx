@@ -169,7 +169,9 @@ function SubjectCombobox({
 					}}
 					onFocus={() => setOpen(true)}
 					placeholder={
-						options.length > 0 ? "Buscar materia cursada..." : "Ej: MAT-1115"
+						options.length > 0
+							? "Buscar materia cursada..."
+							: "Ej: MAT-1115"
 					}
 					className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-8 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 				/>
@@ -195,7 +197,9 @@ function SubjectCombobox({
 								<span className="flex-shrink-0 font-mono font-semibold text-primary">
 									{s.code}
 								</span>
-								<span className="truncate text-gray-500">{s.name}</span>
+								<span className="truncate text-gray-500">
+									{s.name}
+								</span>
 							</button>
 						</li>
 					))}
@@ -310,7 +314,9 @@ function TeacherCombobox({
 								}}
 								className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-primary/5"
 							>
-								<span className="truncate text-gray-700">{t.name}</span>
+								<span className="truncate text-gray-700">
+									{t.name}
+								</span>
 							</button>
 						</li>
 					))}
@@ -352,7 +358,9 @@ function SingleReviewForm({
 
 	// Load sections when subject/period changes
 	useEffect(() => {
-		const selectedSub = allSubjects.find((s) => s.code === form.subject_code);
+		const selectedSub = allSubjects.find(
+			(s) => s.code === form.subject_code,
+		);
 		if (!selectedSub?.id || !form.period) {
 			setSections([]);
 			onUpdate(form.id, {
@@ -377,7 +385,10 @@ function SingleReviewForm({
 				});
 			})
 			.catch((err) => {
-				console.error("Error al cargar secciones de la base de datos:", err);
+				console.error(
+					"Error al cargar secciones de la base de datos:",
+					err,
+				);
 				setSections([]);
 				onUpdate(form.id, {
 					sectionId: "",
@@ -404,7 +415,9 @@ function SingleReviewForm({
 						Reseña de {form.subject_code} guardada
 					</p>
 				</div>
-				<span className="font-mono text-green-600 text-xs">#{index + 1}</span>
+				<span className="font-mono text-green-600 text-xs">
+					#{index + 1}
+				</span>
 			</div>
 		);
 	}
@@ -452,7 +465,9 @@ function SingleReviewForm({
 					<SubjectCombobox
 						id={`review-subject-${form.id}`}
 						value={form.subject_code}
-						onChange={(code) => onUpdate(form.id, { subject_code: code })}
+						onChange={(code) =>
+							onUpdate(form.id, { subject_code: code })
+						}
 						options={subjectOptions}
 					/>
 				</div>
@@ -467,7 +482,9 @@ function SingleReviewForm({
 						id={`review-period-${form.id}`}
 						required
 						value={form.period}
-						onChange={(e) => onUpdate(form.id, { period: e.target.value })}
+						onChange={(e) =>
+							onUpdate(form.id, { period: e.target.value })
+						}
 						className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 					>
 						{periods.map((p) => (
@@ -483,7 +500,8 @@ function SingleReviewForm({
 			{isFallback ? (
 				<div className="fade-in slide-in-from-top-1 animate-in space-y-4 rounded-xl border border-gray-200 border-dashed bg-gray-50/50 p-4 duration-200">
 					<p className="flex items-center gap-1.5 font-semibold text-amber-700 text-xs">
-						⚠️ No se encontraron secciones para esta materia en este período.
+						⚠️ No se encontraron secciones para esta materia en este
+						período.
 					</p>
 
 					<div>
@@ -523,7 +541,9 @@ function SingleReviewForm({
 								required
 								value={form.notFoundTeacherNames || ""}
 								onChange={(e) =>
-									onUpdate(form.id, { notFoundTeacherNames: e.target.value })
+									onUpdate(form.id, {
+										notFoundTeacherNames: e.target.value,
+									})
 								}
 								placeholder="Escribe el nombre aquí..."
 								className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
@@ -544,10 +564,14 @@ function SingleReviewForm({
 						value={form.sectionId}
 						onChange={(e) => {
 							const secId = e.target.value;
-							const selectedSec = sections.find((s) => s.id === secId);
+							const selectedSec = sections.find(
+								(s) => s.id === secId,
+							);
 							onUpdate(form.id, {
 								sectionId: secId,
-								teacherIds: selectedSec ? selectedSec.teacherIds : [],
+								teacherIds: selectedSec
+									? selectedSec.teacherIds
+									: [],
 							});
 						}}
 						disabled={loadingSections || !form.subject_code}
@@ -557,7 +581,9 @@ function SingleReviewForm({
 						{sections.map((s) => (
 							<option key={s.id} value={s.id}>
 								Seccion {s.code || "Sin codigo"}{" "}
-								{s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
+								{s.teachers.length > 0
+									? `(${s.teachers.join(", ")})`
+									: ""}
 							</option>
 						))}
 					</select>
@@ -583,7 +609,9 @@ function SingleReviewForm({
 								<button
 									key={i}
 									type="button"
-									onClick={() => onUpdate(form.id, { [key]: i + 1 })}
+									onClick={() =>
+										onUpdate(form.id, { [key]: i + 1 })
+									}
 									className="transition-transform hover:scale-110 active:scale-95"
 								>
 									<Star
@@ -612,7 +640,9 @@ function SingleReviewForm({
 				<button
 					type="button"
 					onClick={() =>
-						onUpdate(form.id, { would_recommend: !form.would_recommend })
+						onUpdate(form.id, {
+							would_recommend: !form.would_recommend,
+						})
 					}
 					className={`rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${
 						form.would_recommend
@@ -636,15 +666,17 @@ function SingleReviewForm({
 					id={`review-comment-${form.id}`}
 					required
 					value={form.comment}
-					onChange={(e) => onUpdate(form.id, { comment: e.target.value })}
+					onChange={(e) =>
+						onUpdate(form.id, { comment: e.target.value })
+					}
 					rows={3}
 					className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 					placeholder="Comparte tu experiencia con la materia..."
 				/>
 				<p className="mt-1.5 font-medium text-[11px] text-gray-400 leading-normal">
-					🔒 Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita
-					insultar o ser malicioso, ya que dañará la encuesta y podría conllevar
-					la inhabilitación de tu perfil.
+					🔒 Tu reseña es 100% anónima. Nos ocupamos de tu privacidad.
+					Evita insultar o ser malicioso, ya que dañará la encuesta y
+					podría conllevar la inhabilitación de tu perfil.
 				</p>
 			</div>
 
@@ -670,7 +702,9 @@ function SingleReviewForm({
 						<textarea
 							id={`review-tips-${form.id}`}
 							value={form.tips}
-							onChange={(e) => onUpdate(form.id, { tips: e.target.value })}
+							onChange={(e) =>
+								onUpdate(form.id, { tips: e.target.value })
+							}
 							rows={2}
 							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							placeholder="Consejos para quien vaya a cursar esta materia..."
@@ -687,7 +721,9 @@ function SingleReviewForm({
 							id={`review-strategy-${form.id}`}
 							value={form.study_strategy}
 							onChange={(e) =>
-								onUpdate(form.id, { study_strategy: e.target.value })
+								onUpdate(form.id, {
+									study_strategy: e.target.value,
+								})
 							}
 							rows={2}
 							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
@@ -709,7 +745,8 @@ function SingleReviewForm({
 						(!isFallback && !form.sectionId) ||
 						(isFallback &&
 							(!form.fallbackTeacherId ||
-								(form.fallbackTeacherId === "no-encuentro-profe" &&
+								(form.fallbackTeacherId ===
+									"no-encuentro-profe" &&
 									!form.notFoundTeacherNames?.trim())))
 					}
 					className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
@@ -750,7 +787,10 @@ function EncuestaContent() {
 				setAllTeachers(res.data as { id: string; name: string }[]);
 			})
 			.catch((err) => {
-				console.error("Error al cargar profesores de la base de datos:", err);
+				console.error(
+					"Error al cargar profesores de la base de datos:",
+					err,
+				);
 			});
 	}, []);
 
@@ -819,7 +859,10 @@ function EncuestaContent() {
 				}
 			})
 			.catch((err) => {
-				console.error("Error al cargar períodos de la base de datos:", err);
+				console.error(
+					"Error al cargar períodos de la base de datos:",
+					err,
+				);
 				setForms([createEmptyForm("")]);
 			});
 	}, [user?.universityIds]);
@@ -877,8 +920,7 @@ function EncuestaContent() {
 			) {
 				updateForm(formId, {
 					saving: false,
-					error:
-						"El contenido contiene palabras inapropiadas o insultos. Por favor, mantén un tono respetuoso.",
+					error: "El contenido contiene palabras inapropiadas o insultos. Por favor, mantén un tono respetuoso.",
 				});
 				return;
 			}
@@ -904,7 +946,10 @@ function EncuestaContent() {
 					periodId: form.period || undefined,
 					sectionId: form.sectionId || undefined,
 					ratings: [
-						{ category: "difficulty", value: form.difficulty_rating },
+						{
+							category: "difficulty",
+							value: form.difficulty_rating,
+						},
 						{ category: "professor", value: form.professor_rating },
 						{ category: "workload", value: form.workload_rating },
 					],
@@ -913,7 +958,8 @@ function EncuestaContent() {
 					tips: form.tips || undefined,
 					studyStrategy: form.study_strategy || undefined,
 					notFoundTeacherNames:
-						isFallback && form.fallbackTeacherId === "no-encuentro-profe"
+						isFallback &&
+						form.fallbackTeacherId === "no-encuentro-profe"
 							? form.notFoundTeacherNames || undefined
 							: undefined,
 				});
@@ -963,7 +1009,9 @@ function EncuestaContent() {
 			await completeSurvey();
 			setSurveyDone(true);
 		} catch (err: unknown) {
-			setFinishingError(parseApiError(err, "Error al finalizar la encuesta"));
+			setFinishingError(
+				parseApiError(err, "Error al finalizar la encuesta"),
+			);
 		} finally {
 			setFinishing(false);
 		}
@@ -989,9 +1037,9 @@ function EncuestaContent() {
 						Gracias por tu contribucion!
 					</h1>
 					<p className="mx-auto mt-4 max-w-md text-gray-500">
-						Tus resenas ayudaran a otros estudiantes a tomar mejores decisiones.
-						Guardaste {savedCount} resena{savedCount !== 1 ? "s" : ""} en esta
-						sesion.
+						Tus resenas ayudaran a otros estudiantes a tomar mejores
+						decisiones. Guardaste {savedCount} resena
+						{savedCount !== 1 ? "s" : ""} en esta sesion.
 					</p>
 					<a
 						href="/"
@@ -1084,12 +1132,17 @@ function EncuestaContent() {
 						</div>
 						<div className="space-y-2">
 							<h3 className="font-bold text-amber-900 text-base">
-								No tienes materias aprobadas registradas para tu carrera actual
+								No tienes materias aprobadas registradas para tu
+								carrera actual
 							</h3>
 							<p className="text-amber-800/95 text-sm leading-relaxed">
-								Para poder realizar la encuesta, necesitas registrar las
-								materias que has cursado y aprobado en tu plan de estudios de{" "}
-								<strong>{academicProgramName || "tu carrera"}</strong>.
+								Para poder realizar la encuesta, necesitas
+								registrar las materias que has cursado y
+								aprobado en tu plan de estudios de{" "}
+								<strong>
+									{academicProgramName || "tu carrera"}
+								</strong>
+								.
 							</p>
 							<div className="pt-2">
 								<Link
@@ -1110,8 +1163,11 @@ function EncuestaContent() {
 					<div className="flex items-center justify-between text-sm">
 						<span className="text-gray-600">
 							Has resenado{" "}
-							<strong className="text-primary">{reviewedApprovedCount}</strong>{" "}
-							de <strong>{subjectOptions.length}</strong> materias aprobadas.
+							<strong className="text-primary">
+								{reviewedApprovedCount}
+							</strong>{" "}
+							de <strong>{subjectOptions.length}</strong> materias
+							aprobadas.
 							<Link
 								href="/encuesta/onboarding?edit=true"
 								className="ml-2.5 font-semibold text-primary text-xs hover:underline"
@@ -1122,7 +1178,9 @@ function EncuestaContent() {
 						<span className="font-mono text-primary text-xs">
 							{subjectOptions.length > 0
 								? Math.round(
-										(reviewedApprovedCount / subjectOptions.length) * 100,
+										(reviewedApprovedCount /
+											subjectOptions.length) *
+											100,
 									)
 								: 0}
 							%
@@ -1136,7 +1194,9 @@ function EncuestaContent() {
 									subjectOptions.length > 0
 										? Math.min(
 												100,
-												(reviewedApprovedCount / subjectOptions.length) * 100,
+												(reviewedApprovedCount /
+													subjectOptions.length) *
+													100,
 											)
 										: 0
 								}%`,
@@ -1156,8 +1216,8 @@ function EncuestaContent() {
 						¡Ya reseñaste todas tus materias aprobadas!
 					</h3>
 					<p className="mx-auto mt-2 max-w-md text-green-800/90 text-sm">
-						Si cursaste materias nuevas, agrégalas a tus materias cursadas para
-						poder reseñarlas.
+						Si cursaste materias nuevas, agrégalas a tus materias
+						cursadas para poder reseñarlas.
 					</p>
 					<Link
 						href="/encuesta/onboarding?edit=true"
@@ -1173,7 +1233,11 @@ function EncuestaContent() {
 						{forms.map((form, i) => (
 							<div
 								key={form.id}
-								ref={i === forms.length - 1 ? lastFormRef : undefined}
+								ref={
+									i === forms.length - 1
+										? lastFormRef
+										: undefined
+								}
 							>
 								<SingleReviewForm
 									form={form}
@@ -1211,8 +1275,9 @@ function EncuestaContent() {
 							¿Finalizar sin guardar?
 						</h3>
 						<p className="mt-2 text-gray-500 text-sm">
-							Tienes reseñas con información sin guardar. ¿Estás seguro de que
-							deseas finalizar la encuesta sin guardarlas?
+							Tienes reseñas con información sin guardar. ¿Estás
+							seguro de que deseas finalizar la encuesta sin
+							guardarlas?
 						</p>
 						<div className="mt-6 flex justify-end gap-3">
 							<button

@@ -46,7 +46,9 @@ const features: Feature[] = [
 
 export default function Home() {
 	const { user } = useAuth();
-	const [tooltip, setTooltip] = useState<{ x: number; y: number } | null>(null);
+	const [tooltip, setTooltip] = useState<{ x: number; y: number } | null>(
+		null,
+	);
 	useReveal();
 
 	return (
@@ -81,8 +83,9 @@ export default function Home() {
 						</h1>
 
 						<p className="mb-12 max-w-2xl text-balance text-lg text-white/60 leading-relaxed md:text-xl">
-							Planifica tu carrera de forma inteligente. Seguimiento de pensum,
-							horarios optimizados y reseñas de la comunidad estudiantil.
+							Planifica tu carrera de forma inteligente.
+							Seguimiento de pensum, horarios optimizados y
+							reseñas de la comunidad estudiantil.
 						</p>
 
 						<div className="flex flex-wrap items-center gap-4">
@@ -93,8 +96,15 @@ export default function Home() {
 								>
 									Ir a Mi Pensum
 									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
-										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-											<title>Icono flecha al pensum</title>
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 12 12"
+											fill="none"
+										>
+											<title>
+												Icono flecha al pensum
+											</title>
 											<path
 												d="M2 10L10 2M10 2H4M10 2V8"
 												stroke="currentColor"
@@ -119,7 +129,9 @@ export default function Home() {
 												viewBox="0 0 12 12"
 												fill="none"
 											>
-												<title>Icono flecha comenzar</title>
+												<title>
+													Icono flecha comenzar
+												</title>
 												<path
 													d="M2 10L10 2M10 2H4M10 2V8"
 													stroke="currentColor"
@@ -178,7 +190,12 @@ export default function Home() {
 										: "Continuar encuesta"
 									: "Comenzar ahora"}
 								<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
-									<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+									<svg
+										width="12"
+										height="12"
+										viewBox="0 0 12 12"
+										fill="none"
+									>
 										<title>Icono flecha encuesta</title>
 										<path
 											d="M2 10L10 2M10 2H4M10 2V8"
@@ -208,11 +225,13 @@ export default function Home() {
 					<h2 className="text-balance font-extrabold text-5xl text-gray-900 leading-[0.95] tracking-tighter md:text-6xl">
 						Todo lo que necesitas
 						<br />
-						<span className="text-primary/50">para tu vida académica</span>
+						<span className="text-primary/50">
+							para tu vida académica
+						</span>
 					</h2>
 					<p className="mt-8 text-balance text-gray-500 text-lg leading-relaxed">
-						Herramientas diseñadas por y para estudiantes universitarios
-						venezolanos.
+						Herramientas diseñadas por y para estudiantes
+						universitarios venezolanos.
 					</p>
 				</div>
 
@@ -241,10 +260,16 @@ export default function Home() {
 									key={f.title}
 									className={`${wrapperClass} cursor-default`}
 									onMouseEnter={(e) =>
-										setTooltip({ x: e.clientX, y: e.clientY })
+										setTooltip({
+											x: e.clientX,
+											y: e.clientY,
+										})
 									}
 									onMouseMove={(e) =>
-										setTooltip({ x: e.clientX, y: e.clientY })
+										setTooltip({
+											x: e.clientX,
+											y: e.clientY,
+										})
 									}
 									onMouseLeave={() => setTooltip(null)}
 								>
@@ -286,8 +311,9 @@ export default function Home() {
 									tu carrera hoy
 								</h2>
 								<p className="mx-auto mb-10 max-w-lg text-white/50 leading-relaxed">
-									Sin costos ocultos. Sin anuncios. Solo una herramienta rápida
-									y confiable para que te concentres en lo que importa.
+									Sin costos ocultos. Sin anuncios. Solo una
+									herramienta rápida y confiable para que te
+									concentres en lo que importa.
 								</p>
 								<Link
 									href="/register"
@@ -295,8 +321,15 @@ export default function Home() {
 								>
 									Crear Cuenta Gratis
 									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
-										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-											<title>Icono flecha crear cuenta</title>
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 12 12"
+											fill="none"
+										>
+											<title>
+												Icono flecha crear cuenta
+											</title>
 											<path
 												d="M2 10L10 2M10 2H4M10 2V8"
 												stroke="currentColor"

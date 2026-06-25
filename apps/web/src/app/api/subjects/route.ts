@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
 	const sp = request.nextUrl.searchParams;
 	const universityId = sp.get("university_id");
 	const subjectType = sp.get("subject_type");
-	const academicUnitId = sp.get("academic_unit_id") || sp.get("academicUnitId");
+	const academicUnitId =
+		sp.get("academic_unit_id") || sp.get("academicUnitId");
 
 	const subjects = await prisma.subject.findMany({
 		where: {

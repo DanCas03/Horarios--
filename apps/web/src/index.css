@@ -1,4 +1,4 @@
-@import "@horaios/ui/globals.css";
+@import "@horarios/ui/globals.css";
 @import "tailwindcss";
 
 @theme {
@@ -40,8 +40,8 @@ body {
 /* ─── Spring physics timing — never linear or ease-in-out ───────────────── */
 * {
 	transition-property:
-		background-color, border-color, color, fill, stroke, opacity, box-shadow,
-		transform, filter;
+		background-color, border-color, color, fill, stroke, opacity,
+		box-shadow, transform, filter;
 	transition-duration: 400ms;
 	transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }

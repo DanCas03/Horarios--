@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
@@ -27,7 +27,9 @@ export async function GET(request: NextRequest) {
 	// Obtener los nombres de los profesores asociados
 	const teacherIds = Array.from(
 		new Set(
-			sections.flatMap((s: any) => s.teacherIds).filter((id: any) => !!id),
+			sections
+				.flatMap((s: any) => s.teacherIds)
+				.filter((id: any) => !!id),
 		),
 	) as string[];
 

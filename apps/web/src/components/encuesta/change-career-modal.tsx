@@ -103,10 +103,14 @@ export default function ChangeCareerModal({
 
 				{programChanged && (
 					<div className="mt-4 flex items-start gap-2.5 rounded-xl bg-amber-50 px-3.5 py-3 text-amber-800 text-xs ring-1 ring-amber-200">
-						<AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+						<AlertTriangle
+							size={16}
+							className="mt-0.5 flex-shrink-0"
+						/>
 						<span>
-							Cambiar de carrera reiniciará tus materias cursadas (las volverás
-							a seleccionar). Tus reseñas se conservan.
+							Cambiar de carrera reiniciará tus materias cursadas
+							(las volverás a seleccionar). Tus reseñas se
+							conservan.
 						</span>
 					</div>
 				)}
@@ -153,7 +157,9 @@ export default function ChangeCareerModal({
 							<select
 								id="cc-prog"
 								value={selectedProgram}
-								onChange={(e) => setSelectedProgram(e.target.value)}
+								onChange={(e) =>
+									setSelectedProgram(e.target.value)
+								}
 								className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							>
 								<option value="">Selecciona tu carrera</option>
@@ -184,7 +190,8 @@ export default function ChangeCareerModal({
 					>
 						{saving ? (
 							<>
-								<Loader2 size={15} className="animate-spin" /> Guardando...
+								<Loader2 size={15} className="animate-spin" />{" "}
+								Guardando...
 							</>
 						) : (
 							"Confirmar y reseleccionar materias"

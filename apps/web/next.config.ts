@@ -1,4 +1,4 @@
-import "@horaios/env/web";
+import "@horarios/env/web";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {

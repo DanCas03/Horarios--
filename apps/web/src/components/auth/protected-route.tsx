@@ -23,8 +23,13 @@ export default function ProtectedRoute({
 	useEffect(() => {
 		if (!loading) {
 			if (!user) {
-				router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
-			} else if (pathname?.startsWith("/admin") && user.role !== "admin") {
+				router.replace(
+					`/login?next=${encodeURIComponent(pathname || "/")}`,
+				);
+			} else if (
+				pathname?.startsWith("/admin") &&
+				user.role !== "admin"
+			) {
 				router.replace("/dashboard");
 			}
 		}

@@ -45,7 +45,8 @@ const formatPeriod = (p: Period) => {
 			month: "long",
 			year: "numeric",
 		});
-		const capStart = startMonth.charAt(0).toUpperCase() + startMonth.slice(1);
+		const capStart =
+			startMonth.charAt(0).toUpperCase() + startMonth.slice(1);
 		const capEnd = endMonth.charAt(0).toUpperCase() + endMonth.slice(1);
 		label += ` (${capStart} - ${capEnd})`;
 	}
@@ -100,19 +101,20 @@ const normalizeSchedule = (raw: RawSchedule): Schedule => ({
 	_id: raw.id,
 	period: raw.period,
 	schedule_type: raw.scheduleType,
-	blocks: (raw.scheduleType === "current" ? (raw.customBlocks ?? []) : []).map(
-		(b: any) => ({
-			subject_code: b.subjectCode ?? "",
-			subject_name: b.subjectName,
-			section: b.section,
-			professor: b.professor,
-			day: b.day,
-			start_time: b.startTime,
-			end_time: b.endTime,
-			classroom: b.classroom,
-			modality: b.modality,
-		}),
-	),
+	blocks: (raw.scheduleType === "current"
+		? (raw.customBlocks ?? [])
+		: []
+	).map((b: any) => ({
+		subject_code: b.subjectCode ?? "",
+		subject_name: b.subjectName,
+		section: b.section,
+		professor: b.professor,
+		day: b.day,
+		start_time: b.startTime,
+		end_time: b.endTime,
+		classroom: b.classroom,
+		modality: b.modality,
+	})),
 	tentative_subjects: (raw.scheduleType === "tentative"
 		? (raw.customBlocks ?? [])
 		: []
@@ -186,7 +188,9 @@ function ScheduleContent() {
 		setLoading(true);
 		try {
 			const schedRes = await schedulesAPI.my();
-			setSchedules((schedRes.data as RawSchedule[]).map(normalizeSchedule));
+			setSchedules(
+				(schedRes.data as RawSchedule[]).map(normalizeSchedule),
+			);
 
 			const periodsRes = await periodsAPI.list();
 			const fetchedPeriods = periodsRes.data as Period[];
@@ -276,7 +280,11 @@ function ScheduleContent() {
 	const addBlock = () => setBlocks((b) => [...b, EMPTY_BLOCK()]);
 	const removeBlock = (i: number) =>
 		setBlocks((b) => b.filter((_, idx) => idx !== i));
-	const updateBlock = (i: number, field: keyof ScheduleBlock, value: string) =>
+	const updateBlock = (
+		i: number,
+		field: keyof ScheduleBlock,
+		value: string,
+	) =>
 		setBlocks((b) =>
 			b.map((bl, idx) => (idx === i ? { ...bl, [field]: value } : bl)),
 		);
@@ -287,7 +295,12 @@ function ScheduleContent() {
 			return;
 		}
 		const validBlocks = blocks.filter(
-			(b) => b.subject_code && b.section && b.day && b.start_time && b.end_time,
+			(b) =>
+				b.subject_code &&
+				b.section &&
+				b.day &&
+				b.start_time &&
+				b.end_time,
 		);
 		if (validBlocks.length === 0) {
 			setCurrentError("Agrega al menos un bloque válido");
@@ -382,7 +395,8 @@ function ScheduleContent() {
 						Horarios
 					</h1>
 					<p className="mt-3 font-medium text-gray-500">
-						Gestiona tu horario actual y planifica los próximos períodos
+						Gestiona tu horario actual y planifica los próximos
+						períodos
 					</p>
 				</div>
 			</div>
@@ -421,8 +435,8 @@ function ScheduleContent() {
 									</h3>
 									<p className="mt-0.5 text-gray-400 text-xs">
 										{available.length} materia
-										{available.length !== 1 ? "s" : ""} con prelaciones
-										cumplidas
+										{available.length !== 1 ? "s" : ""} con
+										prelaciones cumplidas
 										{selected.size > 0 && (
 											<span className="ml-2 font-semibold text-primary">
 												· {selected.size} seleccionada
@@ -450,12 +464,18 @@ function ScheduleContent() {
 										</p>
 										<div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
 											{semSubjects.map((s) => {
-												const isSelected = selected.has(s.code);
+												const isSelected = selected.has(
+													s.code,
+												);
 												return (
 													<button
 														key={s._id}
 														type="button"
-														onClick={() => toggleSubject(s.code)}
+														onClick={() =>
+															toggleSubject(
+																s.code,
+															)
+														}
 														className={`rounded-xl border-2 p-3 text-left transition-all ${
 															isSelected
 																? "border-primary bg-primary/5 shadow-sm"
@@ -465,7 +485,9 @@ function ScheduleContent() {
 														<div className="flex items-start justify-between gap-1">
 															<p
 																className={`font-medium text-sm leading-snug ${
-																	isSelected ? "text-primary" : "text-gray-900"
+																	isSelected
+																		? "text-primary"
+																		: "text-gray-900"
 																}`}
 															>
 																{s.name}
@@ -480,7 +502,8 @@ function ScheduleContent() {
 														<p
 															className={`mt-1 text-xs ${isSelected ? "text-primary/70" : "text-gray-400"}`}
 														>
-															{s.code} · {s.credits} cr.
+															{s.code} ·{" "}
+															{s.credits} cr.
 														</p>
 													</button>
 												);
@@ -492,7 +515,9 @@ function ScheduleContent() {
 							{/* Save panel */}
 							<div className="mt-4 border-gray-100 border-t pt-4">
 								{tentativeError && (
-									<p className="mb-3 text-red-600 text-sm">{tentativeError}</p>
+									<p className="mb-3 text-red-600 text-sm">
+										{tentativeError}
+									</p>
 								)}
 								<div className="flex flex-wrap items-center gap-3">
 									<div className="flex items-center gap-2">
@@ -505,7 +530,11 @@ function ScheduleContent() {
 										<select
 											id="tentative-period"
 											value={tentativePeriod}
-											onChange={(e) => setTentativePeriod(e.target.value)}
+											onChange={(e) =>
+												setTentativePeriod(
+													e.target.value,
+												)
+											}
 											className="w-48 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 										>
 											{periods.map((p) => (
@@ -515,18 +544,25 @@ function ScheduleContent() {
 											))}
 											{periods.length === 0 && (
 												<option value={tentativePeriod}>
-													{tentativePeriod || "Sin periodos"}
+													{tentativePeriod ||
+														"Sin periodos"}
 												</option>
 											)}
 										</select>
 									</div>
 									<button
 										onClick={saveTentative}
-										disabled={savingTentative || selected.size === 0}
+										disabled={
+											savingTentative ||
+											selected.size === 0
+										}
 										className="group flex items-center gap-2.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 									>
 										{savingTentative ? (
-											<Loader2 size={14} className="animate-spin" />
+											<Loader2
+												size={14}
+												className="animate-spin"
+											/>
 										) : (
 											<Save size={14} />
 										)}
@@ -540,17 +576,23 @@ function ScheduleContent() {
 					) : user?.academicProgramIds ? (
 						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-md">
 							<BookMarked className="mx-auto mb-3 h-12 w-12 opacity-40" />
-							<p className="font-medium">No hay materias disponibles</p>
+							<p className="font-medium">
+								No hay materias disponibles
+							</p>
 							<p className="mt-1 text-sm">
-								Aprueba materias en tu pensum para desbloquear las siguientes
+								Aprueba materias en tu pensum para desbloquear
+								las siguientes
 							</p>
 						</div>
 					) : (
 						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-sm ring-1 ring-black/5">
 							<BookMarked className="mx-auto mb-3 h-12 w-12 opacity-40" />
-							<p className="font-medium">Configura tu programa primero</p>
+							<p className="font-medium">
+								Configura tu programa primero
+							</p>
 							<p className="mt-1 text-sm">
-								Ve a tu perfil y selecciona universidad y programa académico
+								Ve a tu perfil y selecciona universidad y
+								programa académico
 							</p>
 						</div>
 					)}
@@ -568,9 +610,15 @@ function ScheduleContent() {
 										schedule={sched}
 										isExpanded={expandedId === sched._id}
 										onToggle={() =>
-											setExpandedId(expandedId === sched._id ? null : sched._id)
+											setExpandedId(
+												expandedId === sched._id
+													? null
+													: sched._id,
+											)
 										}
-										onDelete={() => deleteSchedule(sched._id)}
+										onDelete={() =>
+											deleteSchedule(sched._id)
+										}
 										deleting={deletingId === sched._id}
 									/>
 								))}
@@ -591,15 +639,23 @@ function ScheduleContent() {
 							onClick={() => setShowCurrentForm(!showCurrentForm)}
 							className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] active:scale-95"
 						>
-							{showCurrentForm ? <X size={16} /> : <Plus size={16} />}
-							{showCurrentForm ? "Cancelar" : "Registrar horario actual"}
+							{showCurrentForm ? (
+								<X size={16} />
+							) : (
+								<Plus size={16} />
+							)}
+							{showCurrentForm
+								? "Cancelar"
+								: "Registrar horario actual"}
 						</button>
 					</div>
 
 					{/* New schedule form */}
 					{showCurrentForm && (
 						<div className="panel-enter rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
-							<h3 className="mb-4 font-bold text-gray-900">Nuevo Horario</h3>
+							<h3 className="mb-4 font-bold text-gray-900">
+								Nuevo Horario
+							</h3>
 
 							{currentError && (
 								<div className="mb-4 rounded-lg bg-red-50 px-4 py-2.5 text-red-700 text-sm">
@@ -617,7 +673,9 @@ function ScheduleContent() {
 								<select
 									id="current-period"
 									value={currentPeriod}
-									onChange={(e) => setCurrentPeriod(e.target.value)}
+									onChange={(e) =>
+										setCurrentPeriod(e.target.value)
+									}
 									className="w-48 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 								>
 									{periods.map((p) => (
@@ -661,11 +719,16 @@ function ScheduleContent() {
 									className="group ml-auto flex items-center gap-2.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:opacity-50"
 								>
 									{savingCurrent ? (
-										<Loader2 size={14} className="animate-spin" />
+										<Loader2
+											size={14}
+											className="animate-spin"
+										/>
 									) : (
 										<Save size={14} />
 									)}
-									{savingCurrent ? "Guardando..." : "Guardar horario"}
+									{savingCurrent
+										? "Guardando..."
+										: "Guardar horario"}
 								</button>
 							</div>
 						</div>
@@ -679,7 +742,11 @@ function ScheduleContent() {
 									schedule={sched}
 									isExpanded={expandedId === sched._id}
 									onToggle={() =>
-										setExpandedId(expandedId === sched._id ? null : sched._id)
+										setExpandedId(
+											expandedId === sched._id
+												? null
+												: sched._id,
+										)
 									}
 									onDelete={() => deleteSchedule(sched._id)}
 									deleting={deletingId === sched._id}
@@ -692,8 +759,8 @@ function ScheduleContent() {
 										Sin horario actual
 									</h3>
 									<p className="mb-6 font-medium text-gray-500">
-										Registra los bloques de tus clases de este período para
-										verlos en la grilla.
+										Registra los bloques de tus clases de
+										este período para verlos en la grilla.
 									</p>
 								</div>
 							)}
@@ -724,14 +791,19 @@ function TentativeScheduleCard({
 					onClick={onToggle}
 					className="flex flex-1 items-center gap-3 text-left"
 				>
-					<BookMarked size={18} className="flex-shrink-0 text-primary" />
+					<BookMarked
+						size={18}
+						className="flex-shrink-0 text-primary"
+					/>
 					<div>
 						<span className="font-semibold text-gray-900">
 							Período {schedule.period}
 						</span>
 						<span className="ml-2 text-gray-400 text-sm">
 							· {schedule.tentative_subjects.length} materia
-							{schedule.tentative_subjects.length !== 1 ? "s" : ""}
+							{schedule.tentative_subjects.length !== 1
+								? "s"
+								: ""}
 						</span>
 					</div>
 					<ChevronDown
@@ -768,7 +840,9 @@ function TentativeScheduleCard({
 									<p className="font-medium text-gray-900 text-sm leading-tight">
 										{ts.subject_name || ts.subject_code}
 									</p>
-									<p className="text-gray-400 text-xs">{ts.subject_code}</p>
+									<p className="text-gray-400 text-xs">
+										{ts.subject_code}
+									</p>
 								</div>
 							</div>
 						))}
@@ -822,7 +896,10 @@ function CurrentScheduleCard({
 					onClick={onToggle}
 					className="flex flex-1 items-center gap-3 text-left"
 				>
-					<Calendar size={18} className="flex-shrink-0 text-primary" />
+					<Calendar
+						size={18}
+						className="flex-shrink-0 text-primary"
+					/>
 					<div>
 						<span className="font-bold text-gray-900">
 							Período {schedule.period}
@@ -853,7 +930,11 @@ function CurrentScheduleCard({
 			<SmoothAccordion isOpen={isExpanded && schedule.blocks.length > 0}>
 				<div className="accordion-content border-gray-100 border-t px-6 pt-1 pb-5">
 					<div className="mt-4 overflow-x-auto">
-						<div style={{ minWidth: `${activeDays.length * 120 + 60}px` }}>
+						<div
+							style={{
+								minWidth: `${activeDays.length * 120 + 60}px`,
+							}}
+						>
 							{/* Header */}
 							<div
 								className={"mb-1 grid gap-1"}
@@ -878,7 +959,9 @@ function CurrentScheduleCard({
 								const hasBlock = activeDays.some((d) =>
 									schedule.blocks.some(
 										(b) =>
-											b.day === d && b.start_time <= hour && b.end_time > hour,
+											b.day === d &&
+											b.start_time <= hour &&
+											b.end_time > hour,
 									),
 								);
 								if (!hasBlock) return null;
@@ -900,12 +983,16 @@ function CurrentScheduleCard({
 													b.start_time <= hour &&
 													b.end_time > hour,
 											);
-											if (block && block.start_time === hour) {
+											if (
+												block &&
+												block.start_time === hour
+											) {
 												return (
 													<div
 														key={day}
 														className={`rounded-lg border p-1.5 text-xs ${
-															dayColorMap[day] || "bg-gray-100"
+															dayColorMap[day] ||
+															"bg-gray-100"
 														}`}
 													>
 														<p className="truncate font-bold">
@@ -913,7 +1000,9 @@ function CurrentScheduleCard({
 														</p>
 														{block.subject_name && (
 															<p className="truncate opacity-80">
-																{block.subject_name}
+																{
+																	block.subject_name
+																}
 															</p>
 														)}
 														<p className="truncate opacity-70">
@@ -921,7 +1010,12 @@ function CurrentScheduleCard({
 														</p>
 														{block.classroom && (
 															<p className="mt-0.5 flex items-center gap-0.5 opacity-60">
-																<MapPin size={9} /> {block.classroom}
+																<MapPin
+																	size={9}
+																/>{" "}
+																{
+																	block.classroom
+																}
 															</p>
 														)}
 													</div>
@@ -999,7 +1093,11 @@ function BlockRow({
 						id={`current-block-subject-code-${index}`}
 						value={block.subject_code}
 						onChange={(e) =>
-							onChange(index, "subject_code", e.target.value.toUpperCase())
+							onChange(
+								index,
+								"subject_code",
+								e.target.value.toUpperCase(),
+							)
 						}
 						placeholder="MAT-1115"
 						className={inp}
@@ -1015,7 +1113,9 @@ function BlockRow({
 					<input
 						id={`current-block-subject-name-${index}`}
 						value={block.subject_name ?? ""}
-						onChange={(e) => onChange(index, "subject_name", e.target.value)}
+						onChange={(e) =>
+							onChange(index, "subject_name", e.target.value)
+						}
 						placeholder="Matemáticas I"
 						className={inp}
 					/>
@@ -1030,7 +1130,9 @@ function BlockRow({
 					<input
 						id={`current-block-section-${index}`}
 						value={block.section}
-						onChange={(e) => onChange(index, "section", e.target.value)}
+						onChange={(e) =>
+							onChange(index, "section", e.target.value)
+						}
 						placeholder="A1"
 						className={inp}
 					/>
@@ -1045,7 +1147,9 @@ function BlockRow({
 					<input
 						id={`current-block-professor-${index}`}
 						value={block.professor ?? ""}
-						onChange={(e) => onChange(index, "professor", e.target.value)}
+						onChange={(e) =>
+							onChange(index, "professor", e.target.value)
+						}
 						placeholder="Nombre"
 						className={inp}
 					/>
@@ -1080,7 +1184,9 @@ function BlockRow({
 					<select
 						id={`current-block-start-time-${index}`}
 						value={block.start_time}
-						onChange={(e) => onChange(index, "start_time", e.target.value)}
+						onChange={(e) =>
+							onChange(index, "start_time", e.target.value)
+						}
 						className={sel}
 					>
 						{HOURS.map((h) => (
@@ -1100,7 +1206,9 @@ function BlockRow({
 					<select
 						id={`current-block-end-time-${index}`}
 						value={block.end_time}
-						onChange={(e) => onChange(index, "end_time", e.target.value)}
+						onChange={(e) =>
+							onChange(index, "end_time", e.target.value)
+						}
 						className={sel}
 					>
 						{HOURS.map((h) => (
@@ -1120,7 +1228,9 @@ function BlockRow({
 					<input
 						id={`current-block-classroom-${index}`}
 						value={block.classroom ?? ""}
-						onChange={(e) => onChange(index, "classroom", e.target.value)}
+						onChange={(e) =>
+							onChange(index, "classroom", e.target.value)
+						}
 						placeholder="Aula 305"
 						className={inp}
 					/>

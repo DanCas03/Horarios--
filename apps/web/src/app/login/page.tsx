@@ -87,7 +87,10 @@ function LoginContent() {
 					>
 						{error && (
 							<div className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-red-700 text-sm ring-1 ring-red-100">
-								<AlertCircle size={16} className="flex-shrink-0" />
+								<AlertCircle
+									size={16}
+									className="flex-shrink-0"
+								/>
 								{error}
 							</div>
 						)}
@@ -127,7 +130,9 @@ function LoginContent() {
 									type="password"
 									required
 									value={password}
-									onChange={(e) => setPassword(e.target.value)}
+									onChange={(e) =>
+										setPassword(e.target.value)
+									}
 									className="w-full rounded-xl border border-gray-100 bg-gray-50/50 py-3.5 pr-4 pl-11 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 									placeholder="••••••••"
 								/>
@@ -149,7 +154,12 @@ function LoginContent() {
 								<>
 									Iniciar Sesión
 									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
-										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 12 12"
+											fill="none"
+										>
 											<title>Flecha de ingreso</title>
 											<path
 												d="M2 10L10 2M10 2H4M10 2V8"

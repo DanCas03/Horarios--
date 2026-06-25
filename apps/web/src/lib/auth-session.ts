@@ -1,4 +1,4 @@
-import { auth } from "@horaios/auth";
+import { auth } from "@horarios/auth";
 import { headers } from "next/headers";
 
 /**
@@ -20,10 +20,13 @@ export async function requireSession() {
 	if (!session) {
 		return {
 			session: null,
-			errorResponse: new Response(JSON.stringify({ error: "No autorizado" }), {
-				status: 401,
-				headers: { "Content-Type": "application/json" },
-			}),
+			errorResponse: new Response(
+				JSON.stringify({ error: "No autorizado" }),
+				{
+					status: 401,
+					headers: { "Content-Type": "application/json" },
+				},
+			),
 		} as const;
 	}
 	return { session, errorResponse: null } as const;

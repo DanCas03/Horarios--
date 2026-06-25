@@ -1,8 +1,9 @@
-import { cn } from "@horaios/ui/lib/utils";
+import { cn } from "@horarios/ui/lib/utils";
 import type * as React from "react";
 
 function Label({ className, ...props }: React.ComponentProps<"label">) {
 	return (
+		// biome-ignore lint/a11y/noLabelWithoutControl: generic label component wrapper
 		<label
 			data-slot="label"
 			className={cn(

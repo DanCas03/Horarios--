@@ -1,4 +1,4 @@
-import { Button } from "@horaios/ui/components/button";
+import { Button } from "@horarios/ui/components/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -7,8 +7,8 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
-} from "@horaios/ui/components/dropdown-menu";
-import { Skeleton } from "@horaios/ui/components/skeleton";
+} from "@horarios/ui/components/dropdown-menu";
+import { Skeleton } from "@horarios/ui/components/skeleton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

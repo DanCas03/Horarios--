@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { unstable_cache } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
@@ -123,7 +123,8 @@ export async function GET(request: NextRequest) {
 			return {
 				...schedule,
 				period: schedule.periodId
-					? (periodCodeById.get(schedule.periodId) ?? schedule.periodId)
+					? (periodCodeById.get(schedule.periodId) ??
+						schedule.periodId)
 					: "",
 				populatedBlocks: blocks,
 			};

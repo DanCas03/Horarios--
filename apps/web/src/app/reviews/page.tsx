@@ -50,7 +50,8 @@ const formatPeriod = (p: Period) => {
 			month: "long",
 			year: "numeric",
 		});
-		const capStart = startMonth.charAt(0).toUpperCase() + startMonth.slice(1);
+		const capStart =
+			startMonth.charAt(0).toUpperCase() + startMonth.slice(1);
 		const capEnd = endMonth.charAt(0).toUpperCase() + endMonth.slice(1);
 		label += ` (${capStart} - ${capEnd})`;
 	}
@@ -90,7 +91,9 @@ function StarRating({ value, max = 5 }: { value: number; max?: number }) {
 					key={i}
 					size={14}
 					className={
-						i < value ? "fill-amber-400 text-amber-400" : "text-gray-300"
+						i < value
+							? "fill-amber-400 text-amber-400"
+							: "text-gray-300"
 					}
 				/>
 			))}
@@ -186,7 +189,9 @@ function SubjectCombobox({
 								<span className="flex-shrink-0 font-mono font-semibold text-primary">
 									{s.code}
 								</span>
-								<span className="truncate text-gray-500">{s.name}</span>
+								<span className="truncate text-gray-500">
+									{s.name}
+								</span>
 							</button>
 						</li>
 					))}
@@ -253,7 +258,10 @@ function ReviewsContent() {
 				const fetchedPeriods = res.data as Period[];
 				setPeriods(fetchedPeriods);
 				if (fetchedPeriods.length > 0) {
-					setForm((prev) => ({ ...prev, period: fetchedPeriods[0].id }));
+					setForm((prev) => ({
+						...prev,
+						period: fetchedPeriods[0].id,
+					}));
 				}
 			})
 			.catch(() => {});
@@ -288,7 +296,9 @@ function ReviewsContent() {
 
 	// Load sections for selected subject & period
 	useEffect(() => {
-		const selectedSub = allSubjects.find((s) => s.code === form.subject_code);
+		const selectedSub = allSubjects.find(
+			(s) => s.code === form.subject_code,
+		);
 		if (!selectedSub?.id || !form.period) {
 			setSections([]);
 			setForm((prev) => ({ ...prev, sectionId: "", teacherIds: [] }));
@@ -314,7 +324,10 @@ function ReviewsContent() {
 	// Close search dropdown on outside click
 	useEffect(() => {
 		const handler = (e: MouseEvent) => {
-			if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+			if (
+				searchRef.current &&
+				!searchRef.current.contains(e.target as Node)
+			) {
 				setSearchOpen(false);
 			}
 		};
@@ -327,8 +340,12 @@ function ReviewsContent() {
 		searchQuery.trim().length > 0
 			? allSubjects.filter(
 					(s) =>
-						s.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-						s.name.toLowerCase().includes(searchQuery.toLowerCase()),
+						s.code
+							.toLowerCase()
+							.includes(searchQuery.toLowerCase()) ||
+						s.name
+							.toLowerCase()
+							.includes(searchQuery.toLowerCase()),
 				)
 			: [];
 
@@ -389,7 +406,8 @@ function ReviewsContent() {
 			await reviewsAPI.create({
 				subjectCode: form.subject_code,
 				universityId: user?.universityIds?.[0] || undefined,
-				teacherIds: form.teacherIds.length > 0 ? form.teacherIds : undefined,
+				teacherIds:
+					form.teacherIds.length > 0 ? form.teacherIds : undefined,
 				periodId: form.period || undefined,
 				sectionId: form.sectionId || undefined,
 				ratings: [
@@ -473,7 +491,9 @@ function ReviewsContent() {
 							value={searchQuery}
 							onChange={handleSearchInput}
 							onFocus={() => setSearchOpen(true)}
-							onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+							onKeyDown={(e) =>
+								e.key === "Enter" && handleSearch()
+							}
 							placeholder={
 								allSubjects.length > 0
 									? "Buscar por código o nombre de materia..."
@@ -489,13 +509,17 @@ function ReviewsContent() {
 									<li key={s.code}>
 										<button
 											type="button"
-											onMouseDown={() => handleSelectSuggestion(s.code)}
+											onMouseDown={() =>
+												handleSelectSuggestion(s.code)
+											}
 											className="flex w-full items-center gap-3 border-gray-50 border-b px-4 py-2.5 text-left text-sm last:border-0 hover:bg-primary/5"
 										>
 											<span className="flex-shrink-0 rounded bg-primary/10 px-2 py-0.5 font-bold font-mono text-primary text-xs">
 												{s.code}
 											</span>
-											<span className="truncate text-gray-600">{s.name}</span>
+											<span className="truncate text-gray-600">
+												{s.name}
+											</span>
 										</button>
 									</li>
 								))}
@@ -508,8 +532,8 @@ function ReviewsContent() {
 							searchSuggestions.length === 0 &&
 							allSubjects.length > 0 && (
 								<div className="absolute right-0 left-0 z-30 mt-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-400 text-sm shadow-xl">
-									Sin coincidencias en tu pensum — puedes buscar igual
-									presionando Buscar
+									Sin coincidencias en tu pensum — puedes
+									buscar igual presionando Buscar
 								</div>
 							)}
 					</div>
@@ -577,7 +601,9 @@ function ReviewsContent() {
 							<SubjectCombobox
 								id="review-subject"
 								value={form.subject_code}
-								onChange={(code) => setForm({ ...form, subject_code: code })}
+								onChange={(code) =>
+									setForm({ ...form, subject_code: code })
+								}
 								options={subjectOptions}
 							/>
 						</div>
@@ -592,7 +618,9 @@ function ReviewsContent() {
 								id="review-period"
 								required
 								value={form.period}
-								onChange={(e) => setForm({ ...form, period: e.target.value })}
+								onChange={(e) =>
+									setForm({ ...form, period: e.target.value })
+								}
 								className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							>
 								{periods.map((p) => (
@@ -619,11 +647,15 @@ function ReviewsContent() {
 								value={form.sectionId}
 								onChange={(e) => {
 									const secId = e.target.value;
-									const selectedSec = sections.find((s) => s.id === secId);
+									const selectedSec = sections.find(
+										(s) => s.id === secId,
+									);
 									setForm({
 										...form,
 										sectionId: secId,
-										teacherIds: selectedSec ? selectedSec.teacherIds : [],
+										teacherIds: selectedSec
+											? selectedSec.teacherIds
+											: [],
 									});
 								}}
 								disabled={loadingSections || !form.subject_code}
@@ -633,7 +665,9 @@ function ReviewsContent() {
 								{sections.map((s) => (
 									<option key={s.id} value={s.id}>
 										Sección {s.code || "Sin código"}{" "}
-										{s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
+										{s.teachers.length > 0
+											? `(${s.teachers.join(", ")})`
+											: ""}
 									</option>
 								))}
 							</select>
@@ -642,9 +676,18 @@ function ReviewsContent() {
 
 					<div className="grid grid-cols-3 gap-4">
 						{[
-							{ label: "Dificultad", key: "difficulty_rating" as const },
-							{ label: "Profesor", key: "professor_rating" as const },
-							{ label: "Carga de trabajo", key: "workload_rating" as const },
+							{
+								label: "Dificultad",
+								key: "difficulty_rating" as const,
+							},
+							{
+								label: "Profesor",
+								key: "professor_rating" as const,
+							},
+							{
+								label: "Carga de trabajo",
+								key: "workload_rating" as const,
+							},
 						].map(({ label, key }) => (
 							<div key={key}>
 								<label
@@ -660,7 +703,10 @@ function ReviewsContent() {
 									max="5"
 									value={form[key]}
 									onChange={(e) =>
-										setForm({ ...form, [key]: Number(e.target.value) })
+										setForm({
+											...form,
+											[key]: Number(e.target.value),
+										})
 									}
 									className="w-full accent-primary"
 								/>
@@ -678,7 +724,10 @@ function ReviewsContent() {
 						<button
 							type="button"
 							onClick={() =>
-								setForm({ ...form, would_recommend: !form.would_recommend })
+								setForm({
+									...form,
+									would_recommend: !form.would_recommend,
+								})
 							}
 							className={`rounded-lg px-3 py-1 font-semibold text-sm ${
 								form.would_recommend
@@ -701,7 +750,9 @@ function ReviewsContent() {
 							id="review-comment"
 							required
 							value={form.comment}
-							onChange={(e) => setForm({ ...form, comment: e.target.value })}
+							onChange={(e) =>
+								setForm({ ...form, comment: e.target.value })
+							}
 							rows={3}
 							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							placeholder="Comparte tu experiencia con la materia..."
@@ -718,7 +769,9 @@ function ReviewsContent() {
 						<textarea
 							id="review-tips"
 							value={form.tips}
-							onChange={(e) => setForm({ ...form, tips: e.target.value })}
+							onChange={(e) =>
+								setForm({ ...form, tips: e.target.value })
+							}
 							rows={2}
 							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							placeholder="Consejos para quien vaya a cursar esta materia..."
@@ -736,7 +789,10 @@ function ReviewsContent() {
 							id="review-study-strategy"
 							value={form.study_strategy}
 							onChange={(e) =>
-								setForm({ ...form, study_strategy: e.target.value })
+								setForm({
+									...form,
+									study_strategy: e.target.value,
+								})
 							}
 							rows={2}
 							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
@@ -758,7 +814,12 @@ function ReviewsContent() {
 							<>
 								Publicar Reseña (Anónima)
 								<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
-									<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+									<svg
+										width="12"
+										height="12"
+										viewBox="0 0 12 12"
+										fill="none"
+									>
 										<title>Flecha de publicación</title>
 										<path
 											d="M2 10L10 2M10 2H4M10 2V8"
@@ -783,10 +844,14 @@ function ReviewsContent() {
 			) : reviews.length > 0 ? (
 				<div className="space-y-4">
 					<p className="text-gray-500 text-sm">
-						{reviews.length} reseña(s) para <strong>{activeCode}</strong>
+						{reviews.length} reseña(s) para{" "}
+						<strong>{activeCode}</strong>
 					</p>
 					{reviews.map((r) => (
-						<div key={r.id} className="rounded-2xl bg-white p-6 shadow-md">
+						<div
+							key={r.id}
+							className="rounded-2xl bg-white p-6 shadow-md"
+						>
 							<div className="mb-3 flex items-start justify-between">
 								<div>
 									<div className="mb-1 flex items-center gap-2">
@@ -806,7 +871,8 @@ function ReviewsContent() {
 									)}
 									<p className="mt-1 text-gray-400 text-xs">
 										Periodo: {r.period}
-										{r.section && ` • Sección: ${r.section}`}
+										{r.section &&
+											` • Sección: ${r.section}`}
 									</p>
 								</div>
 								<div className="flex items-center gap-1">
@@ -820,45 +886,65 @@ function ReviewsContent() {
 
 							<div className="mb-4 grid grid-cols-3 gap-4">
 								<div>
-									<p className="mb-1 text-gray-500 text-xs">Dificultad</p>
+									<p className="mb-1 text-gray-500 text-xs">
+										Dificultad
+									</p>
 									<StarRating
 										value={
-											r.ratings?.find((rt) => rt.category === "difficulty")
-												?.value || 0
+											r.ratings?.find(
+												(rt) =>
+													rt.category ===
+													"difficulty",
+											)?.value || 0
 										}
 									/>
 								</div>
-								{r.ratings?.some((rt) => rt.category === "professor") && (
+								{r.ratings?.some(
+									(rt) => rt.category === "professor",
+								) && (
 									<div>
-										<p className="mb-1 text-gray-500 text-xs">Profesor</p>
+										<p className="mb-1 text-gray-500 text-xs">
+											Profesor
+										</p>
 										<StarRating
 											value={
-												r.ratings?.find((rt) => rt.category === "professor")
-													?.value || 0
+												r.ratings?.find(
+													(rt) =>
+														rt.category ===
+														"professor",
+												)?.value || 0
 											}
 										/>
 									</div>
 								)}
 								<div>
-									<p className="mb-1 text-gray-500 text-xs">Carga</p>
+									<p className="mb-1 text-gray-500 text-xs">
+										Carga
+									</p>
 									<StarRating
 										value={
-											r.ratings?.find((rt) => rt.category === "workload")
-												?.value || 0
+											r.ratings?.find(
+												(rt) =>
+													rt.category === "workload",
+											)?.value || 0
 										}
 									/>
 								</div>
 							</div>
 
 							{r.comment && (
-								<p className="mb-3 text-gray-700 text-sm">{r.comment}</p>
+								<p className="mb-3 text-gray-700 text-sm">
+									{r.comment}
+								</p>
 							)}
 							{r.tips && (
 								<div className="mb-2 rounded-lg bg-amber-50 p-3">
 									<p className="mb-1 font-semibold text-amber-700 text-xs">
 										💡 Tips:
 									</p>
-									<p className="text-amber-800 text-sm">{r.tips}</p>
+									<p className="text-amber-800 text-sm">
+										{r.tips}
+									</p>
 								</div>
 							)}
 							{r.studyStrategy && (
@@ -866,7 +952,9 @@ function ReviewsContent() {
 									<p className="mb-1 font-semibold text-blue-700 text-xs">
 										📚 Estrategia:
 									</p>
-									<p className="text-blue-800 text-sm">{r.studyStrategy}</p>
+									<p className="text-blue-800 text-sm">
+										{r.studyStrategy}
+									</p>
 								</div>
 							)}
 						</div>
@@ -876,9 +964,12 @@ function ReviewsContent() {
 				<div className="py-10 text-center text-gray-400">
 					<MessageSquare className="mx-auto mb-3 h-12 w-12 opacity-50" />
 					<p>
-						No se encontraron reseñas para <strong>{activeCode}</strong>
+						No se encontraron reseñas para{" "}
+						<strong>{activeCode}</strong>
 					</p>
-					<p className="mt-1 text-sm">Sé el primero en dejar una reseña</p>
+					<p className="mt-1 text-sm">
+						Sé el primero en dejar una reseña
+					</p>
 				</div>
 			) : null}
 		</div>

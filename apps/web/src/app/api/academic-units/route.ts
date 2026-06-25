@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
@@ -23,13 +23,14 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
 	try {
 		const body = await request.json();
-		const { name, code, universityId, isExtracurricular, parentId } = body as {
-			name?: string;
-			code?: string;
-			universityId?: string;
-			isExtracurricular?: boolean;
-			parentId?: string;
-		};
+		const { name, code, universityId, isExtracurricular, parentId } =
+			body as {
+				name?: string;
+				code?: string;
+				universityId?: string;
+				isExtracurricular?: boolean;
+				parentId?: string;
+			};
 
 		if (!name || !universityId) {
 			return NextResponse.json(

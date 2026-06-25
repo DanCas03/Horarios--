@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**

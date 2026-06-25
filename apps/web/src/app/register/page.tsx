@@ -156,13 +156,19 @@ export default function RegisterPage() {
 					>
 						{error && (
 							<div className="flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-red-700 text-sm ring-1 ring-red-100">
-								<AlertCircle size={16} className="flex-shrink-0" />
+								<AlertCircle
+									size={16}
+									className="flex-shrink-0"
+								/>
 								{error}
 							</div>
 						)}
 
 						<div>
-							<label htmlFor="register-username" className={labelClass}>
+							<label
+								htmlFor="register-username"
+								className={labelClass}
+							>
 								Nombre completo
 							</label>
 							<div className="group relative">
@@ -172,7 +178,9 @@ export default function RegisterPage() {
 									type="text"
 									required
 									value={username}
-									onChange={(e) => setUsername(e.target.value)}
+									onChange={(e) =>
+										setUsername(e.target.value)
+									}
 									className={inputClass}
 									placeholder="Juan Pérez"
 								/>
@@ -180,7 +188,10 @@ export default function RegisterPage() {
 						</div>
 
 						<div>
-							<label htmlFor="register-email" className={labelClass}>
+							<label
+								htmlFor="register-email"
+								className={labelClass}
+							>
 								Correo Electrónico
 							</label>
 							<div className="group relative">
@@ -199,7 +210,10 @@ export default function RegisterPage() {
 
 						<div className="grid grid-cols-2 gap-4">
 							<div>
-								<label htmlFor="register-password" className={labelClass}>
+								<label
+									htmlFor="register-password"
+									className={labelClass}
+								>
 									Contraseña
 								</label>
 								<div className="group relative">
@@ -209,7 +223,9 @@ export default function RegisterPage() {
 										type="password"
 										required
 										value={password}
-										onChange={(e) => setPassword(e.target.value)}
+										onChange={(e) =>
+											setPassword(e.target.value)
+										}
 										className={inputClass}
 										placeholder="••••••••"
 									/>
@@ -229,7 +245,9 @@ export default function RegisterPage() {
 										type="password"
 										required
 										value={confirmPassword}
-										onChange={(e) => setConfirmPassword(e.target.value)}
+										onChange={(e) =>
+											setConfirmPassword(e.target.value)
+										}
 										className={inputClass}
 										placeholder="••••••••"
 									/>
@@ -276,16 +294,25 @@ export default function RegisterPage() {
 
 								{selectedUni && (
 									<div className="fade-in slide-in-from-top-2 animate-in duration-300">
-										<label htmlFor="register-career" className={labelClass}>
+										<label
+											htmlFor="register-career"
+											className={labelClass}
+										>
 											Programa Académico
 										</label>
 										<select
 											id="register-career"
 											value={selectedProgram}
-											onChange={(e) => setSelectedProgram(e.target.value)}
+											onChange={(e) =>
+												setSelectedProgram(
+													e.target.value,
+												)
+											}
 											className={selectClass}
 										>
-											<option value="">Selecciona programa...</option>
+											<option value="">
+												Selecciona programa...
+											</option>
 											{academicPrograms.map((c) => (
 												<option key={c.id} value={c.id}>
 													{c.name}
@@ -312,7 +339,12 @@ export default function RegisterPage() {
 								<>
 									Crear Cuenta
 									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
-										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+										<svg
+											width="12"
+											height="12"
+											viewBox="0 0 12 12"
+											fill="none"
+										>
 											<title>Flecha de registro</title>
 											<path
 												d="M2 10L10 2M10 2H4M10 2V8"

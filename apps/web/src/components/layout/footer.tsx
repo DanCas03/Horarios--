@@ -26,8 +26,8 @@ function FooterContent() {
 							</span>
 						</div>
 						<p className="text-gray-400 text-sm leading-relaxed">
-							Planifica tu carrera universitaria con inteligencia. Diseñado por
-							y para estudiantes venezolanos.
+							Planifica tu carrera universitaria con inteligencia.
+							Diseñado por y para estudiantes venezolanos.
 						</p>
 					</div>
 
@@ -71,10 +71,16 @@ function FooterContent() {
 							<span className="font-bold text-[10px] text-gray-300 uppercase tracking-[0.2em]">
 								Legal
 							</span>
-							<Link href="#" className="transition-colors hover:text-gray-900">
+							<Link
+								href="#"
+								className="transition-colors hover:text-gray-900"
+							>
 								Privacidad
 							</Link>
-							<Link href="#" className="transition-colors hover:text-gray-900">
+							<Link
+								href="#"
+								className="transition-colors hover:text-gray-900"
+							>
 								Términos de Servicio
 							</Link>
 						</div>
@@ -82,8 +88,8 @@ function FooterContent() {
 				</div>
 
 				<div className="mt-16 border-gray-100 border-t pt-8 text-gray-300 text-xs">
-					© {new Date().getFullYear()} Guía Estudiantil. Todos los derechos
-					reservados.
+					© {new Date().getFullYear()} Guía Estudiantil. Todos los
+					derechos reservados.
 				</div>
 			</div>
 		</footer>

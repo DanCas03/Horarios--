@@ -78,7 +78,8 @@ export const subjectsAPI = {
 	}) => api.get("/subjects/", { params }),
 	pensum: (programId: string) => api.get(`/subjects/pensum/${programId}`),
 	get: (id: string) => api.get(`/subjects/${id}`),
-	available: (programId: string) => api.get(`/subjects/available/${programId}`),
+	available: (programId: string) =>
+		api.get(`/subjects/available/${programId}`),
 	approve: (data: { subjectId: string; grade?: number; period?: string }) =>
 		api.post("/subjects/approve", data),
 	unapprove: (subjectId: string) =>
@@ -172,7 +173,9 @@ export const studyPlansAPI = {
 
 export const studyPlanSubjectsAPI = {
 	list: (studyPlanId: string) =>
-		api.get("/study-plan-subjects", { params: { study_plan_id: studyPlanId } }),
+		api.get("/study-plan-subjects", {
+			params: { study_plan_id: studyPlanId },
+		}),
 	assign: (data: {
 		studyPlanId: string;
 		subjectId: string;

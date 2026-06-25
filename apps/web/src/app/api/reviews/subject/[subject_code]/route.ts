@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
@@ -27,14 +27,20 @@ export async function GET(
 
 	// Obtener los ObjectIds de periodos, secciones y profesores para popularlos en memoria
 	const periodIds = Array.from(
-		new Set(reviews.map((r) => r.periodId).filter((id): id is string => !!id)),
+		new Set(
+			reviews.map((r) => r.periodId).filter((id): id is string => !!id),
+		),
 	);
 	const sectionIds = Array.from(
-		new Set(reviews.map((r) => r.sectionId).filter((id): id is string => !!id)),
+		new Set(
+			reviews.map((r) => r.sectionId).filter((id): id is string => !!id),
+		),
 	);
 	const allTeacherIds = Array.from(
 		new Set(
-			reviews.flatMap((r) => r.teacherIds).filter((id): id is string => !!id),
+			reviews
+				.flatMap((r) => r.teacherIds)
+				.filter((id): id is string => !!id),
 		),
 	);
 
@@ -74,21 +80,24 @@ export async function GET(
 		}),
 	);
 
-	const populatedReviews = reviews.map(({ userProfileId: _upId, ...rest }) => {
-		const profNames = rest.teacherIds
-			.map((id: string) => teacherNameById.get(id))
-			.filter((name): name is string => !!name);
-		return {
-			...rest,
-			period: rest.periodId
-				? (periodCodeById.get(rest.periodId) ?? rest.periodId)
-				: "",
-			section: rest.sectionId
-				? (sectionCodeById.get(rest.sectionId) ?? rest.sectionId)
-				: "",
-			professorName: profNames.length > 0 ? profNames.join(", ") : undefined,
-		};
-	});
+	const populatedReviews = reviews.map(
+		({ userProfileId: _upId, ...rest }) => {
+			const profNames = rest.teacherIds
+				.map((id: string) => teacherNameById.get(id))
+				.filter((name): name is string => !!name);
+			return {
+				...rest,
+				period: rest.periodId
+					? (periodCodeById.get(rest.periodId) ?? rest.periodId)
+					: "",
+				section: rest.sectionId
+					? (sectionCodeById.get(rest.sectionId) ?? rest.sectionId)
+					: "",
+				professorName:
+					profNames.length > 0 ? profNames.join(", ") : undefined,
+			};
+		},
+	);
 
 	return NextResponse.json(populatedReviews);
 }

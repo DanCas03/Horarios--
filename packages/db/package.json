@@ -1,5 +1,5 @@
 {
-	"name": "@horaios/db",
+	"name": "@horarios/db",
 	"type": "module",
 	"exports": {
 		".": {
@@ -11,19 +11,19 @@
 	},
 	"scripts": {
 		"db:push": "prisma db push",
-		"db:generate": "prisma generate --schema=./prisma/schema/",
+		"db:generate": "prisma generate",
 		"db:migrate": "prisma migrate dev",
 		"postinstall": "prisma generate --schema=./prisma/schema/",
 		"db:studio": "prisma studio"
 	},
 	"dependencies": {
-		"@horaios/env": "workspace:*",
+		"@horarios/env": "workspace:*",
 		"@prisma/client": "catalog:",
 		"dotenv": "catalog:",
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@horaios/config": "workspace:*",
+		"@horarios/config": "workspace:*",
 		"prisma": "6.19.0",
 		"typescript": "catalog:"
 	}

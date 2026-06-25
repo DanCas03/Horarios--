@@ -142,8 +142,12 @@ function OnboardingContent() {
 			);
 
 			await Promise.all([
-				...toApprove.map((subjectId) => subjectsAPI.approve({ subjectId })),
-				...toUnapprove.map((subjectId) => subjectsAPI.unapprove(subjectId)),
+				...toApprove.map((subjectId) =>
+					subjectsAPI.approve({ subjectId }),
+				),
+				...toUnapprove.map((subjectId) =>
+					subjectsAPI.unapprove(subjectId),
+				),
 			]);
 
 			await refreshUser();
@@ -174,8 +178,8 @@ function OnboardingContent() {
 					Selecciona tus materias cursadas
 				</h1>
 				<p className="mt-3 text-gray-500 text-sm">
-					Marca las materias que ya aprobaste. Solo podras hacer resenas de
-					estas materias.
+					Marca las materias que ya aprobaste. Solo podras hacer
+					resenas de estas materias.
 				</p>
 				<button
 					type="button"
@@ -198,8 +202,9 @@ function OnboardingContent() {
 			{/* Counter */}
 			<div className="mb-6 flex items-center justify-between rounded-xl bg-primary/5 px-4 py-3">
 				<span className="font-medium text-gray-700 text-sm">
-					{selectedIds.size} materia{selectedIds.size !== 1 ? "s" : ""}{" "}
-					seleccionada{selectedIds.size !== 1 ? "s" : ""}
+					{selectedIds.size} materia
+					{selectedIds.size !== 1 ? "s" : ""} seleccionada
+					{selectedIds.size !== 1 ? "s" : ""}
 				</span>
 				{selectedIds.size > 0 && (
 					<button
@@ -216,8 +221,12 @@ function OnboardingContent() {
 			<div className="space-y-4">
 				{bySemester.map(([semester, semSubjects]) => {
 					const isCollapsed = collapsedSemesters.has(semester);
-					const allSelected = semSubjects.every((s) => selectedIds.has(s.id));
-					const _someSelected = semSubjects.some((s) => selectedIds.has(s.id));
+					const allSelected = semSubjects.every((s) =>
+						selectedIds.has(s.id),
+					);
+					const _someSelected = semSubjects.some((s) =>
+						selectedIds.has(s.id),
+					);
 					const selectedCount = semSubjects.filter((s) =>
 						selectedIds.has(s.id),
 					).length;
@@ -235,9 +244,15 @@ function OnboardingContent() {
 									className="flex items-center gap-2 text-gray-900"
 								>
 									{isCollapsed ? (
-										<ChevronRight size={16} className="text-gray-400" />
+										<ChevronRight
+											size={16}
+											className="text-gray-400"
+										/>
 									) : (
-										<ChevronDown size={16} className="text-gray-400" />
+										<ChevronDown
+											size={16}
+											className="text-gray-400"
+										/>
 									)}
 									<span className="font-bold text-sm">
 										{semester === 0
@@ -259,7 +274,9 @@ function OnboardingContent() {
 											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
 									}`}
 								>
-									{allSelected ? "Deseleccionar" : "Seleccionar todo"}
+									{allSelected
+										? "Deseleccionar"
+										: "Seleccionar todo"}
 								</button>
 							</div>
 
@@ -267,12 +284,16 @@ function OnboardingContent() {
 							{!isCollapsed && (
 								<div className="border-gray-50 border-t px-3 pb-3">
 									{semSubjects.map((subject) => {
-										const isSelected = selectedIds.has(subject.id);
+										const isSelected = selectedIds.has(
+											subject.id,
+										);
 										return (
 											<button
 												type="button"
 												key={subject.id}
-												onClick={() => toggleSubject(subject.id)}
+												onClick={() =>
+													toggleSubject(subject.id)
+												}
 												className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
 													isSelected
 														? "bg-green-50 ring-1 ring-green-600/10"
@@ -287,7 +308,10 @@ function OnboardingContent() {
 													}`}
 												>
 													{isSelected && (
-														<Check size={12} className="text-white" />
+														<Check
+															size={12}
+															className="text-white"
+														/>
 													)}
 												</div>
 												<div className="min-w-0 flex-1">
@@ -335,7 +359,12 @@ function OnboardingContent() {
 							Confirmar {selectedIds.size} materia
 							{selectedIds.size !== 1 ? "s" : ""} y continuar
 							<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
-								<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+								<svg
+									width="12"
+									height="12"
+									viewBox="0 0 12 12"
+									fill="none"
+								>
 									<title>Flecha de confirmación</title>
 									<path
 										d="M2 10L10 2M10 2H4M10 2V8"

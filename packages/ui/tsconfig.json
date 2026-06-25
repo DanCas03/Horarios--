@@ -1,10 +1,10 @@
 {
-	"extends": "@horaios/config/tsconfig.base.json",
+	"extends": "@horarios/config/tsconfig.base.json",
 	"compilerOptions": {
 		"jsx": "react-jsx",
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"paths": {
-			"@horaios/ui/*": ["./src/*"]
+			"@horarios/ui/*": ["./src/*"]
 		}
 	},
 	"include": ["src/**/*.ts", "src/**/*.tsx"],

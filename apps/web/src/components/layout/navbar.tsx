@@ -71,7 +71,9 @@ function NavbarContent() {
 							className={`mr-2 flex cursor-not-allowed items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight opacity-50 ${scrolled ? "text-primary" : "text-white"}`}
 						>
 							<Logo className="h-5 w-5 text-accent" />
-							<span className="hidden sm:inline">Guía Estudiantil</span>
+							<span className="hidden sm:inline">
+								Guía Estudiantil
+							</span>
 						</div>
 					) : (
 						<Link
@@ -79,7 +81,9 @@ function NavbarContent() {
 							className={`mr-2 flex items-center gap-2 rounded-full px-3 py-1.5 font-bold text-sm tracking-tight transition-opacity hover:opacity-80 ${scrolled ? "text-primary" : "text-white"}`}
 						>
 							<Logo className="h-5 w-5 text-accent" />
-							<span className="hidden sm:inline">Guía Estudiantil</span>
+							<span className="hidden sm:inline">
+								Guía Estudiantil
+							</span>
 						</Link>
 					)}
 
@@ -87,7 +91,8 @@ function NavbarContent() {
 					<div className="hidden items-center gap-1 md:flex">
 						{user?.surveyCompleted &&
 							NAV_LINKS.filter(
-								({ href }) => href !== "/admin" || user?.role === "admin",
+								({ href }) =>
+									href !== "/admin" || user?.role === "admin",
 							).map(({ href, label }) => {
 								if (isNavDisabled) {
 									return (
@@ -180,7 +185,9 @@ function NavbarContent() {
 												viewBox="0 0 10 10"
 												fill="none"
 											>
-												<title>Flecha de registro</title>
+												<title>
+													Flecha de registro
+												</title>
 												<path
 													d="M2 8L8 2M8 2H3M8 2V7"
 													stroke="currentColor"
@@ -199,7 +206,9 @@ function NavbarContent() {
 					{/* Mobile hamburger */}
 					<button
 						className={`relative ml-1 flex h-9 w-9 items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90 md:hidden ${scrolled ? "text-gray-700" : "text-white"}`}
-						onClick={() => !isNavDisabled && setMobileOpen(!mobileOpen)}
+						onClick={() =>
+							!isNavDisabled && setMobileOpen(!mobileOpen)
+						}
 						disabled={isNavDisabled}
 						style={
 							isNavDisabled
@@ -235,7 +244,9 @@ function NavbarContent() {
 							{user.surveyCompleted && (
 								<>
 									{NAV_LINKS.filter(
-										({ href }) => href !== "/admin" || user?.role === "admin",
+										({ href }) =>
+											href !== "/admin" ||
+											user?.role === "admin",
 									).map(({ href, label, Icon }, i) => (
 										<Link
 											key={href}

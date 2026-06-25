@@ -13,8 +13,8 @@
 	"iconLibrary": "lucide",
 	"aliases": {
 		"components": "@/components",
-		"utils": "@horaios/ui/lib/utils",
-		"ui": "@horaios/ui/components",
+		"utils": "@horarios/ui/lib/utils",
+		"ui": "@horarios/ui/components",
 		"lib": "@/lib",
 		"hooks": "@/hooks"
 	},

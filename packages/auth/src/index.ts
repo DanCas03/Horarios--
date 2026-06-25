@@ -1,5 +1,5 @@
-import prisma from "@horaios/db";
-import { env } from "@horaios/env/server";
+import prisma from "@horarios/db";
+import { env } from "@horarios/env/server";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";

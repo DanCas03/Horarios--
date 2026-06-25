@@ -1,4 +1,4 @@
-import { cn } from "@horaios/ui/lib/utils";
+import { cn } from "@horarios/ui/lib/utils";
 
 function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
 	return (

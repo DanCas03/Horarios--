@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
@@ -8,10 +8,7 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
 	try {
 		const teachers = await prisma.teacher.findMany({
-			orderBy: [
-				{ surname1: "asc" },
-				{ name1: "asc" },
-			],
+			orderBy: [{ surname1: "asc" }, { name1: "asc" }],
 		});
 
 		const formatted = teachers.map((t: any) => {

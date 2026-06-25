@@ -4,7 +4,7 @@
 
 **Goal:** Rediseñar la homepage (CTA para retomar encuesta + enlaces a secciones), permitir retomar la encuesta con materias aún no reseñadas, permitir cambiar de carrera desde la encuesta, y dar identidad de marca propia (logo + favicon).
 
-**Architecture:** App Next.js 16 (App Router) en monorepo `apps/web`, con rutas API en `app/api/*` que usan Prisma (`@horaios/db`) y sesión better-auth. El estado de usuario vive en `auth-context` (`useAuth`). Se agrega un endpoint para listar reseñas propias, se deriva el estado "pendiente" en la encuesta, y se centraliza el reset de materias al cambiar carrera en `PUT /api/auth/me`.
+**Architecture:** App Next.js 16 (App Router) en monorepo `apps/web`, con rutas API en `app/api/*` que usan Prisma (`@horarios/db`) y sesión better-auth. El estado de usuario vive en `auth-context` (`useAuth`). Se agrega un endpoint para listar reseñas propias, se deriva el estado "pendiente" en la encuesta, y se centraliza el reset de materias al cambiar carrera en `PUT /api/auth/me`.
 
 **Tech Stack:** Next.js 16, React 19, TypeScript, TailwindCSS v4, Prisma (MongoDB), better-auth, lucide-react, axios. Gestor: **bun**. Monorepo: **turbo**. Lint/format: **Biome**.
 
@@ -54,7 +54,7 @@ Expected: en rama `feat/homepage-encuesta-marca`, sin cambios sin commitear (sal
 Create `apps/web/src/app/api/reviews/mine/route.ts`:
 
 ```ts
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 

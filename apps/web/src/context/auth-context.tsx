@@ -94,7 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				"/api/auth/me",
 				{
 					universityIds: universityId ? [universityId] : [],
-					academicProgramIds: academicProgramId ? [academicProgramId] : [],
+					academicProgramIds: academicProgramId
+						? [academicProgramId]
+						: [],
 				},
 				{ withCredentials: true },
 			);

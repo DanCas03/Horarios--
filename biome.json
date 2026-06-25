@@ -1,9 +1,9 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"vcs": {
-		"enabled": false,
+		"enabled": true,
 		"clientKind": "git",
-		"useIgnoreFile": false
+		"useIgnoreFile": true
 	},
 	"files": {
 		"ignoreUnknown": false,
@@ -26,12 +26,15 @@
 			"!**/.svelte-kit",
 			"!**/wrangler.jsonc",
 			"!**/.source",
-			"!**/convex/_generated"
+			"!**/convex/_generated",
+			"!**/.claude",
+			"!**/.agents"
 		]
 	},
 	"formatter": {
 		"enabled": true,
-		"indentStyle": "tab"
+		"indentStyle": "tab",
+		"indentWidth": 4
 	},
 	"assist": {
 		"actions": {
@@ -82,5 +85,6 @@
 		"parser": {
 			"tailwindDirectives": true
 		}
-	}
+	},
+	"extends": ["ultracite/biome/next"]
 }

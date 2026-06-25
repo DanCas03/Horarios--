@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 import { hasProfanity } from "@/lib/profanity";
@@ -68,7 +68,9 @@ export async function POST(request: Request) {
 		(notFoundTeacherNames && hasProfanity(notFoundTeacherNames))
 	) {
 		return NextResponse.json(
-			{ error: "El contenido contiene palabras inapropiadas o insultos." },
+			{
+				error: "El contenido contiene palabras inapropiadas o insultos.",
+			},
 			{ status: 400 },
 		);
 	}
@@ -101,7 +103,9 @@ export async function POST(request: Request) {
 	// Bloquear reviews de materias no aprobadas
 	if (!isVerified) {
 		return NextResponse.json(
-			{ error: "Solo puedes hacer resenas de materias que hayas aprobado" },
+			{
+				error: "Solo puedes hacer resenas de materias que hayas aprobado",
+			},
 			{ status: 403 },
 		);
 	}
@@ -153,7 +157,8 @@ async function updateSubjectStats(subjectCode: string) {
 
 	for (const r of verifiedReviews) {
 		const diffRating = r.ratings.find(
-			(rt) => rt.category === "difficulty" || rt.category === "dificultad",
+			(rt) =>
+				rt.category === "difficulty" || rt.category === "dificultad",
 		);
 		if (diffRating) {
 			diffSum += diffRating.value;
@@ -162,7 +167,9 @@ async function updateSubjectStats(subjectCode: string) {
 	}
 
 	const avgDifficulty = diffCount > 0 ? diffSum / diffCount : 0;
-	const recommendCount = verifiedReviews.filter((r) => r.wouldRecommend).length;
+	const recommendCount = verifiedReviews.filter(
+		(r) => r.wouldRecommend,
+	).length;
 	const avgApprovalRate = (recommendCount / count) * 100;
 
 	await prisma.subject.updateMany({

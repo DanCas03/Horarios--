@@ -1,6 +1,6 @@
 "use client";
 
-import { Toaster } from "@horaios/ui/components/sonner";
+import { Toaster } from "@horarios/ui/components/sonner";
 
 import { AuthProvider } from "@/context/auth-context";
 import { ThemeProvider } from "./theme-provider";

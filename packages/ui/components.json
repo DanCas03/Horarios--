@@ -12,11 +12,11 @@
 	},
 	"iconLibrary": "lucide",
 	"aliases": {
-		"components": "@horaios/ui/components",
-		"utils": "@horaios/ui/lib/utils",
-		"hooks": "@horaios/ui/hooks",
-		"lib": "@horaios/ui/lib",
-		"ui": "@horaios/ui/components"
+		"components": "@horarios/ui/components",
+		"utils": "@horarios/ui/lib/utils",
+		"hooks": "@horarios/ui/hooks",
+		"lib": "@horarios/ui/lib",
+		"ui": "@horarios/ui/components"
 	},
 	"menuColor": "default",
 	"menuAccent": "subtle",

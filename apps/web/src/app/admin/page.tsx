@@ -120,9 +120,13 @@ function AdminContent() {
 
 	// 2. Modal Asignar Materia a Plan
 	const [showAssignModal, setShowAssignModal] = useState(false);
-	const [editingAssign, setEditingAssign] = useState<PlanSubject | null>(null);
+	const [editingAssign, setEditingAssign] = useState<PlanSubject | null>(
+		null,
+	);
 	const [searchSubjectTerm, setSearchSubjectTerm] = useState("");
-	const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+	const [selectedSubject, setSelectedSubject] = useState<Subject | null>(
+		null,
+	);
 	const [suggestedTerm, setSuggestedTerm] = useState<number>(1);
 	const [prereqIds, setPrereqIds] = useState<string[]>([]);
 	const [savingAssign, setSavingAssign] = useState(false);
@@ -183,7 +187,9 @@ function AdminContent() {
 					setSelectedProgId("");
 				}
 			})
-			.catch((err) => alert(parseApiError(err, "Error al cargar programas")))
+			.catch((err) =>
+				alert(parseApiError(err, "Error al cargar programas")),
+			)
 			.finally(() => setLoadingProgs(false));
 	}, [selectedUniId]);
 
@@ -242,7 +248,8 @@ function AdminContent() {
 			setAllSubjects(allSubRes.data);
 
 			if (selectedPlanId) {
-				const planSubRes = await studyPlanSubjectsAPI.list(selectedPlanId);
+				const planSubRes =
+					await studyPlanSubjectsAPI.list(selectedPlanId);
 				setPlanSubjects(planSubRes.data);
 			} else {
 				setPlanSubjects([]);
@@ -591,7 +598,8 @@ function AdminContent() {
 						Panel de Control
 					</h1>
 					<p className="mt-2 text-gray-500">
-						Administra planes de estudio, materias y unidades académicas.
+						Administra planes de estudio, materias y unidades
+						académicas.
 					</p>
 				</div>
 			</div>
@@ -627,7 +635,10 @@ function AdminContent() {
 						<div className="rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
 							<div className="space-y-5 rounded-[calc(2rem-0.5rem)] bg-white p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
 								<h3 className="flex items-center gap-2 font-bold text-gray-900 tracking-tight">
-									<Layers size={18} className="text-primary" />
+									<Layers
+										size={18}
+										className="text-primary"
+									/>
 									Estructura
 								</h3>
 
@@ -640,16 +651,24 @@ function AdminContent() {
 										Universidad
 									</label>
 									{loadingUnis ? (
-										<Loader2 size={16} className="animate-spin text-gray-400" />
+										<Loader2
+											size={16}
+											className="animate-spin text-gray-400"
+										/>
 									) : (
 										<select
 											id="university-select"
 											value={selectedUniId}
-											onChange={(e) => setSelectedUniId(e.target.value)}
+											onChange={(e) =>
+												setSelectedUniId(e.target.value)
+											}
 											className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-semibold text-gray-700 text-sm outline-none transition-all focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10"
 										>
 											{universities.map((uni) => (
-												<option key={uni.id} value={uni.id}>
+												<option
+													key={uni.id}
+													value={uni.id}
+												>
 													{uni.name}
 												</option>
 											))}
@@ -667,22 +686,34 @@ function AdminContent() {
 									</label>
 									{loadingProgs ? (
 										<div className="flex items-center gap-2 py-2 text-gray-400 text-sm">
-											<Loader2 size={14} className="animate-spin" />
+											<Loader2
+												size={14}
+												className="animate-spin"
+											/>
 											Cargando programas...
 										</div>
 									) : (
 										<select
 											id="program-select"
 											value={selectedProgId}
-											onChange={(e) => setSelectedProgId(e.target.value)}
+											onChange={(e) =>
+												setSelectedProgId(
+													e.target.value,
+												)
+											}
 											disabled={programs.length === 0}
 											className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-semibold text-gray-700 text-sm outline-none transition-all focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10 disabled:opacity-50"
 										>
 											{programs.length === 0 ? (
-												<option value="">No hay programas disponibles</option>
+												<option value="">
+													No hay programas disponibles
+												</option>
 											) : (
 												programs.map((prog) => (
-													<option key={prog.id} value={prog.id}>
+													<option
+														key={prog.id}
+														value={prog.id}
+													>
 														{prog.name}
 													</option>
 												))
@@ -699,7 +730,10 @@ function AdminContent() {
 								<div className="rounded-[calc(2rem-0.5rem)] bg-white p-6 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
 									<div className="mb-4 flex items-center justify-between">
 										<h3 className="flex items-center gap-2 font-bold text-gray-900 tracking-tight">
-											<BookOpen size={18} className="text-accent" />
+											<BookOpen
+												size={18}
+												className="text-accent"
+											/>
 											Planes de Estudio
 										</h3>
 										<button
@@ -725,7 +759,8 @@ function AdminContent() {
 										</div>
 									) : plans.length === 0 ? (
 										<div className="rounded-2xl border border-gray-200 border-dashed p-8 text-center text-gray-400 text-sm">
-											No hay planes de estudio creados para este programa.
+											No hay planes de estudio creados
+											para este programa.
 										</div>
 									) : (
 										<div className="space-y-2.5">
@@ -736,14 +771,25 @@ function AdminContent() {
 														key={plan.id}
 														role="button"
 														tabIndex={0}
-														onClick={() => setSelectedPlanId(plan.id)}
+														onClick={() =>
+															setSelectedPlanId(
+																plan.id,
+															)
+														}
 														onKeyDown={(e) => {
-															if (e.key === "Enter" || e.key === " ") {
-																setSelectedPlanId(plan.id);
+															if (
+																e.key ===
+																	"Enter" ||
+																e.key === " "
+															) {
+																setSelectedPlanId(
+																	plan.id,
+																);
 															}
 														}}
 														className={`group relative flex cursor-pointer items-center justify-between rounded-xl border p-3.5 transition-all active:scale-[0.98] ${
-															selectedPlanId === plan.id
+															selectedPlanId ===
+															plan.id
 																? "border-primary/20 bg-primary/[0.03] ring-1 ring-primary/10"
 																: "border-gray-100 bg-white hover:bg-gray-50"
 														}`}
@@ -755,17 +801,27 @@ function AdminContent() {
 															<div className="mt-1 flex items-center gap-2">
 																{plan.isActive ? (
 																	<span className="inline-flex items-center gap-1 rounded-md bg-green-50 px-2 py-0.5 font-bold text-[10px] text-green-700 ring-1 ring-green-600/10">
-																		<Check size={8} /> Activo
+																		<Check
+																			size={
+																				8
+																			}
+																		/>{" "}
+																		Activo
 																	</span>
 																) : (
 																	<button
-																		onClick={(e) => {
+																		onClick={(
+																			e,
+																		) => {
 																			e.stopPropagation();
-																			handleToggleActivePlan(plan);
+																			handleToggleActivePlan(
+																				plan,
+																			);
 																		}}
 																		className="font-bold text-[10px] text-gray-400 underline hover:text-primary"
 																	>
-																		Marcar activo
+																		Marcar
+																		activo
 																	</button>
 																)}
 															</div>
@@ -773,27 +829,45 @@ function AdminContent() {
 
 														<div className="absolute top-3.5 right-3 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
 															<button
-																onClick={(e) => {
+																onClick={(
+																	e,
+																) => {
 																	e.stopPropagation();
-																	setEditingPlan(plan);
-																	setPlanName(plan.name);
-																	setPlanIsActive(plan.isActive);
-																	setShowPlanModal(true);
+																	setEditingPlan(
+																		plan,
+																	);
+																	setPlanName(
+																		plan.name,
+																	);
+																	setPlanIsActive(
+																		plan.isActive,
+																	);
+																	setShowPlanModal(
+																		true,
+																	);
 																}}
 																className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
 																title="Editar nombre"
 															>
-																<Edit size={12} />
+																<Edit
+																	size={12}
+																/>
 															</button>
 															<button
-																onClick={(e) => {
+																onClick={(
+																	e,
+																) => {
 																	e.stopPropagation();
-																	handleDeletePlan(plan.id);
+																	handleDeletePlan(
+																		plan.id,
+																	);
 																}}
 																className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600"
 																title="Eliminar"
 															>
-																<Trash2 size={12} />
+																<Trash2
+																	size={12}
+																/>
 															</button>
 														</div>
 													</div>
@@ -818,8 +892,9 @@ function AdminContent() {
 										Selecciona un plan de estudios
 									</h3>
 									<p className="mt-2 max-w-sm text-gray-400 text-sm">
-										Elige un programa académico y haz clic en uno de sus planes
-										en el panel lateral para administrar su pensum.
+										Elige un programa académico y haz clic
+										en uno de sus planes en el panel lateral
+										para administrar su pensum.
 									</p>
 								</div>
 							</div>
@@ -831,17 +906,22 @@ function AdminContent() {
 											Estructura del Plan
 										</h2>
 										<p className="mt-1 text-gray-400 text-sm">
-											Asignaciones de materias y prelaciones.
+											Asignaciones de materias y
+											prelaciones.
 										</p>
 									</div>
 									{loadingSubjects && (
-										<Loader2 size={20} className="animate-spin text-primary" />
+										<Loader2
+											size={20}
+											className="animate-spin text-primary"
+										/>
 									)}
 								</div>
 
 								<div className="space-y-4">
 									{termsArray.map((term) => {
-										const termSubjects = subjectsByTerm[term] || [];
+										const termSubjects =
+											subjectsByTerm[term] || [];
 										return (
 											<div
 												key={term}
@@ -852,7 +932,11 @@ function AdminContent() {
 														Semestre {term}
 													</span>
 													<button
-														onClick={() => handleOpenAssignModal(term)}
+														onClick={() =>
+															handleOpenAssignModal(
+																term,
+															)
+														}
 														className="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1 font-bold text-[11px] text-primary transition-all hover:scale-105 active:scale-95"
 													>
 														<Plus size={12} />
@@ -861,76 +945,123 @@ function AdminContent() {
 												</div>
 
 												<div className="px-6 py-4">
-													{termSubjects.length === 0 ? (
+													{termSubjects.length ===
+													0 ? (
 														<p className="py-2 text-center text-gray-400 text-xs italic">
-															No hay materias asignadas en este semestre.
+															No hay materias
+															asignadas en este
+															semestre.
 														</p>
 													) : (
 														<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-															{termSubjects.map((ps) => (
-																<div
-																	key={ps.id}
-																	className="relative flex flex-col justify-between rounded-xl border border-gray-100 bg-white p-4 transition-all hover:border-gray-200"
-																>
-																	<div>
-																		<div className="flex items-center justify-between gap-2">
-																			<span className="inline-flex rounded bg-gray-50 px-1.5 py-0.5 font-bold text-[10px] text-gray-600 ring-1 ring-black/5">
-																				{ps.code}
-																			</span>
-																			<span className="font-bold text-[10px] text-gray-400 uppercase">
-																				{ps.credits} crédito
-																				{ps.credits !== 1 ? "s" : ""}
-																			</span>
-																		</div>
-																		<p className="mt-2 font-bold text-gray-900 text-sm leading-snug tracking-tight">
-																			{ps.name}
-																		</p>
-
-																		{ps.prerequisiteIds.length > 0 && (
-																			<div className="mt-3 flex flex-wrap items-center gap-1">
-																				<span className="font-bold text-[9px] text-gray-400 uppercase">
-																					Prereq:
+															{termSubjects.map(
+																(ps) => (
+																	<div
+																		key={
+																			ps.id
+																		}
+																		className="relative flex flex-col justify-between rounded-xl border border-gray-100 bg-white p-4 transition-all hover:border-gray-200"
+																	>
+																		<div>
+																			<div className="flex items-center justify-between gap-2">
+																				<span className="inline-flex rounded bg-gray-50 px-1.5 py-0.5 font-bold text-[10px] text-gray-600 ring-1 ring-black/5">
+																					{
+																						ps.code
+																					}
 																				</span>
-																				{ps.prerequisiteIds.map((pId) => {
-																					const reqSub = planSubjects.find(
-																						(x) => x.subjectId === pId,
-																					);
-																					return (
-																						<span
-																							key={pId}
-																							className="rounded-md bg-amber-50 px-1.5 py-0.5 font-bold text-[9px] text-amber-700 ring-1 ring-amber-600/10"
-																							title={reqSub?.name || pId}
-																						>
-																							{reqSub?.code || pId}
-																						</span>
-																					);
-																				})}
+																				<span className="font-bold text-[10px] text-gray-400 uppercase">
+																					{
+																						ps.credits
+																					}{" "}
+																					crédito
+																					{ps.credits !==
+																					1
+																						? "s"
+																						: ""}
+																				</span>
 																			</div>
-																		)}
-																	</div>
+																			<p className="mt-2 font-bold text-gray-900 text-sm leading-snug tracking-tight">
+																				{
+																					ps.name
+																				}
+																			</p>
 
-																	<div className="mt-4 flex items-center justify-end gap-1.5 border-gray-50 border-t pt-2.5">
-																		<button
-																			onClick={() =>
-																				handleOpenEditAssignModal(ps)
-																			}
-																			className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-																			title="Editar prelaciones"
-																		>
-																			<Edit size={12} />
-																		</button>
-																		<button
-																			onClick={() =>
-																				handleDeleteAssignment(ps.id)
-																			}
-																			className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600"
-																			title="Desasignar"
-																		>
-																			<Trash2 size={12} />
-																		</button>
+																			{ps
+																				.prerequisiteIds
+																				.length >
+																				0 && (
+																				<div className="mt-3 flex flex-wrap items-center gap-1">
+																					<span className="font-bold text-[9px] text-gray-400 uppercase">
+																						Prereq:
+																					</span>
+																					{ps.prerequisiteIds.map(
+																						(
+																							pId,
+																						) => {
+																							const reqSub =
+																								planSubjects.find(
+																									(
+																										x,
+																									) =>
+																										x.subjectId ===
+																										pId,
+																								);
+																							return (
+																								<span
+																									key={
+																										pId
+																									}
+																									className="rounded-md bg-amber-50 px-1.5 py-0.5 font-bold text-[9px] text-amber-700 ring-1 ring-amber-600/10"
+																									title={
+																										reqSub?.name ||
+																										pId
+																									}
+																								>
+																									{reqSub?.code ||
+																										pId}
+																								</span>
+																							);
+																						},
+																					)}
+																				</div>
+																			)}
+																		</div>
+
+																		<div className="mt-4 flex items-center justify-end gap-1.5 border-gray-50 border-t pt-2.5">
+																			<button
+																				onClick={() =>
+																					handleOpenEditAssignModal(
+																						ps,
+																					)
+																				}
+																				className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+																				title="Editar prelaciones"
+																			>
+																				<Edit
+																					size={
+																						12
+																					}
+																				/>
+																			</button>
+																			<button
+																				onClick={() =>
+																					handleDeleteAssignment(
+																						ps.id,
+																					)
+																				}
+																				className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600"
+																				title="Desasignar"
+																			>
+																				<Trash2
+																					size={
+																						12
+																					}
+																				/>
+																			</button>
+																		</div>
 																	</div>
-																</div>
-															))}
+																),
+															)}
 														</div>
 													)}
 												</div>
@@ -960,7 +1091,9 @@ function AdminContent() {
 								<input
 									type="text"
 									value={subjectSearchFilter}
-									onChange={(e) => setSubjectSearchFilter(e.target.value)}
+									onChange={(e) =>
+										setSubjectSearchFilter(e.target.value)
+									}
 									placeholder="Buscar materia por nombre o código..."
 									className="w-full rounded-2xl border border-gray-200 py-3 pr-4 pl-11 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 								/>
@@ -977,7 +1110,10 @@ function AdminContent() {
 
 						{loadingSubjects ? (
 							<div className="flex justify-center py-20">
-								<Loader2 size={36} className="animate-spin text-primary" />
+								<Loader2
+									size={36}
+									className="animate-spin text-primary"
+								/>
 							</div>
 						) : subjectsFilteredList.length === 0 ? (
 							<div className="rounded-3xl border border-gray-100 border-dashed py-20 text-center text-gray-400">
@@ -988,19 +1124,34 @@ function AdminContent() {
 								<table className="w-full border-collapse text-left text-sm">
 									<thead>
 										<tr className="border-gray-100 border-b font-bold text-[11px] text-gray-400 uppercase tracking-wider">
-											<th className="px-4 py-3">Código</th>
-											<th className="px-4 py-3">Nombre</th>
-											<th className="px-4 py-3">Créditos</th>
-											<th className="px-4 py-3">Modalidad</th>
-											<th className="px-4 py-3">Unidad Académica</th>
-											<th className="px-4 py-3">Estado</th>
-											<th className="px-4 py-3 text-right">Acciones</th>
+											<th className="px-4 py-3">
+												Código
+											</th>
+											<th className="px-4 py-3">
+												Nombre
+											</th>
+											<th className="px-4 py-3">
+												Créditos
+											</th>
+											<th className="px-4 py-3">
+												Modalidad
+											</th>
+											<th className="px-4 py-3">
+												Unidad Académica
+											</th>
+											<th className="px-4 py-3">
+												Estado
+											</th>
+											<th className="px-4 py-3 text-right">
+												Acciones
+											</th>
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-50">
 										{subjectsFilteredList.map((sub) => {
 											const uniUnit = academicUnits.find(
-												(u) => u.id === sub.academicUnitId,
+												(u) =>
+													u.id === sub.academicUnitId,
 											);
 											return (
 												<tr
@@ -1036,24 +1187,38 @@ function AdminContent() {
 																	: "bg-red-50 text-red-700 ring-red-600/10"
 															}`}
 														>
-															{sub.isActive ? "Activa" : "Inactiva"}
+															{sub.isActive
+																? "Activa"
+																: "Inactiva"}
 														</span>
 													</td>
 													<td className="px-4 py-3.5 text-right">
 														<div className="flex items-center justify-end gap-1.5">
 															<button
-																onClick={() => handleOpenEditSubjectModal(sub)}
+																onClick={() =>
+																	handleOpenEditSubjectModal(
+																		sub,
+																	)
+																}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
 																title="Editar materia"
 															>
-																<Edit size={14} />
+																<Edit
+																	size={14}
+																/>
 															</button>
 															<button
-																onClick={() => handleDeleteSubject(sub.id)}
+																onClick={() =>
+																	handleDeleteSubject(
+																		sub.id,
+																	)
+																}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600"
 																title="Eliminar materia"
 															>
-																<Trash2 size={14} />
+																<Trash2
+																	size={14}
+																/>
 															</button>
 														</div>
 													</td>
@@ -1084,7 +1249,9 @@ function AdminContent() {
 								<input
 									type="text"
 									value={unitSearchFilter}
-									onChange={(e) => setUnitSearchFilter(e.target.value)}
+									onChange={(e) =>
+										setUnitSearchFilter(e.target.value)
+									}
 									placeholder="Buscar unidad académica..."
 									className="w-full rounded-2xl border border-gray-200 py-3 pr-4 pl-11 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 								/>
@@ -1101,7 +1268,10 @@ function AdminContent() {
 
 						{loadingUnits ? (
 							<div className="flex justify-center py-20">
-								<Loader2 size={36} className="animate-spin text-primary" />
+								<Loader2
+									size={36}
+									className="animate-spin text-primary"
+								/>
 							</div>
 						) : unitsFilteredList.length === 0 ? (
 							<div className="rounded-3xl border border-gray-100 border-dashed py-20 text-center text-gray-400">
@@ -1112,11 +1282,19 @@ function AdminContent() {
 								<table className="w-full border-collapse text-left text-sm">
 									<thead>
 										<tr className="border-gray-100 border-b font-bold text-[11px] text-gray-400 uppercase tracking-wider">
-											<th className="px-4 py-3">Código</th>
-											<th className="px-4 py-3">Nombre</th>
-											<th className="px-4 py-3">Unidad Padre</th>
+											<th className="px-4 py-3">
+												Código
+											</th>
+											<th className="px-4 py-3">
+												Nombre
+											</th>
+											<th className="px-4 py-3">
+												Unidad Padre
+											</th>
 											<th className="px-4 py-3">Tipo</th>
-											<th className="px-4 py-3 text-right">Acciones</th>
+											<th className="px-4 py-3 text-right">
+												Acciones
+											</th>
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-gray-50">
@@ -1131,7 +1309,9 @@ function AdminContent() {
 												>
 													<td className="px-4 py-3.5 font-bold text-gray-900">
 														{unit.code || (
-															<span className="text-gray-300">-</span>
+															<span className="text-gray-300">
+																-
+															</span>
 														)}
 													</td>
 													<td className="px-4 py-3.5 font-semibold text-gray-700">
@@ -1162,18 +1342,30 @@ function AdminContent() {
 													<td className="px-4 py-3.5 text-right">
 														<div className="flex items-center justify-end gap-1.5">
 															<button
-																onClick={() => handleOpenEditUnitModal(unit)}
+																onClick={() =>
+																	handleOpenEditUnitModal(
+																		unit,
+																	)
+																}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
 																title="Editar unidad"
 															>
-																<Edit size={14} />
+																<Edit
+																	size={14}
+																/>
 															</button>
 															<button
-																onClick={() => handleDeleteUnit(unit.id)}
+																onClick={() =>
+																	handleDeleteUnit(
+																		unit.id,
+																	)
+																}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600"
 																title="Eliminar unidad"
 															>
-																<Trash2 size={14} />
+																<Trash2
+																	size={14}
+																/>
 															</button>
 														</div>
 													</td>
@@ -1222,7 +1414,9 @@ function AdminContent() {
 									id="plan-name-input"
 									type="text"
 									value={planName}
-									onChange={(e) => setPlanName(e.target.value)}
+									onChange={(e) =>
+										setPlanName(e.target.value)
+									}
 									placeholder="Ej. Plan 2026, Reestructuración 2025"
 									className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 								/>
@@ -1232,7 +1426,9 @@ function AdminContent() {
 								<input
 									type="checkbox"
 									checked={planIsActive}
-									onChange={(e) => setPlanIsActive(e.target.checked)}
+									onChange={(e) =>
+										setPlanIsActive(e.target.checked)
+									}
 									className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 								/>
 								<span className="select-none font-semibold text-gray-700 text-sm">
@@ -1253,7 +1449,12 @@ function AdminContent() {
 								disabled={savingPlan || !planName.trim()}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
 							>
-								{savingPlan && <Loader2 size={14} className="animate-spin" />}
+								{savingPlan && (
+									<Loader2
+										size={14}
+										className="animate-spin"
+									/>
+								)}
 								{savingPlan ? "Guardando..." : "Guardar Plan"}
 							</button>
 						</div>
@@ -1297,7 +1498,11 @@ function AdminContent() {
 											id="search-subject-input"
 											type="text"
 											value={searchSubjectTerm}
-											onChange={(e) => setSearchSubjectTerm(e.target.value)}
+											onChange={(e) =>
+												setSearchSubjectTerm(
+													e.target.value,
+												)
+											}
 											placeholder="Ej. Contabilidad, Matemática, FBT..."
 											className="w-full rounded-xl border border-gray-200 py-2.5 pr-4 pl-10 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 										/>
@@ -1305,38 +1510,58 @@ function AdminContent() {
 
 									{searchSubjectTerm.trim() && (
 										<div className="mt-2.5 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-lg">
-											{filteredSearchSubjects.length === 0 ? (
+											{filteredSearchSubjects.length ===
+											0 ? (
 												<p className="px-4 py-3 text-center text-gray-400 text-xs">
-													No se encontraron materias disponibles.
+													No se encontraron materias
+													disponibles.
 												</p>
 											) : (
 												<div className="divide-y divide-gray-50">
-													{filteredSearchSubjects.map((sub) => (
-														<button
-															key={sub.id}
-															type="button"
-															onClick={() => {
-																setSelectedSubject(sub);
-																setSearchSubjectTerm("");
-															}}
-															className="flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-left text-sm transition-all hover:bg-primary/[0.04]"
-														>
-															<div className="min-w-0 pr-4">
-																<p className="truncate font-bold text-gray-900">
-																	{sub.name}
-																</p>
-																<p className="mt-0.5 text-gray-500 text-xs">
-																	{sub.code} • {sub.credits} créditos
-																</p>
-															</div>
-															{selectedSubject?.id === sub.id && (
-																<CheckCircle
-																	size={16}
-																	className="text-primary"
-																/>
-															)}
-														</button>
-													))}
+													{filteredSearchSubjects.map(
+														(sub) => (
+															<button
+																key={sub.id}
+																type="button"
+																onClick={() => {
+																	setSelectedSubject(
+																		sub,
+																	);
+																	setSearchSubjectTerm(
+																		"",
+																	);
+																}}
+																className="flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-left text-sm transition-all hover:bg-primary/[0.04]"
+															>
+																<div className="min-w-0 pr-4">
+																	<p className="truncate font-bold text-gray-900">
+																		{
+																			sub.name
+																		}
+																	</p>
+																	<p className="mt-0.5 text-gray-500 text-xs">
+																		{
+																			sub.code
+																		}{" "}
+																		•{" "}
+																		{
+																			sub.credits
+																		}{" "}
+																		créditos
+																	</p>
+																</div>
+																{selectedSubject?.id ===
+																	sub.id && (
+																	<CheckCircle
+																		size={
+																			16
+																		}
+																		className="text-primary"
+																	/>
+																)}
+															</button>
+														),
+													)}
 												</div>
 											)}
 										</div>
@@ -1351,13 +1576,15 @@ function AdminContent() {
 											{selectedSubject.name}
 										</p>
 										<p className="mt-0.5 text-gray-500 text-xs">
-											{selectedSubject.code} • {selectedSubject.credits}{" "}
-											créditos
+											{selectedSubject.code} •{" "}
+											{selectedSubject.credits} créditos
 										</p>
 									</div>
 									{!editingAssign && (
 										<button
-											onClick={() => setSelectedSubject(null)}
+											onClick={() =>
+												setSelectedSubject(null)
+											}
 											className="font-bold text-red-500 text-xs hover:underline"
 										>
 											Cambiar
@@ -1380,7 +1607,11 @@ function AdminContent() {
 										min={1}
 										max={totalTerms}
 										value={suggestedTerm}
-										onChange={(e) => setSuggestedTerm(Number(e.target.value))}
+										onChange={(e) =>
+											setSuggestedTerm(
+												Number(e.target.value),
+											)
+										}
 										className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 									/>
 								</div>
@@ -1392,9 +1623,15 @@ function AdminContent() {
 								</span>
 								<div className="max-h-40 space-y-2 overflow-y-auto rounded-xl border border-gray-100 p-3.5">
 									{planSubjects
-										.filter((ps) => ps.subjectId !== selectedSubject?.id)
+										.filter(
+											(ps) =>
+												ps.subjectId !==
+												selectedSubject?.id,
+										)
 										.map((ps) => {
-											const checked = prereqIds.includes(ps.subjectId);
+											const checked = prereqIds.includes(
+												ps.subjectId,
+											);
 											return (
 												<label
 													key={ps.id}
@@ -1406,27 +1643,39 @@ function AdminContent() {
 														onChange={() => {
 															if (checked) {
 																setPrereqIds(
-																	prereqIds.filter((id) => id !== ps.subjectId),
+																	prereqIds.filter(
+																		(id) =>
+																			id !==
+																			ps.subjectId,
+																	),
 																);
 															} else {
-																setPrereqIds([...prereqIds, ps.subjectId]);
+																setPrereqIds([
+																	...prereqIds,
+																	ps.subjectId,
+																]);
 															}
 														}}
 														className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 													/>
 													<span>
 														{ps.name}{" "}
-														<span className="text-gray-400">({ps.code})</span>
+														<span className="text-gray-400">
+															({ps.code})
+														</span>
 													</span>
 												</label>
 											);
 										})}
 									{planSubjects.filter(
-										(ps) => ps.subjectId !== selectedSubject?.id,
+										(ps) =>
+											ps.subjectId !==
+											selectedSubject?.id,
 									).length === 0 && (
 										<p className="py-2 text-center text-gray-400 text-xs italic">
-											No hay otras materias en el plan de estudios para
-											establecer prelaciones.
+											No hay otras materias en el plan de
+											estudios para establecer
+											prelaciones.
 										</p>
 									)}
 								</div>
@@ -1445,7 +1694,12 @@ function AdminContent() {
 								disabled={savingAssign || !selectedSubject}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
 							>
-								{savingAssign && <Loader2 size={14} className="animate-spin" />}
+								{savingAssign && (
+									<Loader2
+										size={14}
+										className="animate-spin"
+									/>
+								)}
 								{savingAssign
 									? "Asignando..."
 									: editingAssign
@@ -1463,7 +1717,9 @@ function AdminContent() {
 					<div className="max-h-[90vh] w-full max-w-lg animate-scale-up overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl ring-1 ring-black/5">
 						<div className="mb-5 flex items-center justify-between">
 							<h3 className="font-extrabold text-gray-900 text-xl tracking-tight">
-								{editingSubject ? "Editar Materia" : "Nueva Materia"}
+								{editingSubject
+									? "Editar Materia"
+									: "Nueva Materia"}
 							</h3>
 							<button
 								onClick={() => setShowSubjectModal(false)}
@@ -1486,7 +1742,9 @@ function AdminContent() {
 										id="sub-code-input"
 										type="text"
 										value={subCode}
-										onChange={(e) => setSubCode(e.target.value)}
+										onChange={(e) =>
+											setSubCode(e.target.value)
+										}
 										placeholder="Ej. FBTMA01"
 										className="w-full rounded-xl border border-gray-200 px-3.5 py-2 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 									/>
@@ -1503,7 +1761,11 @@ function AdminContent() {
 										type="number"
 										min={0}
 										value={subCredits}
-										onChange={(e) => setSubCredits(Number(e.target.value))}
+										onChange={(e) =>
+											setSubCredits(
+												Number(e.target.value),
+											)
+										}
 										className="w-full rounded-xl border border-gray-200 px-3.5 py-2 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 									/>
 								</div>
@@ -1537,10 +1799,14 @@ function AdminContent() {
 									<select
 										id="sub-modality-select"
 										value={subModality}
-										onChange={(e) => setSubModality(e.target.value)}
+										onChange={(e) =>
+											setSubModality(e.target.value)
+										}
 										className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 font-semibold text-gray-700 text-sm outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10"
 									>
-										<option value="Presencial">Presencial</option>
+										<option value="Presencial">
+											Presencial
+										</option>
 										<option value="Virtual">Virtual</option>
 										<option value="Mixta">Mixta</option>
 									</select>
@@ -1556,12 +1822,20 @@ function AdminContent() {
 									<select
 										id="sub-type-select"
 										value={subType}
-										onChange={(e) => setSubType(e.target.value)}
+										onChange={(e) =>
+											setSubType(e.target.value)
+										}
 										className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 font-semibold text-gray-700 text-sm outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10"
 									>
-										<option value="Asignatura">Asignatura</option>
-										<option value="Electiva">Electiva</option>
-										<option value="Seminario">Seminario</option>
+										<option value="Asignatura">
+											Asignatura
+										</option>
+										<option value="Electiva">
+											Electiva
+										</option>
+										<option value="Seminario">
+											Seminario
+										</option>
 										<option value="Taller">Taller</option>
 										<option value="Otro">Otro</option>
 									</select>
@@ -1578,7 +1852,9 @@ function AdminContent() {
 								<select
 									id="sub-unit-select"
 									value={subUnitId}
-									onChange={(e) => setSubUnitId(e.target.value)}
+									onChange={(e) =>
+										setSubUnitId(e.target.value)
+									}
 									className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2 font-semibold text-gray-700 text-sm outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10"
 								>
 									<option value="">No asignar unidad</option>
@@ -1611,7 +1887,9 @@ function AdminContent() {
 								<input
 									type="checkbox"
 									checked={subIsActive}
-									onChange={(e) => setSubIsActive(e.target.checked)}
+									onChange={(e) =>
+										setSubIsActive(e.target.checked)
+									}
 									className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 								/>
 								<span className="select-none font-semibold text-gray-700 text-sm">
@@ -1629,13 +1907,22 @@ function AdminContent() {
 							</button>
 							<button
 								onClick={handleSaveSubject}
-								disabled={savingSubject || !subCode.trim() || !subName.trim()}
+								disabled={
+									savingSubject ||
+									!subCode.trim() ||
+									!subName.trim()
+								}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
 							>
 								{savingSubject && (
-									<Loader2 size={14} className="animate-spin" />
+									<Loader2
+										size={14}
+										className="animate-spin"
+									/>
 								)}
-								{savingSubject ? "Guardando..." : "Guardar Materia"}
+								{savingSubject
+									? "Guardando..."
+									: "Guardar Materia"}
 							</button>
 						</div>
 					</div>
@@ -1672,7 +1959,9 @@ function AdminContent() {
 									id="unit-name-input"
 									type="text"
 									value={unitName}
-									onChange={(e) => setUnitName(e.target.value)}
+									onChange={(e) =>
+										setUnitName(e.target.value)
+									}
 									placeholder="Ej. Departamento de Ingeniería de Sistemas"
 									className="w-full rounded-xl border border-gray-200 px-3.5 py-2 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 								/>
@@ -1689,7 +1978,9 @@ function AdminContent() {
 									id="unit-code-input"
 									type="text"
 									value={unitCode}
-									onChange={(e) => setUnitCode(e.target.value)}
+									onChange={(e) =>
+										setUnitCode(e.target.value)
+									}
 									placeholder="Ej. INGSIS"
 									className="w-full rounded-xl border border-gray-200 px-3.5 py-2 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 								/>
@@ -1705,10 +1996,14 @@ function AdminContent() {
 								<select
 									id="unit-parent-select"
 									value={unitParentId}
-									onChange={(e) => setUnitParentId(e.target.value)}
+									onChange={(e) =>
+										setUnitParentId(e.target.value)
+									}
 									className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-semibold text-gray-700 text-sm outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10"
 								>
-									<option value="">Ninguna (Unidad Raíz)</option>
+									<option value="">
+										Ninguna (Unidad Raíz)
+									</option>
 									{academicUnits
 										.filter((u) => u.id !== editingUnit?.id) // No ponerse a sí mismo como padre
 										.map((u) => (
@@ -1723,7 +2018,9 @@ function AdminContent() {
 								<input
 									type="checkbox"
 									checked={unitIsExtra}
-									onChange={(e) => setUnitIsExtra(e.target.checked)}
+									onChange={(e) =>
+										setUnitIsExtra(e.target.checked)
+									}
 									className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
 								/>
 								<span className="select-none font-semibold text-gray-700 text-sm">
@@ -1744,7 +2041,12 @@ function AdminContent() {
 								disabled={savingUnit || !unitName.trim()}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
 							>
-								{savingUnit && <Loader2 size={14} className="animate-spin" />}
+								{savingUnit && (
+									<Loader2
+										size={14}
+										className="animate-spin"
+									/>
+								)}
 								{savingUnit ? "Guardando..." : "Guardar Unidad"}
 							</button>
 						</div>

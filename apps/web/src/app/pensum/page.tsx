@@ -74,8 +74,8 @@ function PensumContent() {
 			await refreshUser();
 		} catch (err: unknown) {
 			alert(
-				(err as { response?: { data?: { detail?: string } } })?.response?.data
-					?.detail || "Error al aprobar materia",
+				(err as { response?: { data?: { detail?: string } } })?.response
+					?.data?.detail || "Error al aprobar materia",
 			);
 		} finally {
 			setApproving(null);
@@ -89,8 +89,8 @@ function PensumContent() {
 			await refreshUser();
 		} catch (err: unknown) {
 			alert(
-				(err as { response?: { data?: { detail?: string } } })?.response?.data
-					?.detail || "Error al deshacer aprobación",
+				(err as { response?: { data?: { detail?: string } } })?.response
+					?.data?.detail || "Error al deshacer aprobación",
 			);
 		} finally {
 			setUnapprovingCode(null);
@@ -135,7 +135,9 @@ function PensumContent() {
 	const totalCredits = program?.totalCredits || 0;
 	const approvedCredits = user?.totalApprovedCredits || 0;
 	const progress =
-		totalCredits > 0 ? Math.round((approvedCredits / totalCredits) * 100) : 0;
+		totalCredits > 0
+			? Math.round((approvedCredits / totalCredits) * 100)
+			: 0;
 
 	if (!user?.academicProgramIds?.length) {
 		return (
@@ -147,7 +149,8 @@ function PensumContent() {
 					Configura tu perfil primero
 				</h2>
 				<p className="font-medium text-gray-500">
-					Selecciona tu universidad y carrera en tu perfil para ver tu pensum.
+					Selecciona tu universidad y carrera en tu perfil para ver tu
+					pensum.
 				</p>
 			</div>
 		);
@@ -201,8 +204,11 @@ function PensumContent() {
 							{approvedCredits} / {totalCredits} créditos
 						</span>
 						<span>
-							{subjects.filter((s) => approvedIds.has(s.id)).length} /{" "}
-							{subjects.length} materias
+							{
+								subjects.filter((s) => approvedIds.has(s.id))
+									.length
+							}{" "}
+							/ {subjects.length} materias
 						</span>
 					</div>
 				</div>
@@ -218,13 +224,15 @@ function PensumContent() {
 						bg: "bg-primary/[0.04] ring-primary/8",
 					},
 					{
-						value: subjects.filter((s) => approvedIds.has(s.id)).length,
+						value: subjects.filter((s) => approvedIds.has(s.id))
+							.length,
 						label: "Aprobadas",
 						color: "text-green-600",
 						bg: "bg-green-50 ring-green-100",
 					},
 					{
-						value: subjects.filter((s) => !approvedIds.has(s.id)).length,
+						value: subjects.filter((s) => !approvedIds.has(s.id))
+							.length,
 						label: "Pendientes",
 						color: "text-amber-600",
 						bg: "bg-amber-50 ring-amber-100",
@@ -262,13 +270,17 @@ function PensumContent() {
 					.map(([sem, semSubjects]) => {
 						const semNum = Number(sem);
 						const isExpanded = expandedSemester === semNum;
-						const allApproved = semSubjects.every((s) => approvedIds.has(s.id));
+						const allApproved = semSubjects.every((s) =>
+							approvedIds.has(s.id),
+						);
 						const canApproveAll =
 							!allApproved &&
 							semSubjects.some(
 								(s) =>
 									!approvedIds.has(s.id) &&
-									s.prerequisites.every((p) => approvedIds.has(p)),
+									s.prerequisites.every((p) =>
+										approvedIds.has(p),
+									),
 							);
 						const isSemesterLoading = approvingSemester === semNum;
 
@@ -280,7 +292,9 @@ function PensumContent() {
 								<div className="flex items-center">
 									<button
 										onClick={() =>
-											setExpandedSemester(isExpanded ? null : semNum)
+											setExpandedSemester(
+												isExpanded ? null : semNum,
+											)
 										}
 										className="flex flex-1 items-center gap-4 px-6 py-5 text-left transition-colors hover:bg-black/[0.02]"
 									>
@@ -297,7 +311,12 @@ function PensumContent() {
 											Semestre {sem}
 										</span>
 										<span className="font-medium text-gray-400 text-sm">
-											({semSubjects.filter((s) => approvedIds.has(s.id)).length}
+											(
+											{
+												semSubjects.filter((s) =>
+													approvedIds.has(s.id),
+												).length
+											}
 											/{semSubjects.length} aprobadas)
 										</span>
 									</button>
@@ -306,31 +325,43 @@ function PensumContent() {
 										<button
 											onClick={(e) => {
 												e.stopPropagation();
-												handleApproveSemester(semNum, semSubjects);
+												handleApproveSemester(
+													semNum,
+													semSubjects,
+												);
 											}}
 											disabled={isSemesterLoading}
 											title="Aprobar todas las materias disponibles del semestre"
 											className="mr-3 flex items-center gap-1.5 rounded-xl bg-green-50 px-4 py-2 font-semibold text-green-700 text-xs shadow-sm ring-1 ring-green-600/20 transition-all duration-300 hover:scale-105 hover:bg-green-100 active:scale-95 disabled:opacity-50 disabled:hover:scale-100"
 										>
 											{isSemesterLoading ? (
-												<Loader2 size={14} className="animate-spin" />
+												<Loader2
+													size={14}
+													className="animate-spin"
+												/>
 											) : (
 												<CheckSquare size={14} />
 											)}
-											{isSemesterLoading ? "Aprobando..." : "Aprobar todas"}
+											{isSemesterLoading
+												? "Aprobando..."
+												: "Aprobar todas"}
 										</button>
 									)}
 
 									<button
 										onClick={() =>
-											setExpandedSemester(isExpanded ? null : semNum)
+											setExpandedSemester(
+												isExpanded ? null : semNum,
+											)
 										}
 										className="py-4 pr-5 pl-2 text-gray-400 hover:bg-gray-50"
 									>
 										<ChevronRight
 											size={20}
 											className={`transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${
-												isExpanded ? "rotate-90" : "rotate-0"
+												isExpanded
+													? "rotate-90"
+													: "rotate-0"
 											}`}
 										/>
 									</button>
@@ -340,12 +371,18 @@ function PensumContent() {
 									<div className="accordion-content px-6 pt-2 pb-6">
 										<div className="divide-y divide-gray-50">
 											{semSubjects.map((subject) => {
-												const isApproved = approvedIds.has(subject.id);
-												const prereqsMet = subject.prerequisites.every((p) =>
-													approvedIds.has(p),
-												);
-												const canApprove = !isApproved && prereqsMet;
-												const isUnapproving = unapprovingCode === subject.id;
+												const isApproved =
+													approvedIds.has(subject.id);
+												const prereqsMet =
+													subject.prerequisites.every(
+														(p) =>
+															approvedIds.has(p),
+													);
+												const canApprove =
+													!isApproved && prereqsMet;
+												const isUnapproving =
+													unapprovingCode ===
+													subject.id;
 
 												return (
 													<div
@@ -362,25 +399,49 @@ function PensumContent() {
 																<p
 																	className={`truncate font-semibold tracking-tight ${isApproved ? "text-gray-400 line-through" : "text-gray-900"}`}
 																>
-																	{subject.name}
+																	{
+																		subject.name
+																	}
 																</p>
 																<p className="mt-0.5 text-gray-500 text-xs">
 																	<span className="font-medium text-gray-700">
-																		{subject.code}
+																		{
+																			subject.code
+																		}
 																	</span>{" "}
-																	• {subject.credits} crédito
-																	{subject.credits !== 1 ? "s" : ""}
-																	{subject.prerequisites.length > 0 && (
+																	•{" "}
+																	{
+																		subject.credits
+																	}{" "}
+																	crédito
+																	{subject.credits !==
+																	1
+																		? "s"
+																		: ""}
+																	{subject
+																		.prerequisites
+																		.length >
+																		0 && (
 																		<span className="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600 text-xs">
 																			Pre:{" "}
 																			{subject.prerequisites
 																				.map(
-																					(pId) =>
+																					(
+																						pId,
+																					) =>
 																						subjects.find(
-																							(sub) => sub.id === pId,
-																						)?.code ?? pId,
+																							(
+																								sub,
+																							) =>
+																								sub.id ===
+																								pId,
+																						)
+																							?.code ??
+																						pId,
 																				)
-																				.join(", ")}
+																				.join(
+																					", ",
+																				)}
 																		</span>
 																	)}
 																</p>
@@ -390,26 +451,44 @@ function PensumContent() {
 														<div className="flex flex-shrink-0 items-center gap-2">
 															{isApproved ? (
 																<button
-																	onClick={() => handleUnapprove(subject.id)}
-																	disabled={isUnapproving}
+																	onClick={() =>
+																		handleUnapprove(
+																			subject.id,
+																		)
+																	}
+																	disabled={
+																		isUnapproving
+																	}
 																	title="Deshacer aprobación"
 																	className="flex items-center gap-1.5 rounded-lg bg-gray-100 px-3 py-1.5 font-medium text-gray-500 text-xs transition-all hover:-translate-y-0.5 hover:bg-red-50 hover:text-red-600 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0"
 																>
 																	{isUnapproving ? (
 																		<Loader2
-																			size={14}
+																			size={
+																				14
+																			}
 																			className="animate-spin"
 																		/>
 																	) : (
-																		<RotateCcw size={14} />
+																		<RotateCcw
+																			size={
+																				14
+																			}
+																		/>
 																	)}
 																	Deshacer
 																</button>
 															) : (
 																<button
-																	onClick={() => handleApprove(subject.id)}
+																	onClick={() =>
+																		handleApprove(
+																			subject.id,
+																		)
+																	}
 																	disabled={
-																		!canApprove || approving === subject.id
+																		!canApprove ||
+																		approving ===
+																			subject.id
 																	}
 																	className={`rounded-lg px-4 py-1.5 font-semibold text-xs transition-all duration-300 ${
 																		canApprove
@@ -422,10 +501,13 @@ function PensumContent() {
 																			: "Marcar como aprobada"
 																	}
 																>
-																	{approving === subject.id ? (
+																	{approving ===
+																	subject.id ? (
 																		<span className="flex items-center gap-1.5">
 																			<Loader2
-																				size={14}
+																				size={
+																					14
+																				}
 																				className="animate-spin"
 																			/>
 																			...

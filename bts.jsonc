@@ -19,7 +19,14 @@
   "backend": "self",
   "runtime": "none",
   "frontend": ["next"],
-  "addons": ["biome", "pwa", "skills", "turborepo", "ultracite"],
+  "addons": [
+		"biome",
+		"mcp",
+		"pwa",
+		"skills",
+		"turborepo",
+		"ultracite"
+	],
   "examples": [],
   "auth": "better-auth",
   "payments": "none",

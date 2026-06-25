@@ -68,7 +68,9 @@ function ProfileContent() {
 
 	const handleSave = async () => {
 		if (isFirstTime && (!selectedUni || !selectedProgram)) {
-			alert("Por favor selecciona tu universidad y carrera para continuar.");
+			alert(
+				"Por favor selecciona tu universidad y carrera para continuar.",
+			);
 			return;
 		}
 		setSaving(true);
@@ -101,11 +103,13 @@ function ProfileContent() {
 				<div className="mb-8 flex items-center gap-3.5 rounded-2xl border border-amber-200/60 bg-amber-50 p-5 text-amber-900 shadow-sm ring-1 ring-amber-500/5">
 					<CheckCircle className="h-6 w-6 flex-shrink-0 animate-pulse text-amber-600" />
 					<div>
-						<p className="font-bold text-sm">Registro casi completo</p>
+						<p className="font-bold text-sm">
+							Registro casi completo
+						</p>
 						<p className="mt-0.5 font-medium text-amber-700/90 text-xs leading-relaxed">
-							Para poder personalizar tu experiencia, planificar tus horarios y
-							acceder a las encuestas, por favor selecciona tu universidad y
-							carrera.
+							Para poder personalizar tu experiencia, planificar
+							tus horarios y acceder a las encuestas, por favor
+							selecciona tu universidad y carrera.
 						</p>
 					</div>
 				</div>
@@ -134,13 +138,17 @@ function ProfileContent() {
 							<p className="mb-1 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
 								Nombre
 							</p>
-							<p className="font-bold text-gray-900">{user?.name}</p>
+							<p className="font-bold text-gray-900">
+								{user?.name}
+							</p>
 						</div>
 						<div className="rounded-xl bg-gray-50 px-5 py-4 ring-1 ring-black/5">
 							<p className="mb-1 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
 								Correo
 							</p>
-							<p className="truncate font-bold text-gray-900">{user?.email}</p>
+							<p className="truncate font-bold text-gray-900">
+								{user?.email}
+							</p>
 						</div>
 					</div>
 				</div>
@@ -170,7 +178,9 @@ function ProfileContent() {
 								}}
 								className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
 							>
-								<option value="">Selecciona tu universidad</option>
+								<option value="">
+									Selecciona tu universidad
+								</option>
 								{universities.map((u) => (
 									<option key={u.id} value={u.id}>
 										{u.shortName} - {u.name}
@@ -190,10 +200,14 @@ function ProfileContent() {
 								<select
 									id="program-select"
 									value={selectedProgram}
-									onChange={(e) => setSelectedProgram(e.target.value)}
+									onChange={(e) =>
+										setSelectedProgram(e.target.value)
+									}
 									className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 								>
-									<option value="">Selecciona tu programa</option>
+									<option value="">
+										Selecciona tu programa
+									</option>
 									{academicPrograms.map((p) => (
 										<option key={p.id} value={p.id}>
 											{p.name}
@@ -217,7 +231,9 @@ function ProfileContent() {
 							) : (
 								<>
 									<Save size={16} />{" "}
-									{saving ? "Guardando..." : "Guardar Cambios"}
+									{saving
+										? "Guardando..."
+										: "Guardar Cambios"}
 								</>
 							)}
 						</button>
@@ -235,13 +251,17 @@ function ProfileContent() {
 						<p className="font-bold text-3xl text-primary">
 							{user?.approvedSubjects?.length || 0}
 						</p>
-						<p className="text-gray-500 text-sm">Materias Aprobadas</p>
+						<p className="text-gray-500 text-sm">
+							Materias Aprobadas
+						</p>
 					</div>
 					<div className="rounded-xl bg-gray-50 p-4 text-center">
 						<p className="font-bold text-3xl text-accent">
 							{user?.totalApprovedCredits || 0}
 						</p>
-						<p className="text-gray-500 text-sm">Créditos Aprobados</p>
+						<p className="text-gray-500 text-sm">
+							Créditos Aprobados
+						</p>
 					</div>
 					<div className="rounded-xl bg-gray-50 p-4 text-center">
 						<p className="font-bold text-3xl text-green-600">

@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { NextResponse } from "next/server";
 
 /**
@@ -74,7 +74,9 @@ export async function PUT(
 				...(academicUnitId !== undefined && {
 					academicUnitId: academicUnitId || null,
 				}),
-				...(description !== undefined && { description: description || null }),
+				...(description !== undefined && {
+					description: description || null,
+				}),
 				...(isActive !== undefined && { isActive }),
 				...(usualAvailability !== undefined && {
 					usualAvailability: usualAvailability || null,

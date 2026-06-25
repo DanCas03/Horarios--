@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
@@ -43,7 +43,10 @@ export async function POST(request: Request) {
 	};
 
 	if (!name) {
-		return NextResponse.json({ error: "name es requerido" }, { status: 400 });
+		return NextResponse.json(
+			{ error: "name es requerido" },
+			{ status: 400 },
+		);
 	}
 
 	const program = await prisma.academicProgram.create({

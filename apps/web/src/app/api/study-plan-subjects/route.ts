@@ -1,4 +1,4 @@
-import prisma from "@horaios/db";
+import prisma from "@horarios/db";
 import { type NextRequest, NextResponse } from "next/server";
 
 /**
@@ -78,7 +78,9 @@ export async function POST(request: Request) {
 
 		if (!studyPlanId || !subjectId || suggestedTerm === undefined) {
 			return NextResponse.json(
-				{ error: "studyPlanId, subjectId y suggestedTerm son requeridos" },
+				{
+					error: "studyPlanId, subjectId y suggestedTerm son requeridos",
+				},
 				{ status: 400 },
 			);
 		}
