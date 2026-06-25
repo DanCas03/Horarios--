@@ -128,23 +128,7 @@ function OnboardingContent() {
 		setError("");
 		setSubmitting(true);
 		try {
-			const currentApprovedIds = new Set(
-				user?.approvedSubjects
-					?.map((s) => s.subjectId)
-					.filter((id): id is string => !!id) ?? [],
-			);
-
-			const toApprove = Array.from(selectedIds).filter(
-				(id) => !currentApprovedIds.has(id),
-			);
-			const toUnapprove = Array.from(currentApprovedIds).filter(
-				(id) => !selectedIds.has(id),
-			);
-
-			await Promise.all([
-				...toApprove.map((subjectId) => subjectsAPI.approve({ subjectId })),
-				...toUnapprove.map((subjectId) => subjectsAPI.unapprove(subjectId)),
-			]);
+			await subjectsAPI.approve({ subjectIds: Array.from(selectedIds) });
 
 			await refreshUser();
 			router.push("/encuesta");
@@ -174,7 +158,7 @@ function OnboardingContent() {
 					Selecciona tus materias cursadas
 				</h1>
 				<p className="mt-3 text-gray-500 text-sm">
-					Marca las materias que ya aprobaste. Solo podras hacer resenas de
+					Marca las materias que ya aprobaste. Solo podras hacer reseñas de
 					estas materias.
 				</p>
 				<button
@@ -253,11 +237,10 @@ function OnboardingContent() {
 								<button
 									type="button"
 									onClick={() => toggleSemester(semSubjects)}
-									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${
-										allSelected
+									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${allSelected
 											? "bg-primary/10 text-primary"
 											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
-									}`}
+										}`}
 								>
 									{allSelected ? "Deseleccionar" : "Seleccionar todo"}
 								</button>
@@ -273,18 +256,16 @@ function OnboardingContent() {
 												type="button"
 												key={subject.id}
 												onClick={() => toggleSubject(subject.id)}
-												className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
-													isSelected
+												className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${isSelected
 														? "bg-green-50 ring-1 ring-green-600/10"
 														: "hover:bg-gray-50"
-												}`}
+													}`}
 											>
 												<div
-													className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
-														isSelected
+													className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${isSelected
 															? "border-green-600 bg-green-600"
 															: "border-gray-300"
-													}`}
+														}`}
 												>
 													{isSelected && (
 														<Check size={12} className="text-white" />
