@@ -29,7 +29,7 @@ export async function PATCH() {
 
 	if (reviewCount < 1) {
 		return NextResponse.json(
-			{ error: "Debes tener al menos 1 resena antes de finalizar la encuesta" },
+			{ error: "Debes tener al menos 1 reseña antes de finalizar la encuesta" },
 			{ status: 400 },
 		);
 	}

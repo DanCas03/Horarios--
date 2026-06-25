@@ -26,6 +26,27 @@ export async function GET() {
 				totalApprovedCredits: 0,
 			},
 		});
+	} else {
+		// Autocorrección de créditos aprobados
+		const approvedList = (profile.approvedSubjects ?? []) as {
+			subjectId?: string | null;
+		}[];
+		const subjectIds = approvedList
+			.map((s) => s.subjectId)
+			.filter((id): id is string => !!id);
+
+		const subjects = await prisma.subject.findMany({
+			where: { id: { in: subjectIds } },
+			select: { credits: true },
+		});
+		const correctCredits = subjects.reduce((sum, s) => sum + s.credits, 0);
+
+		if (profile.totalApprovedCredits !== correctCredits) {
+			profile = await prisma.userProfile.update({
+				where: { userId: session.user.id },
+				data: { totalApprovedCredits: correctCredits },
+			});
+		}
 	}
 
 	return NextResponse.json({

@@ -101,7 +101,7 @@ export async function POST(request: Request) {
 	// Bloquear reviews de materias no aprobadas
 	if (!isVerified) {
 		return NextResponse.json(
-			{ error: "Solo puedes hacer resenas de materias que hayas aprobado" },
+			{ error: "Solo puedes hacer reseñas de materias que hayas aprobado" },
 			{ status: 403 },
 		);
 	}

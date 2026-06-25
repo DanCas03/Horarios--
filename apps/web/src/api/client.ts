@@ -79,8 +79,12 @@ export const subjectsAPI = {
 	pensum: (programId: string) => api.get(`/subjects/pensum/${programId}`),
 	get: (id: string) => api.get(`/subjects/${id}`),
 	available: (programId: string) => api.get(`/subjects/available/${programId}`),
-	approve: (data: { subjectId: string; grade?: number; period?: string }) =>
-		api.post("/subjects/approve", data),
+	approve: (data: {
+		subjectId?: string;
+		subjectIds?: string[];
+		grade?: number;
+		period?: string;
+	}) => api.post("/subjects/approve", data),
 	unapprove: (subjectId: string) =>
 		api.delete(`/subjects/approve/${subjectId}`),
 	sections: (subjectId: string, periodId?: string) =>

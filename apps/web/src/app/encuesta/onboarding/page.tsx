@@ -202,23 +202,7 @@ function OnboardingContent() {
 		setError("");
 		setSubmitting(true);
 		try {
-			const currentApprovedIds = new Set(
-				user?.approvedSubjects
-					?.map((s) => s.subjectId)
-					.filter((id): id is string => !!id) ?? [],
-			);
-
-			const toApprove = Array.from(selectedIds).filter(
-				(id) => !currentApprovedIds.has(id),
-			);
-			const toUnapprove = Array.from(currentApprovedIds).filter(
-				(id) => !selectedIds.has(id),
-			);
-
-			await Promise.all([
-				...toApprove.map((subjectId) => subjectsAPI.approve({ subjectId })),
-				...toUnapprove.map((subjectId) => subjectsAPI.unapprove(subjectId)),
-			]);
+			await subjectsAPI.approve({ subjectIds: Array.from(selectedIds) });
 
 			await refreshUser();
 			router.push("/encuesta");
@@ -248,7 +232,7 @@ function OnboardingContent() {
 					Selecciona tus materias cursadas
 				</h1>
 				<p className="mt-3 text-gray-500 text-sm">
-					Marca las materias que ya aprobaste. Solo podras hacer resenas de
+					Marca las materias que ya aprobaste. Solo podras hacer reseñas de
 					estas materias.
 				</p>
 				<button
@@ -327,11 +311,10 @@ function OnboardingContent() {
 								<button
 									type="button"
 									onClick={() => toggleSemester(semSubjects)}
-									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${
-										allSelected
+									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${allSelected
 											? "bg-primary/10 text-primary"
 											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
-									}`}
+										}`}
 								>
 									{allSelected ? "Deseleccionar" : "Seleccionar todo"}
 								</button>

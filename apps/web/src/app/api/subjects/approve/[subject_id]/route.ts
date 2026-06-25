@@ -50,17 +50,21 @@ export async function DELETE(
 		);
 	}
 
-	// Calcular créditos a restar
-	const subject = await prisma.subject.findUnique({
-		where: { id: subject_id },
-	});
-	const creditsToRemove = subject?.credits ?? 0;
-	const newTotal = Math.max(0, profile.totalApprovedCredits - creditsToRemove);
-
 	// Filtrar la materia del array
 	const updatedList = approvedSubjects.filter(
 		(s) => s.subjectId !== subject_id,
 	);
+
+	// Calcular total de créditos de manera robusta
+	const allApprovedIds = updatedList
+		.map((s) => s.subjectId)
+		.filter((id): id is string => !!id);
+
+	const subjects = await prisma.subject.findMany({
+		where: { id: { in: allApprovedIds } },
+		select: { credits: true },
+	});
+	const newTotal = subjects.reduce((sum, s) => sum + s.credits, 0);
 
 	await prisma.userProfile.update({
 		where: { userId: session.user.id },

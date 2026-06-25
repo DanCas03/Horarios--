@@ -425,7 +425,7 @@ function SingleReviewForm({
 					<span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 font-mono text-primary text-xs">
 						{index + 1}
 					</span>
-					Nueva Resena
+					Nueva Reseña
 				</h3>
 			</div>
 
@@ -614,11 +614,10 @@ function SingleReviewForm({
 					onClick={() =>
 						onUpdate(form.id, { would_recommend: !form.would_recommend })
 					}
-					className={`rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${
-						form.would_recommend
-							? "bg-green-100 text-green-700 hover:bg-green-200"
-							: "bg-red-100 text-red-700 hover:bg-red-200"
-					}`}
+					className={`rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${form.would_recommend
+						? "bg-green-100 text-green-700 hover:bg-green-200"
+						: "bg-red-100 text-red-700 hover:bg-red-200"
+						}`}
 				>
 					{form.would_recommend ? "Si" : "No"}
 				</button>
@@ -842,7 +841,7 @@ function EncuestaContent() {
 				setAllSubjects(all);
 				setSubjectOptions(approved);
 			})
-			.catch(() => {});
+			.catch(() => { });
 
 		academicProgramsAPI
 			.get(programId)
@@ -850,7 +849,7 @@ function EncuestaContent() {
 				const programData = res.data as { name: string };
 				setAcademicProgramName(programData.name || "");
 			})
-			.catch(() => {});
+			.catch(() => { });
 	}, [user?.academicProgramIds, user?.approvedSubjects]);
 
 	const updateForm = useCallback(
@@ -938,7 +937,7 @@ function EncuestaContent() {
 			} catch (err: unknown) {
 				updateForm(formId, {
 					saving: false,
-					error: parseApiError(err, "Error al crear resena"),
+					error: parseApiError(err, "Error al crear reseña"),
 				});
 			}
 		},
@@ -986,12 +985,12 @@ function EncuestaContent() {
 						<ClipboardCheck className="h-10 w-10 text-green-600" />
 					</div>
 					<h1 className="font-extrabold text-2xl text-gray-900 tracking-tight sm:text-3xl">
-						Gracias por tu contribucion!
+						Gracias por tu contribución!
 					</h1>
 					<p className="mx-auto mt-4 max-w-md text-gray-500">
-						Tus resenas ayudaran a otros estudiantes a tomar mejores decisiones.
-						Guardaste {savedCount} resena{savedCount !== 1 ? "s" : ""} en esta
-						sesion.
+						Tus reseñas ayudaran a otros estudiantes a tomar mejores decisiones.
+						Guardaste {savedCount} reseña{savedCount !== 1 ? "s" : ""} en esta
+						sesión.
 					</p>
 					<a
 						href="/"
@@ -1040,7 +1039,7 @@ function EncuestaContent() {
 				<div className="flex items-center gap-3">
 					{reviewedApprovedCount > 0 && (
 						<span className="rounded-full bg-green-100 px-3 py-1.5 font-semibold text-green-700 text-sm">
-							{reviewedApprovedCount} resena
+							{reviewedApprovedCount} reseña
 							{reviewedApprovedCount !== 1 ? "s" : ""}
 						</span>
 					)}
@@ -1048,11 +1047,10 @@ function EncuestaContent() {
 						type="button"
 						onClick={handleFinish}
 						disabled={reviewedApprovedCount < 1 || finishing}
-						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${
-							reviewedApprovedCount >= 1
-								? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
-								: "cursor-not-allowed bg-gray-200 text-gray-400"
-						}`}
+						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${reviewedApprovedCount >= 1
+							? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
+							: "cursor-not-allowed bg-gray-200 text-gray-400"
+							}`}
 					>
 						{finishing ? (
 							<>
@@ -1109,7 +1107,7 @@ function EncuestaContent() {
 				<div className="mb-8 rounded-xl bg-primary/5 px-4 py-3">
 					<div className="flex items-center justify-between text-sm">
 						<span className="text-gray-600">
-							Has resenado{" "}
+							Has reseñado{" "}
 							<strong className="text-primary">{reviewedApprovedCount}</strong>{" "}
 							de <strong>{subjectOptions.length}</strong> materias aprobadas.
 							<Link
@@ -1122,8 +1120,8 @@ function EncuestaContent() {
 						<span className="font-mono text-primary text-xs">
 							{subjectOptions.length > 0
 								? Math.round(
-										(reviewedApprovedCount / subjectOptions.length) * 100,
-									)
+									(reviewedApprovedCount / subjectOptions.length) * 100,
+								)
 								: 0}
 							%
 						</span>
@@ -1132,14 +1130,13 @@ function EncuestaContent() {
 						<div
 							className="h-full rounded-full bg-primary transition-all duration-500"
 							style={{
-								width: `${
-									subjectOptions.length > 0
-										? Math.min(
-												100,
-												(reviewedApprovedCount / subjectOptions.length) * 100,
-											)
-										: 0
-								}%`,
+								width: `${subjectOptions.length > 0
+									? Math.min(
+										100,
+										(reviewedApprovedCount / subjectOptions.length) * 100,
+									)
+									: 0
+									}%`,
 							}}
 						/>
 					</div>
