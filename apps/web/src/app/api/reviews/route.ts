@@ -61,6 +61,28 @@ export async function POST(request: Request) {
 		);
 	}
 
+	// Escala 0.5–5 en pasos de media estrella
+	const isValidRatingValue = (v: unknown): v is number =>
+		typeof v === "number" &&
+		Number.isFinite(v) &&
+		v >= 0.5 &&
+		v <= 5 &&
+		Number.isInteger(v * 2);
+
+	if (
+		!Array.isArray(ratings) ||
+		ratings.length === 0 ||
+		ratings.some((r) => !r || !isValidRatingValue(r.value))
+	) {
+		return NextResponse.json(
+			{
+				error:
+					"Cada clasificación debe estar entre 0.5 y 5 en pasos de media estrella",
+			},
+			{ status: 400 },
+		);
+	}
+
 	if (
 		hasProfanity(comment) ||
 		(tips && hasProfanity(tips)) ||

@@ -7,7 +7,6 @@ import {
 	ClipboardCheck,
 	MessageSquare,
 	PlusCircle,
-	Star,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -33,6 +32,7 @@ import {
 	isTeacherPickerValid,
 	TeacherPicker,
 } from "@/components/reviews/teacher-picker";
+import { formatRating, StarRatingInput } from "@/components/ui/star-rating";
 import { useAuth } from "@/context/auth-context";
 import { hasProfanity } from "@/lib/profanity";
 
@@ -334,40 +334,29 @@ function SingleReviewForm({
 			</div>
 
 			{/* Ratings */}
-			<div className="grid grid-cols-3 gap-2 sm:gap-4">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
 				{[
 					{ label: "Dificultad", key: "difficulty_rating" as const },
 					{ label: "Profesor", key: "professor_rating" as const },
 					{ label: "Carga", key: "workload_rating" as const },
 				].map(({ label, key }) => (
-					<div key={key}>
-						<label
-							htmlFor={`review-rating-${key}-${form.id}`}
-							className="mb-1 block font-medium text-gray-700 text-sm"
-						>
+					<div
+						key={key}
+						className="flex items-center justify-between gap-3 sm:block"
+					>
+						<span className="block font-medium text-gray-700 text-sm sm:mb-1.5">
 							{label}
-						</label>
-						<div className="flex items-center gap-0.5 sm:gap-1">
-							{Array.from({ length: 5 }, (_, i) => (
-								<button
-									key={i}
-									type="button"
-									onClick={() => onUpdate(form.id, { [key]: i + 1 })}
-									className="transition-transform hover:scale-110 active:scale-95"
-								>
-									<Star
-										className={`h-4 w-4 sm:h-5 sm:w-5 ${
-											i < form[key]
-												? "fill-amber-400 text-amber-400"
-												: "text-gray-300"
-										}`}
-									/>
-								</button>
-							))}
+						</span>
+						<div className="flex items-center gap-2">
+							<StarRatingInput
+								value={form[key]}
+								onChange={(v) => onUpdate(form.id, { [key]: v })}
+								label={label}
+							/>
+							<span className="min-w-9 text-right font-semibold text-primary text-xs tabular-nums">
+								{formatRating(form[key])}/5
+							</span>
 						</div>
-						<p className="mt-0.5 text-center font-semibold text-primary text-xs">
-							{form[key]}/5
-						</p>
 					</div>
 				))}
 			</div>
@@ -382,10 +371,11 @@ function SingleReviewForm({
 					onClick={() =>
 						onUpdate(form.id, { would_recommend: !form.would_recommend })
 					}
-					className={`rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${form.would_recommend
-						? "bg-green-100 text-green-700 hover:bg-green-200"
-						: "bg-red-100 text-red-700 hover:bg-red-200"
-						}`}
+					className={`rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${
+						form.would_recommend
+							? "bg-green-100 text-green-700 hover:bg-green-200"
+							: "bg-red-100 text-red-700 hover:bg-red-200"
+					}`}
 				>
 					{form.would_recommend ? "Si" : "No"}
 				</button>
@@ -610,7 +600,7 @@ function EncuestaContent() {
 				setAllSubjects(all);
 				setSubjectOptions(approved);
 			})
-			.catch(() => { });
+			.catch(() => {});
 
 		academicProgramsAPI
 			.get(programId)
@@ -618,7 +608,7 @@ function EncuestaContent() {
 				const programData = res.data as { name: string };
 				setAcademicProgramName(programData.name || "");
 			})
-			.catch(() => { });
+			.catch(() => {});
 	}, [user?.academicProgramIds, user?.approvedSubjects]);
 
 	const updateForm = useCallback(
@@ -806,10 +796,11 @@ function EncuestaContent() {
 						type="button"
 						onClick={handleFinish}
 						disabled={reviewedApprovedCount < 1 || finishing}
-						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${reviewedApprovedCount >= 1
-							? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
-							: "cursor-not-allowed bg-gray-200 text-gray-400"
-							}`}
+						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${
+							reviewedApprovedCount >= 1
+								? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
+								: "cursor-not-allowed bg-gray-200 text-gray-400"
+						}`}
 					>
 						{finishing ? (
 							<>
@@ -879,8 +870,8 @@ function EncuestaContent() {
 						<span className="font-mono text-primary text-xs">
 							{subjectOptions.length > 0
 								? Math.round(
-									(reviewedApprovedCount / subjectOptions.length) * 100,
-								)
+										(reviewedApprovedCount / subjectOptions.length) * 100,
+									)
 								: 0}
 							%
 						</span>
@@ -889,13 +880,14 @@ function EncuestaContent() {
 						<div
 							className="h-full rounded-full bg-primary transition-all duration-500"
 							style={{
-								width: `${subjectOptions.length > 0
-									? Math.min(
-										100,
-										(reviewedApprovedCount / subjectOptions.length) * 100,
-									)
-									: 0
-									}%`,
+								width: `${
+									subjectOptions.length > 0
+										? Math.min(
+												100,
+												(reviewedApprovedCount / subjectOptions.length) * 100,
+											)
+										: 0
+								}%`,
 							}}
 						/>
 					</div>

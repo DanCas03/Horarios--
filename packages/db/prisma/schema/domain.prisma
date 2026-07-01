@@ -4,7 +4,8 @@
 
 type Rating {
   category String
-  value    Int
+  // Float para permitir medias estrellas (1.5, 3.5, ...); los Int existentes se leen igual
+  value    Float
 }
 
 type ScheduleBlock {
