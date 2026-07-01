@@ -6,6 +6,8 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
 
+import AppPreview from "@/components/landing/app-preview";
+import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { useAuth } from "@/context/auth-context";
 import { useReveal } from "@/hooks/use-reveal";
 
@@ -52,7 +54,7 @@ export default function Home() {
 	return (
 		<div>
 			{/* ─── HERO ─────────────────────────────────────────────────────── */}
-			<section className="relative flex min-h-[100dvh] items-center overflow-hidden bg-primary-dark text-white">
+			<section className="relative overflow-hidden bg-primary-dark text-white">
 				{/* Ambient orbs */}
 				<div className="pointer-events-none absolute inset-0">
 					<div className="absolute -top-40 -left-40 h-[700px] w-[700px] rounded-full bg-primary-light/40 blur-[120px]" />
@@ -60,86 +62,96 @@ export default function Home() {
 					<div className="absolute top-1/2 left-1/2 h-[300px] w-[300px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[80px]" />
 				</div>
 
-				<div className="relative mx-auto max-w-7xl px-4 py-40 sm:px-6 lg:px-8">
-					<div className="max-w-4xl">
-						{/* Eyebrow tag */}
-						<div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-sm">
-							<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
-							<span className="font-semibold text-[11px] text-white/60 uppercase tracking-[0.2em]">
-								Plataforma Estudiantil · UCAB & UNIMET
-							</span>
-						</div>
-
-						<h1 className="mb-8 text-balance font-extrabold text-6xl leading-[0.95] tracking-tighter md:text-8xl">
-							Tu Guía
-							<br />
-							<span className="bg-gradient-to-r from-accent via-amber-300 to-accent/70 bg-clip-text text-transparent">
-								Académica
-							</span>
-							<br />
-							Universitaria
-						</h1>
-
-						<p className="mb-12 max-w-2xl text-balance text-lg text-white/60 leading-relaxed md:text-xl">
-							Planifica tu carrera de forma inteligente. Seguimiento de pensum,
-							horarios optimizados y reseñas de la comunidad estudiantil.
-						</p>
-
-						<div className="flex flex-wrap items-center gap-4">
-							{user ? (
-								<Link
-									href="/pensum"
-									className="group flex items-center gap-3 rounded-full bg-accent px-7 py-4 font-bold text-primary-dark shadow-[0_8px_24px_rgba(229,156,36,0.4)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(229,156,36,0.5)] active:scale-[0.98]"
-								>
-									Ir a Mi Pensum
-									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
-										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-											<title>Icono flecha al pensum</title>
-											<path
-												d="M2 10L10 2M10 2H4M10 2V8"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											/>
-										</svg>
+				<div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+					<ContainerScroll
+						titleComponent={
+							<>
+								{/* Eyebrow tag */}
+								<div className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 backdrop-blur-sm">
+									<span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent" />
+									<span className="font-semibold text-[11px] text-white/60 uppercase tracking-[0.2em]">
+										Plataforma Estudiantil · UCAB & UNIMET
 									</span>
-								</Link>
-							) : (
-								<>
-									<Link
-										href="/register"
-										className="group flex items-center gap-3 rounded-full bg-accent px-7 py-4 font-bold text-primary-dark shadow-[0_8px_24px_rgba(229,156,36,0.4)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(229,156,36,0.5)] active:scale-[0.98]"
-									>
-										Comenzar Gratis
-										<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
-											<svg
-												width="12"
-												height="12"
-												viewBox="0 0 12 12"
-												fill="none"
+								</div>
+
+								<h1 className="mx-auto mb-6 max-w-4xl text-balance font-extrabold text-5xl leading-[0.95] tracking-tighter md:text-7xl">
+									Tu Guía{" "}
+									<span className="bg-gradient-to-r from-accent via-amber-300 to-accent/70 bg-clip-text text-transparent">
+										Académica
+									</span>{" "}
+									Universitaria
+								</h1>
+
+								<p className="mx-auto mb-10 max-w-2xl text-balance text-lg text-white/60 leading-relaxed md:text-xl">
+									Planifica tu carrera de forma inteligente. Seguimiento de
+									pensum, horarios optimizados y reseñas de la comunidad
+									estudiantil.
+								</p>
+
+								<div className="mb-4 flex flex-wrap items-center justify-center gap-4">
+									{user ? (
+										<Link
+											href="/pensum"
+											className="group flex items-center gap-3 rounded-full bg-accent px-7 py-4 font-bold text-primary-dark shadow-[0_8px_24px_rgba(229,156,36,0.4)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(229,156,36,0.5)] active:scale-[0.98]"
+										>
+											Ir a Mi Pensum
+											<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
+												<svg
+													width="12"
+													height="12"
+													viewBox="0 0 12 12"
+													fill="none"
+												>
+													<title>Icono flecha al pensum</title>
+													<path
+														d="M2 10L10 2M10 2H4M10 2V8"
+														stroke="currentColor"
+														strokeWidth="2"
+														strokeLinecap="round"
+														strokeLinejoin="round"
+													/>
+												</svg>
+											</span>
+										</Link>
+									) : (
+										<>
+											<Link
+												href="/register"
+												className="group flex items-center gap-3 rounded-full bg-accent px-7 py-4 font-bold text-primary-dark shadow-[0_8px_24px_rgba(229,156,36,0.4)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(229,156,36,0.5)] active:scale-[0.98]"
 											>
-												<title>Icono flecha comenzar</title>
-												<path
-													d="M2 10L10 2M10 2H4M10 2V8"
-													stroke="currentColor"
-													strokeWidth="2"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-											</svg>
-										</span>
-									</Link>
-									<Link
-										href="/login"
-										className="rounded-full border border-white/10 bg-white/5 px-7 py-4 font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 active:scale-95"
-									>
-										Ya tengo cuenta
-									</Link>
-								</>
-							)}
-						</div>
-					</div>
+												Comenzar Gratis
+												<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
+													<svg
+														width="12"
+														height="12"
+														viewBox="0 0 12 12"
+														fill="none"
+													>
+														<title>Icono flecha comenzar</title>
+														<path
+															d="M2 10L10 2M10 2H4M10 2V8"
+															stroke="currentColor"
+															strokeWidth="2"
+															strokeLinecap="round"
+															strokeLinejoin="round"
+														/>
+													</svg>
+												</span>
+											</Link>
+											<Link
+												href="/login"
+												className="rounded-full border border-white/10 bg-white/5 px-7 py-4 font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/10 active:scale-95"
+											>
+												Ya tengo cuenta
+											</Link>
+										</>
+									)}
+								</div>
+							</>
+						}
+					>
+						<AppPreview />
+					</ContainerScroll>
 				</div>
 			</section>
 
