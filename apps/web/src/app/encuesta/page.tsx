@@ -334,7 +334,7 @@ function SingleReviewForm({
 			</div>
 
 			{/* Ratings */}
-			<div className="grid grid-cols-3 gap-4">
+			<div className="grid grid-cols-3 gap-2 sm:gap-4">
 				{[
 					{ label: "Dificultad", key: "difficulty_rating" as const },
 					{ label: "Profesor", key: "professor_rating" as const },
@@ -347,7 +347,7 @@ function SingleReviewForm({
 						>
 							{label}
 						</label>
-						<div className="flex items-center gap-1">
+						<div className="flex items-center gap-0.5 sm:gap-1">
 							{Array.from({ length: 5 }, (_, i) => (
 								<button
 									key={i}
@@ -356,12 +356,11 @@ function SingleReviewForm({
 									className="transition-transform hover:scale-110 active:scale-95"
 								>
 									<Star
-										size={20}
-										className={
+										className={`h-4 w-4 sm:h-5 sm:w-5 ${
 											i < form[key]
 												? "fill-amber-400 text-amber-400"
 												: "text-gray-300"
-										}
+										}`}
 									/>
 								</button>
 							))}

@@ -37,6 +37,17 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── iOS (WebKit táctil): evitar zoom automático al enfocar formularios ── */
+/* Safari/Chrome en iOS hacen zoom cuando un control tiene fuente < 16px,
+   dejando las tarjetas recortadas horizontalmente. 16px como piso. */
+@supports (-webkit-touch-callout: none) {
+	input,
+	select,
+	textarea {
+		font-size: max(16px, 1em);
+	}
+}
+
 /* ─── Spring physics timing — never linear or ease-in-out ───────────────── */
 * {
 	transition-property:
@@ -118,9 +129,11 @@ body {
 	}
 }
 
+/* Sin `forwards` ni `will-change` permanentes: el keyframe final coincide con
+   el estado natural, y una capa compuesta persistente recorta los dropdowns
+   absolutos en WebKit (iOS). */
 .panel-enter {
-	animation: panel-in 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-	will-change: transform, opacity;
+	animation: panel-in 450ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ─── Tab content fade-up ────────────────────────────────────────────────── */
@@ -136,8 +149,7 @@ body {
 }
 
 .tab-content {
-	animation: tab-fade-in 380ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-	will-change: transform, opacity;
+	animation: tab-fade-in 380ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */
