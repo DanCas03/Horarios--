@@ -6,7 +6,6 @@ import {
 	MessageSquare,
 	PlusCircle,
 	Search,
-	Star,
 	ThumbsDown,
 	ThumbsUp,
 	X,
@@ -31,6 +30,11 @@ import {
 	isTeacherPickerValid,
 	TeacherPicker,
 } from "@/components/reviews/teacher-picker";
+import {
+	formatRating,
+	StarRatingDisplay,
+	StarRatingInput,
+} from "@/components/ui/star-rating";
 import { useAuth } from "@/context/auth-context";
 
 interface Period {
@@ -84,23 +88,6 @@ interface SubjectOption {
 	id: string;
 	code: string;
 	name: string;
-}
-
-// ─── Reusable star display ────────────────────────────────────────────────────
-function StarRating({ value, max = 5 }: { value: number; max?: number }) {
-	return (
-		<div className="flex gap-0.5">
-			{Array.from({ length: max }, (_, i) => (
-				<Star
-					key={i}
-					size={14}
-					className={
-						i < value ? "fill-amber-400 text-amber-400" : "text-gray-300"
-					}
-				/>
-			))}
-		</div>
-	);
 }
 
 // ─── Searchable subject combobox ──────────────────────────────────────────────
@@ -440,6 +427,7 @@ function ReviewsContent() {
 				</div>
 				{user && (
 					<button
+						type="button"
 						onClick={() => {
 							setShowForm(!showForm);
 							setFormError("");
@@ -514,6 +502,7 @@ function ReviewsContent() {
 					</div>
 
 					<button
+						type="button"
 						onClick={handleSearch}
 						disabled={loading || !searchQuery.trim()}
 						className="rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
@@ -530,6 +519,8 @@ function ReviewsContent() {
 							{activeCode}
 						</span>
 						<button
+							type="button"
+							aria-label="Limpiar búsqueda"
 							onClick={() => {
 								setSearchQuery("");
 								setActiveCode("");
@@ -560,7 +551,7 @@ function ReviewsContent() {
 						</div>
 					)}
 
-					<div className="grid grid-cols-2 gap-4">
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 						<div>
 							<label
 								htmlFor="review-subject"
@@ -633,33 +624,29 @@ function ReviewsContent() {
 						</div>
 					</div>
 
-					<div className="grid grid-cols-3 gap-4">
+					<div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
 						{[
 							{ label: "Dificultad", key: "difficulty_rating" as const },
 							{ label: "Profesor", key: "professor_rating" as const },
 							{ label: "Carga de trabajo", key: "workload_rating" as const },
 						].map(({ label, key }) => (
-							<div key={key}>
-								<label
-									htmlFor={`review-rating-${key}`}
-									className="mb-1 block font-medium text-gray-700 text-sm"
-								>
-									{label} (1-5)
-								</label>
-								<input
-									id={`review-rating-${key}`}
-									type="range"
-									min="1"
-									max="5"
-									value={form[key]}
-									onChange={(e) =>
-										setForm({ ...form, [key]: Number(e.target.value) })
-									}
-									className="w-full accent-primary"
-								/>
-								<p className="text-center font-semibold text-primary text-sm">
-									{form[key]}/5
-								</p>
+							<div
+								key={key}
+								className="flex items-center justify-between gap-3 sm:block"
+							>
+								<span className="block font-medium text-gray-700 text-sm sm:mb-1.5">
+									{label}
+								</span>
+								<div className="flex items-center gap-2">
+									<StarRatingInput
+										value={form[key]}
+										onChange={(v) => setForm({ ...form, [key]: v })}
+										label={label}
+									/>
+									<span className="min-w-9 text-right font-semibold text-primary text-xs tabular-nums">
+										{formatRating(form[key])}/5
+									</span>
+								</div>
 							</div>
 						))}
 					</div>
@@ -822,7 +809,7 @@ function ReviewsContent() {
 							<div className="mb-4 grid grid-cols-3 gap-4">
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Dificultad</p>
-									<StarRating
+									<StarRatingDisplay
 										value={
 											r.ratings?.find((rt) => rt.category === "difficulty")
 												?.value || 0
@@ -832,7 +819,7 @@ function ReviewsContent() {
 								{r.ratings?.some((rt) => rt.category === "professor") && (
 									<div>
 										<p className="mb-1 text-gray-500 text-xs">Profesor</p>
-										<StarRating
+										<StarRatingDisplay
 											value={
 												r.ratings?.find((rt) => rt.category === "professor")
 													?.value || 0
@@ -842,7 +829,7 @@ function ReviewsContent() {
 								)}
 								<div>
 									<p className="mb-1 text-gray-500 text-xs">Carga</p>
-									<StarRating
+									<StarRatingDisplay
 										value={
 											r.ratings?.find((rt) => rt.category === "workload")
 												?.value || 0
