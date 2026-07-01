@@ -53,6 +53,9 @@ export async function GET(request: NextRequest) {
 		teachers: s.teacherIds
 			.map((id: string) => teacherNameById.get(id))
 			.filter(Boolean),
+		teacherOptions: s.teacherIds
+			.filter((id: string) => teacherNameById.has(id))
+			.map((id: string) => ({ id, name: teacherNameById.get(id) })),
 	}));
 
 	return NextResponse.json(populatedSections);

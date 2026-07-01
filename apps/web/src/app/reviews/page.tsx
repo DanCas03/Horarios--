@@ -24,8 +24,13 @@ import {
 	periodsAPI,
 	reviewsAPI,
 	subjectsAPI,
+	teachersAPI,
 } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
+import {
+	isTeacherPickerValid,
+	TeacherPicker,
+} from "@/components/reviews/teacher-picker";
 import { useAuth } from "@/context/auth-context";
 
 interface Period {
@@ -235,15 +240,28 @@ function ReviewsContent() {
 		comment: "",
 		tips: "",
 		study_strategy: "",
+		fallbackTeacherId: "",
+		notFoundTeacherNames: "",
 	});
 	const [submitting, setSubmitting] = useState(false);
 	const [formError, setFormError] = useState("");
 
 	const [periods, setPeriods] = useState<Period[]>([]);
-	const [sections, setSections] = useState<
-		{ id: string; code: string; teacherIds: string[]; teachers: string[] }[]
+	const [allTeachers, setAllTeachers] = useState<
+		{ id: string; name: string }[]
 	>([]);
-	const [loadingSections, setLoadingSections] = useState(false);
+
+	// Load all teachers from database
+	useEffect(() => {
+		teachersAPI
+			.list()
+			.then((res) => {
+				setAllTeachers(res.data as { id: string; name: string }[]);
+			})
+			.catch((err) => {
+				console.error("Error al cargar profesores de la base de datos:", err);
+			});
+	}, []);
 
 	// Load periods
 	useEffect(() => {
@@ -285,31 +303,6 @@ function ReviewsContent() {
 			})
 			.catch(() => {});
 	}, [user?.academicProgramIds, user?.approvedSubjects]);
-
-	// Load sections for selected subject & period
-	useEffect(() => {
-		const selectedSub = allSubjects.find((s) => s.code === form.subject_code);
-		if (!selectedSub?.id || !form.period) {
-			setSections([]);
-			setForm((prev) => ({ ...prev, sectionId: "", teacherIds: [] }));
-			return;
-		}
-
-		setLoadingSections(true);
-		subjectsAPI
-			.sections(selectedSub.id, form.period)
-			.then((res) => {
-				setSections(res.data);
-				setForm((prev) => ({ ...prev, sectionId: "", teacherIds: [] }));
-			})
-			.catch(() => {
-				setSections([]);
-				setForm((prev) => ({ ...prev, sectionId: "", teacherIds: [] }));
-			})
-			.finally(() => {
-				setLoadingSections(false);
-			});
-	}, [form.subject_code, form.period, allSubjects]);
 
 	// Close search dropdown on outside click
 	useEffect(() => {
@@ -401,6 +394,10 @@ function ReviewsContent() {
 				comment: form.comment,
 				tips: form.tips || undefined,
 				studyStrategy: form.study_strategy || undefined,
+				notFoundTeacherNames:
+					form.fallbackTeacherId === "no-encuentro-profe"
+						? form.notFoundTeacherNames || undefined
+						: undefined,
 			});
 			setShowForm(false);
 			setForm({
@@ -416,6 +413,8 @@ function ReviewsContent() {
 				comment: "",
 				tips: "",
 				study_strategy: "",
+				fallbackTeacherId: "",
+				notFoundTeacherNames: "",
 			});
 			if (activeCode) fetchReviews(activeCode);
 		} catch (err: unknown) {
@@ -609,34 +608,28 @@ function ReviewsContent() {
 						</div>
 						<div>
 							<label
-								htmlFor="review-section"
+								htmlFor="review-teacher"
 								className="mb-1 block font-medium text-gray-700 text-sm"
 							>
-								Sección / Profesor
+								Profesor *
 							</label>
-							<select
-								id="review-section"
-								value={form.sectionId}
-								onChange={(e) => {
-									const secId = e.target.value;
-									const selectedSec = sections.find((s) => s.id === secId);
-									setForm({
-										...form,
-										sectionId: secId,
-										teacherIds: selectedSec ? selectedSec.teacherIds : [],
-									});
+							<TeacherPicker
+								id="review-teacher"
+								subjectId={
+									allSubjects.find((s) => s.code === form.subject_code)?.id
+								}
+								periodId={form.period}
+								allTeachers={allTeachers}
+								value={{
+									sectionId: form.sectionId,
+									teacherIds: form.teacherIds,
+									fallbackTeacherId: form.fallbackTeacherId || "",
+									notFoundTeacherNames: form.notFoundTeacherNames || "",
 								}}
-								disabled={loadingSections || !form.subject_code}
-								className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-							>
-								<option value="">Selecciona una sección</option>
-								{sections.map((s) => (
-									<option key={s.id} value={s.id}>
-										Sección {s.code || "Sin código"}{" "}
-										{s.teachers.length > 0 ? `(${s.teachers.join(", ")})` : ""}
-									</option>
-								))}
-							</select>
+								onChange={(updates) =>
+									setForm((prev) => ({ ...prev, ...updates }))
+								}
+							/>
 						</div>
 					</div>
 
@@ -746,7 +739,15 @@ function ReviewsContent() {
 
 					<button
 						type="submit"
-						disabled={submitting}
+						disabled={
+							submitting ||
+							!isTeacherPickerValid({
+								sectionId: form.sectionId,
+								teacherIds: form.teacherIds,
+								fallbackTeacherId: form.fallbackTeacherId || "",
+								notFoundTeacherNames: form.notFoundTeacherNames || "",
+							})
+						}
 						className="group flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 					>
 						{submitting ? (
