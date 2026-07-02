@@ -250,6 +250,39 @@ body {
 	}
 }
 
+/* ─── Orbes del hero de inmersión (fondo de marca de /reviews) ───────────── */
+/* Deriva lenta con transform puro (composited, sin repintados). Duraciones
+   y sentidos distintos por orbe para que el fondo nunca se sienta en bucle.
+   Las animaciones CSS ganan a la transición universal, así que no pelean. */
+.hero-orb {
+	animation: hero-orb-drift var(--orb-duration, 16s) ease-in-out infinite
+		alternate;
+}
+
+.hero-orb-slow {
+	--orb-duration: 24s;
+}
+
+.hero-orb-reverse {
+	--orb-duration: 19s;
+	animation-direction: alternate-reverse;
+}
+
+@keyframes hero-orb-drift {
+	from {
+		transform: translate3d(-4%, 3%, 0) scale(1);
+	}
+	to {
+		transform: translate3d(6%, -5%, 0) scale(1.18);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-orb {
+		animation: none;
+	}
+}
+
 /* ─── Foco radial de tarjeta (adaptado de UI_prompts/Spotlight.md) ───────── */
 /* Sustituto ligero del borde luminoso: dos capas CSS movidas por las
    custom properties --spot-x/--spot-y que escribe SpotlightEffect. El halo

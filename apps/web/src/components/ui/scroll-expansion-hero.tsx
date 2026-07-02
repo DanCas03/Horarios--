@@ -2,11 +2,10 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
-import Image from "next/image";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 
 interface ScrollExpandMediaProps {
-	mediaSrc: string;
+	media: ReactNode;
 	title: string;
 	subtitle?: string;
 	scrollHint?: string;
@@ -15,14 +14,17 @@ interface ScrollExpandMediaProps {
 
 /**
  * Hero de inmersión con scroll (adaptado de UI_prompts/diveImage.md).
- * La imagen crece con la rueda o el gesto táctil hasta llenar el viewport
- * y entonces libera el scroll normal; el contenido aparece debajo. El
- * marco usa el double-bezel de la marca y un velo navy que se disipa.
+ * El medio (`media`, un nodo que llena su contenedor `relative`) crece
+ * con la rueda o el gesto táctil hasta llenar el viewport y entonces
+ * libera el scroll normal; el contenido aparece debajo. El marco usa el
+ * double-bezel de la marca y un velo navy que se disipa. El título usa
+ * mix-blend-difference, así que su color se adapta al fondo que tenga
+ * debajo (claro sobre el medio oscuro, oscuro sobre la página clara).
  * Con prefers-reduced-motion no hay secuestro de scroll (todo visible de
- * entrada) y un clic o Enter sobre la imagen la expande al instante.
+ * entrada) y un clic o Enter sobre el medio lo expande al instante.
  */
 export default function ScrollExpandMedia({
-	mediaSrc,
+	media,
 	title,
 	subtitle,
 	scrollHint,
@@ -137,7 +139,7 @@ export default function ScrollExpandMedia({
 					{/* Medio que se expande, con marco double-bezel de la marca */}
 					<button
 						type="button"
-						aria-label="Expandir la imagen y mostrar las reseñas"
+						aria-label="Expandir el panel y mostrar el contenido"
 						onClick={() => {
 							if (!expanded) expandNow();
 						}}
@@ -151,14 +153,7 @@ export default function ScrollExpandMedia({
 						}}
 					>
 						<div className="relative h-full w-full overflow-hidden rounded-[calc(2rem-0.5rem)]">
-							<Image
-								src={mediaSrc}
-								alt={title}
-								fill
-								sizes="94vw"
-								className="object-cover"
-								priority
-							/>
+							{media}
 							{/* Velo navy que se disipa al expandir */}
 							<motion.div
 								className="absolute inset-0 bg-gradient-to-t from-primary-dark/80 via-primary/25 to-transparent transition-none"
@@ -179,7 +174,7 @@ export default function ScrollExpandMedia({
 								{subtitle}
 							</span>
 						)}
-						<h1 className="flex flex-col items-center gap-1 font-extrabold text-5xl text-primary tracking-tighter md:text-7xl">
+						<h1 className="flex flex-col items-center gap-1 font-extrabold text-5xl text-white tracking-tighter mix-blend-difference md:text-7xl">
 							<span
 								className="transition-none"
 								style={{ transform: `translateX(-${textTranslateX}vw)` }}

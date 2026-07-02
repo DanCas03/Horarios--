@@ -32,6 +32,7 @@ import {
 	teachersAPI,
 } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
+import ReviewsHeroBackdrop from "@/components/reviews/reviews-hero-backdrop";
 import {
 	isTeacherPickerValid,
 	TeacherPicker,
@@ -421,7 +422,7 @@ function ReviewsContent() {
 
 	return (
 		<ScrollExpandMedia
-			mediaSrc="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1600&auto=format&fit=crop"
+			media={<ReviewsHeroBackdrop />}
 			title="Reseñas de Estudiantes"
 			subtitle="Comunidad Estudiantil"
 			scrollHint="Desliza para sumergirte"
