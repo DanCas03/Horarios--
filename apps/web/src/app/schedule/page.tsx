@@ -91,13 +91,26 @@ interface AvailableSubject {
 	semester_suggested: number;
 }
 
+interface RawCustomBlock {
+	subjectCode?: string;
+	subjectName?: string;
+	section?: string;
+	professor?: string;
+	day?: string;
+	startTime?: string;
+	endTime?: string;
+	classroom?: string;
+	modality?: string;
+	priority?: number;
+}
+
 interface RawSchedule {
 	id: string;
 	period: string;
 	scheduleType: string;
 	sectionIds?: string[];
-	customBlocks?: any[];
-	populatedBlocks?: any[];
+	customBlocks?: RawCustomBlock[];
+	populatedBlocks?: unknown[];
 	createdAt: string;
 }
 
@@ -106,25 +119,25 @@ const normalizeSchedule = (raw: RawSchedule): Schedule => ({
 	period: raw.period,
 	schedule_type: raw.scheduleType,
 	blocks: (raw.scheduleType === "current" ? (raw.customBlocks ?? []) : []).map(
-		(b: any) => ({
+		(b) => ({
 			subject_code: b.subjectCode ?? "",
 			subject_name: b.subjectName,
-			section: b.section,
+			section: b.section ?? "",
 			professor: b.professor,
-			day: b.day,
-			start_time: b.startTime,
-			end_time: b.endTime,
+			day: b.day ?? "",
+			start_time: b.startTime ?? "",
+			end_time: b.endTime ?? "",
 			classroom: b.classroom,
-			modality: b.modality,
+			modality: b.modality ?? "presencial",
 		}),
 	),
 	tentative_subjects: (raw.scheduleType === "tentative"
 		? (raw.customBlocks ?? [])
 		: []
-	).map((s: any) => ({
+	).map((s) => ({
 		subject_code: s.subjectCode ?? "",
 		subject_name: s.subjectName,
-		priority: s.priority,
+		priority: s.priority ?? 1,
 	})),
 	created_at: raw.createdAt,
 });
@@ -378,18 +391,18 @@ function ScheduleContent() {
 	return (
 		<div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
 			{/* Header */}
-			<div className="mb-10 flex items-center justify-between">
-				<div>
-					<h1 className="flex items-center gap-4 font-extrabold text-4xl text-gray-900 tracking-tight">
-						<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
-							<Calendar className="h-6 w-6 text-primary" />
-						</div>
-						Horarios
-					</h1>
-					<p className="mt-3 font-medium text-gray-500">
-						Gestiona tu horario actual y planifica los próximos períodos
-					</p>
+			<div className="mb-12">
+				<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm ring-1 ring-black/5">
+					<span className="font-semibold text-[10px] text-gray-400 uppercase tracking-[0.2em]">
+						Planificación
+					</span>
 				</div>
+				<h1 className="mb-2 font-extrabold text-5xl text-gray-900 tracking-tighter">
+					Horarios
+				</h1>
+				<p className="font-medium text-gray-400">
+					Gestiona tu horario actual y planifica los próximos períodos
+				</p>
 			</div>
 
 			{/* Tabs */}
@@ -397,16 +410,20 @@ function ScheduleContent() {
 				{(["tentative", "current"] as const).map((tab) => (
 					<button
 						key={tab}
+						type="button"
 						onClick={() => setActiveTab(tab)}
-						className={`rounded-xl px-6 py-2.5 font-semibold text-sm transition-all duration-300 ${
+						className={`flex items-center gap-2 rounded-xl px-6 py-2.5 font-semibold text-sm transition-all duration-300 ${
 							activeTab === tab
 								? "bg-white text-primary shadow-sm ring-1 ring-black/5"
 								: "text-gray-500 hover:bg-white/50 hover:text-gray-900"
 						}`}
 					>
-						{tab === "tentative"
-							? "📋 Planificación Tentativa"
-							: "📅 Horario Actual"}
+						{tab === "tentative" ? (
+							<ClipboardList size={15} />
+						) : (
+							<Calendar size={15} />
+						)}
+						{tab === "tentative" ? "Planificación Tentativa" : "Horario Actual"}
 					</button>
 				))}
 			</div>
@@ -438,6 +455,7 @@ function ScheduleContent() {
 								</div>
 								{selected.size > 0 && (
 									<button
+										type="button"
 										onClick={() => setSelected(new Set())}
 										className="flex items-center gap-1 text-gray-400 text-xs hover:text-red-500"
 									>
@@ -511,7 +529,7 @@ function ScheduleContent() {
 											id="tentative-period"
 											value={tentativePeriod}
 											onChange={(e) => setTentativePeriod(e.target.value)}
-											className="w-48 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+											className="w-52 appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 										>
 											{periods.map((p) => (
 												<option key={p.id} value={p.id}>
@@ -526,6 +544,7 @@ function ScheduleContent() {
 										</select>
 									</div>
 									<button
+										type="button"
 										onClick={saveTentative}
 										disabled={savingTentative || selected.size === 0}
 										className="group flex items-center gap-2.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
@@ -543,7 +562,7 @@ function ScheduleContent() {
 							</div>
 						</div>
 					) : user?.academicProgramIds ? (
-						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-md">
+						<div className="rounded-2xl bg-white p-10 text-center text-gray-400 shadow-sm ring-1 ring-black/5">
 							<BookMarked className="mx-auto mb-3 h-12 w-12 opacity-40" />
 							<p className="font-medium">No hay materias disponibles</p>
 							<p className="mt-1 text-sm">
@@ -593,8 +612,9 @@ function ScheduleContent() {
 					{/* Add new schedule button */}
 					<div className="flex justify-end">
 						<button
+							type="button"
 							onClick={() => setShowCurrentForm(!showCurrentForm)}
-							className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] active:scale-95"
+							className="flex items-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-95"
 						>
 							{showCurrentForm ? <X size={16} /> : <Plus size={16} />}
 							{showCurrentForm ? "Cancelar" : "Registrar horario actual"}
@@ -623,7 +643,7 @@ function ScheduleContent() {
 									id="current-period"
 									value={currentPeriod}
 									onChange={(e) => setCurrentPeriod(e.target.value)}
-									className="w-48 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+									className="w-52 appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 								>
 									{periods.map((p) => (
 										<option key={p.id} value={p.id}>
@@ -661,6 +681,7 @@ function ScheduleContent() {
 									<Plus size={14} /> Añadir bloque
 								</button>
 								<button
+									type="button"
 									onClick={saveCurrentSchedule}
 									disabled={savingCurrent}
 									className="group ml-auto flex items-center gap-2.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:opacity-50"
@@ -743,6 +764,7 @@ function TentativeScheduleCard({
 		<div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
 			<div className="flex items-center gap-3 px-5 py-3.5">
 				<button
+					type="button"
 					onClick={onToggle}
 					className="flex flex-1 items-center gap-3 text-left"
 				>
@@ -762,6 +784,7 @@ function TentativeScheduleCard({
 					/>
 				</button>
 				<button
+					type="button"
 					onClick={onDelete}
 					disabled={deleting}
 					className="flex-shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
@@ -841,6 +864,7 @@ function CurrentScheduleCard({
 		<div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-black/5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)]">
 			<div className="flex items-center gap-3 px-6 py-4">
 				<button
+					type="button"
 					onClick={onToggle}
 					className="flex flex-1 items-center gap-3 text-left"
 				>
@@ -860,6 +884,7 @@ function CurrentScheduleCard({
 					/>
 				</button>
 				<button
+					type="button"
 					onClick={onDelete}
 					disabled={deleting}
 					className="flex-shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 disabled:opacity-50"
@@ -990,9 +1015,9 @@ function BlockRow({
 	canRemove: boolean;
 }) {
 	const sel =
-		"px-2 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white";
+		"px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-primary/10 focus:border-primary/40 outline-none bg-white transition-colors";
 	const inp =
-		"px-2 py-1.5 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none w-full";
+		"px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-primary/10 focus:border-primary/40 outline-none w-full transition-colors";
 
 	return (
 		<div className="rounded-xl bg-gray-50 p-3">
@@ -1002,6 +1027,7 @@ function BlockRow({
 				</span>
 				{canRemove && (
 					<button
+						type="button"
 						onClick={() => onRemove(index)}
 						className="ml-auto text-gray-400 hover:text-red-500"
 					>
