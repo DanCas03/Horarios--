@@ -26,8 +26,8 @@ import {
 } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import FloatingActionMenu from "@/components/ui/floating-action-menu";
-import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
+import SpotlightEffect from "@/components/ui/spotlight-effect";
 import { useAuth } from "@/context/auth-context";
 
 interface Period {
@@ -449,14 +449,7 @@ function ScheduleContent() {
 					{/* Subject selection panel */}
 					{available.length > 0 ? (
 						<div className="relative rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
-							<GlowingEffect
-								spread={40}
-								glow={true}
-								disabled={false}
-								proximity={72}
-								inactiveZone={0.01}
-								borderWidth={2}
-							/>
+							<SpotlightEffect />
 							<div className="mb-4 flex items-center justify-between">
 								<div>
 									<h3 className="font-bold text-gray-900">

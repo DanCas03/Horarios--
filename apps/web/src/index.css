@@ -250,6 +250,41 @@ body {
 	}
 }
 
+/* ─── Foco radial de tarjeta (adaptado de UI_prompts/Spotlight.md) ───────── */
+/* Sustituto ligero del borde luminoso: dos capas CSS movidas por las
+   custom properties --spot-x/--spot-y que escribe SpotlightEffect. El halo
+   tiñe el interior y el anillo recorta el mismo gradiente al borde con la
+   pareja de máscaras padding-box/border-box (igual que .gradient-button). */
+.spotlight-halo {
+	background: radial-gradient(
+		280px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+		rgba(229, 156, 36, 0.09),
+		rgba(50, 82, 117, 0.06) 45%,
+		transparent 72%
+	);
+}
+
+.spotlight-border {
+	border: 1.5px solid transparent;
+	background: radial-gradient(
+			240px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+			rgba(229, 156, 36, 0.8),
+			rgba(50, 82, 117, 0.35) 55%,
+			transparent 80%
+		)
+		border-box;
+	mask:
+		linear-gradient(#fff 0 0) padding-box,
+		linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.spotlight-effect {
+		display: none;
+	}
+}
+
 /* ─── CTA con gradiente animado (adaptado de UI_prompts/gradient.md) ─────── */
 /* Radial navy en reposo que desplaza un brillo ámbar desde la esquina
    inferior al hacer hover. Las custom properties registradas con @property
