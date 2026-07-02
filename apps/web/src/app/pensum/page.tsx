@@ -284,6 +284,7 @@ function PensumContent() {
 							>
 								<div className="flex items-center">
 									<button
+										type="button"
 										onClick={() =>
 											setExpandedSemester(isExpanded ? null : semNum)
 										}
@@ -309,6 +310,7 @@ function PensumContent() {
 
 									{canApproveAll && (
 										<button
+											type="button"
 											onClick={(e) => {
 												e.stopPropagation();
 												handleApproveSemester(semNum, semSubjects);
@@ -327,6 +329,7 @@ function PensumContent() {
 									)}
 
 									<button
+										type="button"
 										onClick={() =>
 											setExpandedSemester(isExpanded ? null : semNum)
 										}
@@ -395,6 +398,7 @@ function PensumContent() {
 														<div className="flex flex-shrink-0 items-center gap-2">
 															{isApproved ? (
 																<button
+																	type="button"
 																	onClick={() => handleUnapprove(subject.id)}
 																	disabled={isUnapproving}
 																	title="Deshacer aprobación"
@@ -412,6 +416,7 @@ function PensumContent() {
 																</button>
 															) : (
 																<button
+																	type="button"
 																	onClick={() => handleApprove(subject.id)}
 																	disabled={
 																		!canApprove || approving === subject.id
