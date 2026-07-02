@@ -676,17 +676,32 @@ function ScheduleContent() {
 								</select>
 							</div>
 
-							{/* Blocks */}
-							<div className="mb-4 space-y-3">
-								{blocks.map((block, i) => (
-									<BlockRow
-										key={i}
-										index={i}
-										block={block}
-										onChange={updateBlock}
-										onRemove={removeBlock}
-										canRemove={blocks.length > 1}
+							{/* Bloques unidos por un riel numerado navy→ámbar */}
+							<div className="relative mb-4 space-y-3">
+								{blocks.length > 1 && (
+									<div
+										aria-hidden="true"
+										className="absolute top-6 bottom-6 left-[13px] w-0.5 rounded-full bg-gradient-to-b from-primary/25 via-accent/40 to-transparent"
 									/>
+								)}
+								{blocks.map((block, i) => (
+									<div
+										key={i}
+										className="panel-enter relative flex items-start gap-3"
+									>
+										<span className="z-10 mt-2.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-primary font-bold text-[11px] text-white tabular-nums shadow-[0_2px_10px_rgba(31,54,83,0.35)] ring-4 ring-white">
+											{i + 1}
+										</span>
+										<div className="min-w-0 flex-1">
+											<BlockRow
+												index={i}
+												block={block}
+												onChange={updateBlock}
+												onRemove={removeBlock}
+												canRemove={blocks.length > 1}
+											/>
+										</div>
+									</div>
 								))}
 							</div>
 
@@ -694,9 +709,12 @@ function ScheduleContent() {
 								<button
 									type="button"
 									onClick={addBlock}
-									className="flex items-center gap-1.5 text-primary text-sm hover:underline"
+									className="group flex items-center gap-3 font-medium text-primary text-sm"
 								>
-									<Plus size={14} /> Añadir bloque
+									<span className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-primary/30 border-dashed transition-colors group-hover:border-accent group-hover:bg-accent/10 group-hover:text-accent">
+										<Plus size={13} />
+									</span>
+									Añadir bloque
 								</button>
 								<button
 									type="button"
@@ -1038,21 +1056,17 @@ function BlockRow({
 		"px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:ring-2 focus:ring-primary/10 focus:border-primary/40 outline-none w-full transition-colors";
 
 	return (
-		<div className="rounded-xl bg-gray-50 p-3">
-			<div className="mb-2 flex items-center gap-1">
-				<span className="font-semibold text-gray-500 text-xs">
-					Bloque {index + 1}
-				</span>
-				{canRemove && (
-					<button
-						type="button"
-						onClick={() => onRemove(index)}
-						className="ml-auto text-gray-400 hover:text-red-500"
-					>
-						<X size={13} />
-					</button>
-				)}
-			</div>
+		<div className="relative rounded-xl bg-gray-50 p-3 ring-1 ring-black/[0.03]">
+			{canRemove && (
+				<button
+					type="button"
+					onClick={() => onRemove(index)}
+					aria-label={`Eliminar bloque ${index + 1}`}
+					className="absolute -top-2 -right-2 z-10 rounded-full bg-white p-1.5 text-gray-400 shadow-sm ring-1 ring-black/5 transition-colors hover:text-red-500 hover:ring-red-200"
+				>
+					<X size={12} />
+				</button>
+			)}
 			<div className="grid grid-cols-2 gap-2 md:grid-cols-4">
 				<div>
 					<label
