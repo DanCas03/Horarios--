@@ -368,7 +368,7 @@ export default function ScrollExpandMedia({
 
 					{/* Pista de scroll */}
 					<motion.div
-						className="absolute bottom-10 z-10 flex flex-col items-center gap-2 text-gray-400 transition-none"
+						className="pointer-events-none absolute bottom-10 z-10 flex flex-col items-center gap-2 text-gray-400 transition-none"
 						initial={false}
 						animate={{
 							opacity: expanded ? 0 : Math.max(1 - scrollProgress * 1.6, 0),
