@@ -40,22 +40,22 @@ export default function PreviewCarousel() {
 				</div>
 			</div>
 
-			{/* Flechas */}
+			{/* Flechas: chevrones desnudos con sombra, sin caja de botón */}
 			<button
 				type="button"
 				onClick={() => go(-1)}
 				aria-label="Vista anterior"
-				className="absolute top-1/2 left-3 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-primary shadow-[0_2px_10px_rgba(18,33,53,0.18)] ring-1 ring-black/5 backdrop-blur-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+				className="absolute top-1/2 left-2.5 z-10 -translate-y-1/2 text-primary/70 drop-shadow-[0_2px_5px_rgba(18,33,53,0.35)] transition-all hover:scale-110 hover:text-primary active:scale-90"
 			>
-				<ChevronLeft size={16} />
+				<ChevronLeft size={30} strokeWidth={2.5} />
 			</button>
 			<button
 				type="button"
 				onClick={() => go(1)}
 				aria-label="Vista siguiente"
-				className="absolute top-1/2 right-3 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-primary shadow-[0_2px_10px_rgba(18,33,53,0.18)] ring-1 ring-black/5 backdrop-blur-sm transition-all hover:scale-105 hover:bg-white active:scale-95"
+				className="absolute top-1/2 right-2.5 z-10 -translate-y-1/2 text-primary/70 drop-shadow-[0_2px_5px_rgba(18,33,53,0.35)] transition-all hover:scale-110 hover:text-primary active:scale-90"
 			>
-				<ChevronRight size={16} />
+				<ChevronRight size={30} strokeWidth={2.5} />
 			</button>
 
 			{/* Puntos indicadores */}
