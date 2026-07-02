@@ -1,7 +1,10 @@
 "use client";
 
 import {
+	BookOpen,
+	Calendar,
 	ChevronDown,
+	ClipboardList,
 	Loader2,
 	MessageSquare,
 	PlusCircle,
@@ -10,6 +13,7 @@ import {
 	ThumbsUp,
 	X,
 } from "lucide-react";
+import type { Route } from "next";
 import {
 	type ChangeEvent,
 	type SyntheticEvent,
@@ -30,6 +34,7 @@ import {
 	isTeacherPickerValid,
 	TeacherPicker,
 } from "@/components/reviews/teacher-picker";
+import FloatingActionMenu from "@/components/ui/floating-action-menu";
 import {
 	formatRating,
 	StarRatingDisplay,
@@ -869,6 +874,23 @@ function ReviewsContent() {
 					<p className="mt-1 text-sm">Sé el primero en dejar una reseña</p>
 				</div>
 			) : null}
+
+			{/* Acciones rápidas (UI_prompts/menuBotton.md) */}
+			<FloatingActionMenu
+				actions={[
+					{
+						label: "Reseñar en la encuesta",
+						href: "/encuesta" as Route,
+						Icon: ClipboardList,
+					},
+					{ label: "Ver pensum", href: "/pensum" as Route, Icon: BookOpen },
+					{
+						label: "Armar horario",
+						href: "/schedule" as Route,
+						Icon: Calendar,
+					},
+				]}
+			/>
 		</div>
 	);
 }

@@ -2,16 +2,20 @@
 
 import {
 	BookMarked,
+	BookOpen,
 	Calendar,
 	CheckCircle2,
 	ChevronDown,
+	ClipboardList,
 	Loader2,
 	MapPin,
+	MessageSquare,
 	Plus,
 	Save,
 	Trash2,
 	X,
 } from "lucide-react";
+import type { Route } from "next";
 import { useCallback, useEffect, useState } from "react";
 import {
 	parseApiError,
@@ -20,6 +24,7 @@ import {
 	subjectsAPI,
 } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
+import FloatingActionMenu from "@/components/ui/floating-action-menu";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
@@ -699,6 +704,23 @@ function ScheduleContent() {
 							)}
 				</div>
 			)}
+
+			{/* Acciones rápidas (UI_prompts/menuBotton.md) */}
+			<FloatingActionMenu
+				actions={[
+					{ label: "Ver pensum", href: "/pensum" as Route, Icon: BookOpen },
+					{
+						label: "Ver reseñas",
+						href: "/reviews" as Route,
+						Icon: MessageSquare,
+					},
+					{
+						label: "Actualizar encuesta",
+						href: "/encuesta" as Route,
+						Icon: ClipboardList,
+					},
+				]}
+			/>
 		</div>
 	);
 }

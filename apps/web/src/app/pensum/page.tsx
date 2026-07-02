@@ -3,18 +3,23 @@
 import {
 	Award,
 	BookOpen,
+	Calendar,
 	CheckCircle,
 	CheckSquare,
 	ChevronRight,
 	Circle,
+	ClipboardList,
 	Loader2,
+	MessageSquare,
 	RotateCcw,
 	Target,
 } from "lucide-react";
+import type { Route } from "next";
 import { useEffect, useState } from "react";
 
 import { academicProgramsAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
+import FloatingActionMenu from "@/components/ui/floating-action-menu";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
@@ -446,6 +451,27 @@ function PensumContent() {
 						);
 					})}
 			</div>
+
+			{/* Acciones rápidas (UI_prompts/menuBotton.md) */}
+			<FloatingActionMenu
+				actions={[
+					{
+						label: "Armar horario",
+						href: "/schedule" as Route,
+						Icon: Calendar,
+					},
+					{
+						label: "Ver reseñas",
+						href: "/reviews" as Route,
+						Icon: MessageSquare,
+					},
+					{
+						label: "Actualizar encuesta",
+						href: "/encuesta" as Route,
+						Icon: ClipboardList,
+					},
+				]}
+			/>
 		</div>
 	);
 }
