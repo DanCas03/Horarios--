@@ -10,6 +10,7 @@ import {
 	parseApiError,
 	universitiesAPI,
 } from "@/api/client";
+import FloatingPaths from "@/components/ui/floating-paths";
 import { useAuth } from "@/context/auth-context";
 
 interface University {
@@ -84,7 +85,7 @@ export default function RegisterPage() {
 			return;
 		}
 		if (!selectedUni || !selectedProgram) {
-			setError("Debes seleccionar tu universidad y programa academico");
+			setError("Debes seleccionar tu universidad y programa académico");
 			return;
 		}
 
@@ -123,6 +124,10 @@ export default function RegisterPage() {
 			<div className="pointer-events-none absolute inset-0">
 				<div className="absolute top-1/3 right-1/4 h-[500px] w-[500px] rounded-full bg-accent/15 blur-[100px]" />
 				<div className="absolute bottom-0 left-1/4 h-[400px] w-[400px] rounded-full bg-primary-light/20 blur-[90px]" />
+				{/* Trazos flotantes sutiles (UI_prompts/background.md) */}
+				<div className="absolute inset-0 text-primary opacity-[0.16]">
+					<FloatingPaths position={-1} />
+				</div>
 			</div>
 
 			<div className="relative z-10 w-full max-w-lg">
@@ -149,7 +154,7 @@ export default function RegisterPage() {
 				</div>
 
 				{/* Double-bezel form card */}
-				<div className="rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/8">
+				<div className="panel-enter rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/8">
 					<form
 						onSubmit={handleSubmit}
 						className="space-y-5 rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_0_0_1px_rgba(0,0,0,0.02)]"
@@ -239,7 +244,7 @@ export default function RegisterPage() {
 
 						<div className="border-gray-50 border-t pt-5">
 							<p className="mb-4 font-semibold text-[10px] text-gray-300 uppercase tracking-[0.2em]">
-								Informacion Academica
+								Información Académica
 							</p>
 							<div className="space-y-4">
 								<div>
@@ -297,11 +302,11 @@ export default function RegisterPage() {
 							</div>
 						</div>
 
-						{/* Pill CTA with button-in-button */}
+						{/* Pill CTA con gradiente animado (UI_prompts/gradient.md) */}
 						<button
 							type="submit"
 							disabled={loading || loadingGoogle}
-							className="group mt-2 flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+							className="gradient-button group mt-2 flex w-full items-center justify-center gap-3 rounded-full py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.35),0_6px_20px_rgba(229,156,36,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 						>
 							{loading ? (
 								<>
