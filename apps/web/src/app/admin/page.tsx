@@ -703,6 +703,7 @@ function AdminContent() {
 											Planes de Estudio
 										</h3>
 										<button
+											type="button"
 											onClick={() => {
 												setEditingPlan(null);
 												setPlanName("");
@@ -759,6 +760,7 @@ function AdminContent() {
 																	</span>
 																) : (
 																	<button
+																		type="button"
 																		onClick={(e) => {
 																			e.stopPropagation();
 																			handleToggleActivePlan(plan);
@@ -773,6 +775,7 @@ function AdminContent() {
 
 														<div className="absolute top-3.5 right-3 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
 															<button
+																type="button"
 																onClick={(e) => {
 																	e.stopPropagation();
 																	setEditingPlan(plan);
@@ -786,6 +789,7 @@ function AdminContent() {
 																<Edit size={12} />
 															</button>
 															<button
+																type="button"
 																onClick={(e) => {
 																	e.stopPropagation();
 																	handleDeletePlan(plan.id);
@@ -852,6 +856,7 @@ function AdminContent() {
 														Semestre {term}
 													</span>
 													<button
+														type="button"
 														onClick={() => handleOpenAssignModal(term)}
 														className="flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1 font-bold text-[11px] text-primary transition-all hover:scale-105 active:scale-95"
 													>
@@ -911,6 +916,7 @@ function AdminContent() {
 
 																	<div className="mt-4 flex items-center justify-end gap-1.5 border-gray-50 border-t pt-2.5">
 																		<button
+																			type="button"
 																			onClick={() =>
 																				handleOpenEditAssignModal(ps)
 																			}
@@ -920,6 +926,7 @@ function AdminContent() {
 																			<Edit size={12} />
 																		</button>
 																		<button
+																			type="button"
 																			onClick={() =>
 																				handleDeleteAssignment(ps.id)
 																			}
@@ -967,6 +974,7 @@ function AdminContent() {
 							</div>
 
 							<button
+								type="button"
 								onClick={handleOpenCreateSubjectModal}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-3 font-extrabold text-sm text-white shadow-[0_2px_8px_rgba(31,54,83,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-dark active:scale-95"
 							>
@@ -1042,6 +1050,7 @@ function AdminContent() {
 													<td className="px-4 py-3.5 text-right">
 														<div className="flex items-center justify-end gap-1.5">
 															<button
+																type="button"
 																onClick={() => handleOpenEditSubjectModal(sub)}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
 																title="Editar materia"
@@ -1049,6 +1058,7 @@ function AdminContent() {
 																<Edit size={14} />
 															</button>
 															<button
+																type="button"
 																onClick={() => handleDeleteSubject(sub.id)}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600"
 																title="Eliminar materia"
@@ -1091,6 +1101,7 @@ function AdminContent() {
 							</div>
 
 							<button
+								type="button"
 								onClick={handleOpenCreateUnitModal}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-3 font-extrabold text-sm text-white shadow-[0_2px_8px_rgba(31,54,83,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-dark active:scale-95"
 							>
@@ -1162,6 +1173,7 @@ function AdminContent() {
 													<td className="px-4 py-3.5 text-right">
 														<div className="flex items-center justify-end gap-1.5">
 															<button
+																type="button"
 																onClick={() => handleOpenEditUnitModal(unit)}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
 																title="Editar unidad"
@@ -1169,6 +1181,7 @@ function AdminContent() {
 																<Edit size={14} />
 															</button>
 															<button
+																type="button"
 																onClick={() => handleDeleteUnit(unit.id)}
 																className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-600"
 																title="Eliminar unidad"
@@ -1203,6 +1216,7 @@ function AdminContent() {
 									: "Nuevo Plan de Estudios"}
 							</h3>
 							<button
+								type="button"
 								onClick={() => setShowPlanModal(false)}
 								className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
 							>
@@ -1243,12 +1257,14 @@ function AdminContent() {
 
 						<div className="mt-8 flex justify-end gap-2">
 							<button
+								type="button"
 								onClick={() => setShowPlanModal(false)}
 								className="rounded-xl px-4 py-2 font-bold text-gray-500 text-sm hover:bg-gray-100"
 							>
 								Cancelar
 							</button>
 							<button
+								type="button"
 								onClick={handleSavePlan}
 								disabled={savingPlan || !planName.trim()}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
@@ -1272,6 +1288,7 @@ function AdminContent() {
 									: `Asignar Materia a Semestre ${suggestedTerm}`}
 							</h3>
 							<button
+								type="button"
 								onClick={() => setShowAssignModal(false)}
 								className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
 							>
@@ -1357,6 +1374,7 @@ function AdminContent() {
 									</div>
 									{!editingAssign && (
 										<button
+											type="button"
 											onClick={() => setSelectedSubject(null)}
 											className="font-bold text-red-500 text-xs hover:underline"
 										>
@@ -1435,12 +1453,14 @@ function AdminContent() {
 
 						<div className="mt-8 flex justify-end gap-2">
 							<button
+								type="button"
 								onClick={() => setShowAssignModal(false)}
 								className="rounded-xl px-4 py-2 font-bold text-gray-500 text-sm hover:bg-gray-100"
 							>
 								Cancelar
 							</button>
 							<button
+								type="button"
 								onClick={handleSaveAssignment}
 								disabled={savingAssign || !selectedSubject}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
@@ -1466,6 +1486,7 @@ function AdminContent() {
 								{editingSubject ? "Editar Materia" : "Nueva Materia"}
 							</h3>
 							<button
+								type="button"
 								onClick={() => setShowSubjectModal(false)}
 								className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
 							>
@@ -1622,12 +1643,14 @@ function AdminContent() {
 
 						<div className="mt-8 flex justify-end gap-2">
 							<button
+								type="button"
 								onClick={() => setShowSubjectModal(false)}
 								className="rounded-xl px-4 py-2 font-bold text-gray-500 text-sm hover:bg-gray-100"
 							>
 								Cancelar
 							</button>
 							<button
+								type="button"
 								onClick={handleSaveSubject}
 								disabled={savingSubject || !subCode.trim() || !subName.trim()}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
@@ -1653,6 +1676,7 @@ function AdminContent() {
 									: "Nueva Unidad Académica"}
 							</h3>
 							<button
+								type="button"
 								onClick={() => setShowUnitModal(false)}
 								className="flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
 							>
@@ -1734,12 +1758,14 @@ function AdminContent() {
 
 						<div className="mt-8 flex justify-end gap-2">
 							<button
+								type="button"
 								onClick={() => setShowUnitModal(false)}
 								className="rounded-xl px-4 py-2 font-bold text-gray-500 text-sm hover:bg-gray-100"
 							>
 								Cancelar
 							</button>
 							<button
+								type="button"
 								onClick={handleSaveUnit}
 								disabled={savingUnit || !unitName.trim()}
 								className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-2 font-bold text-sm text-white transition-all hover:bg-primary-dark disabled:opacity-50"
