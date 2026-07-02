@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
 	BookMarked,
 	BookOpen,
@@ -25,6 +26,7 @@ import {
 } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import FloatingActionMenu from "@/components/ui/floating-action-menu";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
@@ -405,25 +407,36 @@ function ScheduleContent() {
 				</p>
 			</div>
 
-			{/* Tabs */}
+			{/* Tabs con píldora deslizante */}
 			<div className="mb-8 flex w-fit gap-3 rounded-2xl border border-white/60 bg-white/50 p-1.5 shadow-[0_4px_20px_rgb(0,0,0,0.03)] backdrop-blur-md">
 				{(["tentative", "current"] as const).map((tab) => (
 					<button
 						key={tab}
 						type="button"
 						onClick={() => setActiveTab(tab)}
-						className={`flex items-center gap-2 rounded-xl px-6 py-2.5 font-semibold text-sm transition-all duration-300 ${
+						className={`relative flex items-center gap-2 rounded-xl px-6 py-2.5 font-semibold text-sm transition-colors duration-300 ${
 							activeTab === tab
-								? "bg-white text-primary shadow-sm ring-1 ring-black/5"
+								? "text-primary"
 								: "text-gray-500 hover:bg-white/50 hover:text-gray-900"
 						}`}
 					>
-						{tab === "tentative" ? (
-							<ClipboardList size={15} />
-						) : (
-							<Calendar size={15} />
+						{activeTab === tab && (
+							<motion.span
+								layoutId="schedule-tab-pill"
+								className="absolute inset-0 rounded-xl bg-white shadow-sm ring-1 ring-black/5"
+								transition={{ type: "spring", stiffness: 400, damping: 32 }}
+							/>
 						)}
-						{tab === "tentative" ? "Planificación Tentativa" : "Horario Actual"}
+						<span className="relative z-10 flex items-center gap-2">
+							{tab === "tentative" ? (
+								<ClipboardList size={15} />
+							) : (
+								<Calendar size={15} />
+							)}
+							{tab === "tentative"
+								? "Planificación Tentativa"
+								: "Horario Actual"}
+						</span>
 					</button>
 				))}
 			</div>
@@ -435,7 +448,15 @@ function ScheduleContent() {
 				<div key="tentative-tab" className="tab-content space-y-6">
 					{/* Subject selection panel */}
 					{available.length > 0 ? (
-						<div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+						<div className="relative rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+							<GlowingEffect
+								spread={40}
+								glow={true}
+								disabled={false}
+								proximity={72}
+								inactiveZone={0.01}
+								borderWidth={2}
+							/>
 							<div className="mb-4 flex items-center justify-between">
 								<div>
 									<h3 className="font-bold text-gray-900">
