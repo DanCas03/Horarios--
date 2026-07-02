@@ -51,7 +51,9 @@ const isInsideScrolledLayer = (target: EventTarget | null) => {
  * superficie clara y el `panel` aparece centrado dentro del mismo marco,
  * con el título encogido como encabezado; (3) opcionalmente el `altPanel`
  * reemplaza al panel mediante cross-fade; (4) con `compact` el marco se
- * contrae a una barra delgada arriba y `children` fluye debajo. La
+ * contrae a una barra delgada arriba, `children` fluye debajo y el gesto
+ * de salida por scroll-up queda desactivado (solo aplica mientras el
+ * marco sigue expandido). La
  * posición centrada del marco no cambia nunca: en la escena 4 es el
  * contenedor el que encoge su altura. El título usa mix-blend-difference
  * directamente en el h1 (sin ancestro posicionado/transformado, que
@@ -113,9 +115,12 @@ export default function ScrollExpandMedia({
 			}
 		};
 
+		// Una vez compactado (escena 4) el gesto de salida queda desactivado:
+		// subir al tope de los resultados no debe volver a inflar el marco
 		const onWheel = (e: WheelEvent) => {
 			if (
 				expanded &&
+				!compact &&
 				e.deltaY < 0 &&
 				window.scrollY <= 5 &&
 				!isInsideScrolledLayer(e.target)
@@ -138,6 +143,7 @@ export default function ScrollExpandMedia({
 			const deltaY = touchStartY.current - touch.clientY;
 			if (
 				expanded &&
+				!compact &&
 				deltaY < -20 &&
 				window.scrollY <= 5 &&
 				!isInsideScrolledLayer(e.target)
@@ -173,7 +179,7 @@ export default function ScrollExpandMedia({
 			window.removeEventListener("touchmove", onTouchMove);
 			window.removeEventListener("touchend", onTouchEnd);
 		};
-	}, [scrollProgress, expanded, reduceMotion]);
+	}, [scrollProgress, expanded, compact, reduceMotion]);
 
 	useEffect(() => {
 		const check = () =>

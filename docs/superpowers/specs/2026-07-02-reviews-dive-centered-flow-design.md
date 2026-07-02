@@ -68,7 +68,7 @@ Se activa automáticamente cuando una búsqueda lanzada desde la Escena 2 termin
 - El encogimiento del título (grande → encabezado pequeño) mantiene el `mix-blend-difference` en el propio elemento de texto; se revisa que ningún ancestro nuevo introducido en esta escena tenga `position`+`z-index`, `opacity<1`, `transform`, `filter` o `isolation`, para no repetir el bug ya resuelto en el título del dive.
 - La contracción del marco a barra compactada (Escena 4) es un cambio real de `width`/`height` (no solo de contenido) y debe dispararse por el cambio de estado `loading: true → false` tras una búsqueda, no por un gesto de scroll del usuario.
 - Con `prefers-reduced-motion`, el flujo se muestra directamente en el estado final relevante (buscador visible dentro del marco expandido, sin inmersión animada), igual que ya hace el componente hoy para `expanded`/`showContent`.
-- Debe seguir siendo posible salir de la inmersión (gesto de scroll-up en la parte superior) desde cualquier escena — 2, 3 o incluso ya compactado en 4 — sin quedar en un estado intermedio roto; al volver a expandir, se restaura la escena que corresponda según si ya hay una búsqueda activa o no.
+- Debe seguir siendo posible salir de la inmersión (gesto de scroll-up en la parte superior) mientras el marco siga expandido (Escenas 2 y 3), sin quedar en un estado intermedio roto; al volver a expandir, se restaura la escena que corresponda según si ya hay una búsqueda activa o no. **Ajuste post-implementación (2026-07-02):** una vez compactado el marco (Escena 4), el gesto de salida se desactiva — subir al tope de los resultados para leer las primeras reseñas no debe volver a inflar el marco.
 
 ## Qué componentes/archivos cambian
 
@@ -79,7 +79,7 @@ Se activa automáticamente cuando una búsqueda lanzada desde la Escena 2 termin
 
 ## Casos borde
 
-- **Salir de la inmersión desde cualquier escena** (gesto de scroll-up arriba de todo): debe volver a la escena correspondiente al re-expandir (si ya había una búsqueda activa, vuelve directamente compactado a Escena 4; si no, a Escena 2).
+- **Salir de la inmersión** (gesto de scroll-up arriba de todo, disponible solo en Escenas 2 y 3): debe volver a la escena correspondiente al re-expandir (si ya había una búsqueda activa, vuelve directamente compactado a Escena 4; si no, a Escena 2). Ya compactado en Escena 4, el gesto queda desactivado.
 - **Nueva búsqueda desde la barra compactada**: no debe volver a inflar el marco a pantalla completa mientras carga.
 - **Cero resultados**: cuenta como búsqueda resuelta igual que con resultados — dispara la compactación (Escena 4) y muestra el estado vacío debajo, como ya ocurre hoy.
 - **Usuario sin sesión**: el botón "Escribir Reseña" no se muestra en la Escena 2 ni en la barra compactada, igual que hoy.
