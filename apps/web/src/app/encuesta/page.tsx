@@ -5,6 +5,7 @@ import {
 	Check,
 	ChevronDown,
 	ClipboardCheck,
+	Lock,
 	MessageSquare,
 	PlusCircle,
 } from "lucide-react";
@@ -168,7 +169,7 @@ function SubjectCombobox({
 					placeholder={
 						options.length > 0 ? "Buscar materia cursada..." : "Ej: MAT-1115"
 					}
-					className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-8 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+					className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 pr-8 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 				/>
 				<ChevronDown
 					size={15}
@@ -299,7 +300,7 @@ function SingleReviewForm({
 						required
 						value={form.period}
 						onChange={(e) => onUpdate(form.id, { period: e.target.value })}
-						className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+						className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 					>
 						{periods.map((p) => (
 							<option key={p.id} value={p.id}>
@@ -364,7 +365,7 @@ function SingleReviewForm({
 			{/* Recommend */}
 			<div className="flex items-center gap-3">
 				<span className="font-medium text-gray-700 text-sm">
-					Recomiendas esta materia?
+					¿Recomiendas esta materia?
 				</span>
 				<button
 					type="button"
@@ -377,7 +378,7 @@ function SingleReviewForm({
 							: "bg-red-100 text-red-700 hover:bg-red-200"
 					}`}
 				>
-					{form.would_recommend ? "Si" : "No"}
+					{form.would_recommend ? "Sí" : "No"}
 				</button>
 			</div>
 
@@ -395,13 +396,16 @@ function SingleReviewForm({
 					value={form.comment}
 					onChange={(e) => onUpdate(form.id, { comment: e.target.value })}
 					rows={3}
-					className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+					className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 					placeholder="Comparte tu experiencia con la materia..."
 				/>
-				<p className="mt-1.5 font-medium text-[11px] text-gray-400 leading-normal">
-					🔒 Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita
-					insultar o ser malicioso, ya que dañará la encuesta y podría conllevar
-					la inhabilitación de tu perfil.
+				<p className="mt-1.5 flex items-start gap-1.5 font-medium text-[11px] text-gray-400 leading-normal">
+					<Lock size={12} className="mt-0.5 flex-shrink-0 text-gray-300" />
+					<span>
+						Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita
+						insultar o ser malicioso, ya que dañará la encuesta y podría
+						conllevar la inhabilitación de tu perfil.
+					</span>
 				</p>
 			</div>
 
@@ -429,7 +433,7 @@ function SingleReviewForm({
 							value={form.tips}
 							onChange={(e) => onUpdate(form.id, { tips: e.target.value })}
 							rows={2}
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+							className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 							placeholder="Consejos para quien vaya a cursar esta materia..."
 						/>
 					</div>
@@ -447,8 +451,8 @@ function SingleReviewForm({
 								onUpdate(form.id, { study_strategy: e.target.value })
 							}
 							rows={2}
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-							placeholder="Como estudiaste para pasarla?"
+							className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
+							placeholder="¿Cómo estudiaste para pasarla?"
 						/>
 					</div>
 				</div>
@@ -470,7 +474,7 @@ function SingleReviewForm({
 							notFoundTeacherNames: form.notFoundTeacherNames || "",
 						})
 					}
-					className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+					className="gradient-button group flex w-full items-center justify-center gap-2 rounded-full py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.35),0_6px_20px_rgba(229,156,36,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
 					{form.saving ? (
 						<>
@@ -734,19 +738,19 @@ function EncuestaContent() {
 						<ClipboardCheck className="h-10 w-10 text-green-600" />
 					</div>
 					<h1 className="font-extrabold text-2xl text-gray-900 tracking-tight sm:text-3xl">
-						Gracias por tu contribución!
+						¡Gracias por tu contribución!
 					</h1>
 					<p className="mx-auto mt-4 max-w-md text-gray-500">
 						Tus reseñas ayudaran a otros estudiantes a tomar mejores decisiones.
 						Guardaste {savedCount} reseña{savedCount !== 1 ? "s" : ""} en esta
 						sesión.
 					</p>
-					<a
+					<Link
 						href="/"
-						className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+						className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98]"
 					>
 						Volver al inicio
-					</a>
+					</Link>
 				</div>
 			</div>
 		);
@@ -844,7 +848,8 @@ function EncuestaContent() {
 									href="/encuesta/onboarding?edit=true"
 									className="inline-flex items-center gap-1.5 rounded-full bg-amber-600 px-5 py-2 font-semibold text-white text-xs shadow-[0_4px_12px_rgba(217,119,6,0.3)] transition-all hover:bg-amber-700 active:scale-[0.98]"
 								>
-									+ Modificar materias cursadas
+									<PlusCircle size={13} />
+									Modificar materias cursadas
 								</Link>
 							</div>
 						</div>
@@ -911,7 +916,8 @@ function EncuestaContent() {
 						href="/encuesta/onboarding?edit=true"
 						className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-sm transition-all hover:-translate-y-0.5 active:scale-[0.98]"
 					>
-						+ Modificar materias cursadas
+						<PlusCircle size={14} />
+						Modificar materias cursadas
 					</Link>
 				</div>
 			) : (

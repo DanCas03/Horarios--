@@ -151,14 +151,16 @@ function OnboardingContent() {
 		<div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
 			{/* Header */}
 			<div className="mb-10 text-center">
-				<div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-					<BookOpen className="h-7 w-7 text-primary" />
+				<div className="mx-auto mb-6 w-fit rounded-[1.25rem] bg-black/[0.04] p-1.5 ring-1 ring-black/8">
+					<div className="flex h-14 w-14 items-center justify-center rounded-[calc(1.25rem-0.375rem)] bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] ring-1 ring-black/5">
+						<BookOpen className="h-7 w-7 text-primary" />
+					</div>
 				</div>
 				<h1 className="font-extrabold text-2xl text-gray-900 tracking-tight sm:text-3xl">
 					Selecciona tus materias cursadas
 				</h1>
 				<p className="mt-3 text-gray-500 text-sm">
-					Marca las materias que ya aprobaste. Solo podras hacer reseñas de
+					Marca las materias que ya aprobaste. Solo podrás hacer reseñas de
 					estas materias.
 				</p>
 				<button
@@ -191,7 +193,7 @@ function OnboardingContent() {
 						onClick={() => setSelectedIds(new Set())}
 						className="font-medium text-primary text-xs hover:underline"
 					>
-						Limpiar seleccion
+						Limpiar selección
 					</button>
 				)}
 			</div>
@@ -237,10 +239,11 @@ function OnboardingContent() {
 								<button
 									type="button"
 									onClick={() => toggleSemester(semSubjects)}
-									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${allSelected
+									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${
+										allSelected
 											? "bg-primary/10 text-primary"
 											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
-										}`}
+									}`}
 								>
 									{allSelected ? "Deseleccionar" : "Seleccionar todo"}
 								</button>
@@ -256,16 +259,18 @@ function OnboardingContent() {
 												type="button"
 												key={subject.id}
 												onClick={() => toggleSubject(subject.id)}
-												className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${isSelected
+												className={`mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
+													isSelected
 														? "bg-green-50 ring-1 ring-green-600/10"
 														: "hover:bg-gray-50"
-													}`}
+												}`}
 											>
 												<div
-													className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${isSelected
+													className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all ${
+														isSelected
 															? "border-green-600 bg-green-600"
 															: "border-gray-300"
-														}`}
+													}`}
 												>
 													{isSelected && (
 														<Check size={12} className="text-white" />
@@ -304,7 +309,7 @@ function OnboardingContent() {
 					type="button"
 					onClick={handleSubmit}
 					disabled={submitting || selectedIds.size === 0}
-					className="group flex items-center gap-3 rounded-full bg-primary px-8 py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+					className="gradient-button group flex items-center gap-3 rounded-full px-8 py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.35),0_6px_20px_rgba(229,156,36,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
 					{submitting ? (
 						<>
