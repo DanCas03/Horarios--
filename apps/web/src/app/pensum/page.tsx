@@ -1,20 +1,27 @@
 "use client";
 
+import { useReducedMotion } from "framer-motion";
 import {
 	Award,
 	BookOpen,
+	Calendar,
 	CheckCircle,
 	CheckSquare,
 	ChevronRight,
 	Circle,
+	ClipboardList,
 	Loader2,
+	MessageSquare,
 	RotateCcw,
 	Target,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import type { Route } from "next";
+import { useEffect, useRef, useState } from "react";
 
 import { academicProgramsAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
+import FloatingActionMenu from "@/components/ui/floating-action-menu";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
@@ -137,6 +144,42 @@ function PensumContent() {
 	const progress =
 		totalCredits > 0 ? Math.round((approvedCredits / totalCredits) * 100) : 0;
 
+	// Barra y contador animados: se llenan al montar y al (des)aprobar materias
+	const reduceMotion = useReducedMotion();
+	const [barMounted, setBarMounted] = useState(false);
+	const [displayProgress, setDisplayProgress] = useState(0);
+	const shownProgressRef = useRef(0);
+
+	useEffect(() => {
+		const id = requestAnimationFrame(() => setBarMounted(true));
+		return () => cancelAnimationFrame(id);
+	}, []);
+
+	useEffect(() => {
+		const from = shownProgressRef.current;
+		if (from === progress) return;
+		if (reduceMotion) {
+			shownProgressRef.current = progress;
+			setDisplayProgress(progress);
+			return;
+		}
+		const start = performance.now();
+		const duration = 1200;
+		let raf = 0;
+		const tick = (now: number) => {
+			const t = Math.min((now - start) / duration, 1);
+			const eased = 1 - (1 - t) ** 3;
+			const value = Math.round(from + (progress - from) * eased);
+			shownProgressRef.current = value;
+			setDisplayProgress(value);
+			if (t < 1) raf = requestAnimationFrame(tick);
+		};
+		raf = requestAnimationFrame(tick);
+		return () => cancelAnimationFrame(raf);
+	}, [progress, reduceMotion]);
+
+	const barWidth = reduceMotion || barMounted ? progress : 0;
+
 	if (!user?.academicProgramIds?.length) {
 		return (
 			<div className="mx-auto max-w-4xl px-4 py-24 text-center">
@@ -174,9 +217,17 @@ function PensumContent() {
 				</h1>
 				<p className="font-medium text-gray-400">{program?.name}</p>
 			</div>
-			{/* Progress card — double-bezel */}
-			<div className="mb-10 rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
-				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+			{/* Progress card — double-bezel con borde luminoso (UI_prompts/Glowing.md) */}
+			<div className="relative mb-10 rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
+				<GlowingEffect
+					spread={40}
+					glow={true}
+					disabled={false}
+					proximity={72}
+					inactiveZone={0.01}
+					borderWidth={2}
+				/>
+				<div className="relative rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
 					<div className="mb-5 flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/[0.08] ring-1 ring-accent/15">
@@ -186,15 +237,35 @@ function PensumContent() {
 								Progreso Académico
 							</span>
 						</div>
-						<span className="font-bold text-2xl text-gray-900 tracking-tighter">
-							{progress}%
+						<span className="font-extrabold text-3xl text-primary tabular-nums tracking-tighter">
+							{displayProgress}
+							<span className="ml-0.5 font-bold text-accent text-lg">%</span>
 						</span>
 					</div>
-					<div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-black/5 ring-inset">
+					{/* Barra con gradiente de la marca, brillo periódico y cabeza luminosa */}
+					<div className="relative h-5 w-full rounded-full bg-primary/[0.06] ring-1 ring-black/5 ring-inset">
+						{[25, 50, 75].map((tick) => (
+							<span
+								key={tick}
+								aria-hidden="true"
+								className="absolute top-1/2 h-2 w-px -translate-y-1/2 rounded-full bg-primary/15"
+								style={{ left: `${tick}%` }}
+							/>
+						))}
 						<div
-							className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-[1200ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
-							style={{ width: `${progress}%` }}
-						/>
+							className="absolute inset-y-0 left-0 transition-[width] duration-[1500ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+							style={{ width: `${barWidth}%` }}
+						>
+							<div className="progress-fill relative h-full w-full overflow-hidden rounded-full">
+								<span aria-hidden="true" className="progress-shimmer" />
+							</div>
+							{progress > 0 && (
+								<span
+									aria-hidden="true"
+									className="absolute top-1/2 right-0 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_rgba(229,156,36,0.9)] ring-2 ring-accent"
+								/>
+							)}
+						</div>
 					</div>
 					<div className="mt-3 flex justify-between font-semibold text-[11px] text-gray-400 uppercase tracking-wider">
 						<span>
@@ -238,8 +309,16 @@ function PensumContent() {
 				].map((stat) => (
 					<div
 						key={stat.label}
-						className="rounded-[1.5rem] bg-black/[0.02] p-1.5 ring-1 ring-black/5"
+						className="relative rounded-[1.5rem] bg-black/[0.02] p-1.5 ring-1 ring-black/5"
 					>
+						<GlowingEffect
+							spread={32}
+							glow={true}
+							disabled={false}
+							proximity={48}
+							inactiveZone={0.01}
+							borderWidth={2}
+						/>
 						<div
 							className={`rounded-[calc(1.5rem-0.375rem)] ${stat.bg} p-5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] ring-1 transition-transform duration-300 hover:-translate-y-0.5`}
 						>
@@ -279,6 +358,7 @@ function PensumContent() {
 							>
 								<div className="flex items-center">
 									<button
+										type="button"
 										onClick={() =>
 											setExpandedSemester(isExpanded ? null : semNum)
 										}
@@ -304,6 +384,7 @@ function PensumContent() {
 
 									{canApproveAll && (
 										<button
+											type="button"
 											onClick={(e) => {
 												e.stopPropagation();
 												handleApproveSemester(semNum, semSubjects);
@@ -322,6 +403,7 @@ function PensumContent() {
 									)}
 
 									<button
+										type="button"
 										onClick={() =>
 											setExpandedSemester(isExpanded ? null : semNum)
 										}
@@ -390,6 +472,7 @@ function PensumContent() {
 														<div className="flex flex-shrink-0 items-center gap-2">
 															{isApproved ? (
 																<button
+																	type="button"
 																	onClick={() => handleUnapprove(subject.id)}
 																	disabled={isUnapproving}
 																	title="Deshacer aprobación"
@@ -407,6 +490,7 @@ function PensumContent() {
 																</button>
 															) : (
 																<button
+																	type="button"
 																	onClick={() => handleApprove(subject.id)}
 																	disabled={
 																		!canApprove || approving === subject.id
@@ -446,6 +530,27 @@ function PensumContent() {
 						);
 					})}
 			</div>
+
+			{/* Acciones rápidas (UI_prompts/menuBotton.md) */}
+			<FloatingActionMenu
+				actions={[
+					{
+						label: "Armar horario",
+						href: "/schedule" as Route,
+						Icon: Calendar,
+					},
+					{
+						label: "Ver reseñas",
+						href: "/reviews" as Route,
+						Icon: MessageSquare,
+					},
+					{
+						label: "Actualizar encuesta",
+						href: "/encuesta" as Route,
+						Icon: ClipboardList,
+					},
+				]}
+			/>
 		</div>
 	);
 }

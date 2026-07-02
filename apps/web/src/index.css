@@ -37,6 +37,17 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── iOS (WebKit táctil): evitar zoom automático al enfocar formularios ── */
+/* Safari/Chrome en iOS hacen zoom cuando un control tiene fuente < 16px,
+   dejando las tarjetas recortadas horizontalmente. 16px como piso. */
+@supports (-webkit-touch-callout: none) {
+	input,
+	select,
+	textarea {
+		font-size: max(16px, 1em);
+	}
+}
+
 /* ─── Spring physics timing — never linear or ease-in-out ───────────────── */
 * {
 	transition-property:
@@ -45,6 +56,39 @@ body {
 	transition-duration: 400ms;
 	transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
+
+/* ─── Focus visible — ámbar oscurecido: legible sobre blanco y sobre navy ── */
+:focus-visible {
+	outline: 2px solid #b97a10;
+	outline-offset: 2px;
+}
+
+/* ─── Selección de texto con el acento de la marca ───────────────────────── */
+::selection {
+	background-color: rgba(229, 156, 36, 0.3);
+}
+
+/* ─── Reduced motion: contenido visible al instante, sin desplazamientos ── */
+/* biome-ignore-start lint/complexity/noImportantStyles: la preferencia de
+   accesibilidad debe ganar a cualquier especificidad (clases de animación,
+   utilidades de transición). */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+	}
+
+	.reveal {
+		opacity: 1;
+		transform: none;
+		filter: none;
+	}
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: fin del bloque */
 
 /* ─── Scroll entry animation system ─────────────────────────────────────── */
 @keyframes fade-up {
@@ -118,9 +162,11 @@ body {
 	}
 }
 
+/* Sin `forwards` ni `will-change` permanentes: el keyframe final coincide con
+   el estado natural, y una capa compuesta persistente recorta los dropdowns
+   absolutos en WebKit (iOS). */
 .panel-enter {
-	animation: panel-in 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-	will-change: transform, opacity;
+	animation: panel-in 450ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ─── Tab content fade-up ────────────────────────────────────────────────── */
@@ -136,8 +182,316 @@ body {
 }
 
 .tab-content {
-	animation: tab-fade-in 380ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
-	will-change: transform, opacity;
+	animation: tab-fade-in 380ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Trazos flotantes (adaptado de UI_prompts/background.md) ────────────── */
+/* pathLength={1} normaliza la longitud del trazo: el dasharray suma 1 y el
+   offset -1 completa un periodo exacto, así el bucle nunca salta al
+   reiniciar. Animación CSS pura: no compite con la transición universal. */
+.floating-path {
+	stroke-dasharray: 0.36 0.64;
+	animation: floating-dash var(--float-duration, 20s) linear infinite;
+	animation-delay: var(--float-delay, 0s);
+}
+
+@keyframes floating-dash {
+	to {
+		stroke-dashoffset: -1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.floating-path {
+		animation: none;
+		stroke-dasharray: none;
+	}
+}
+
+/* ─── Barra de progreso del pensum ───────────────────────────────────────── */
+/* El gradiente vive en el propio relleno: al comprimirse con porcentajes
+   bajos, la punta siempre termina en ámbar. El brillo barre el relleno de
+   forma periódica con una pausa entre pasadas. */
+.progress-fill {
+	background: linear-gradient(
+		90deg,
+		#122135,
+		#1f3653 30%,
+		#325275 55%,
+		#b97a10 82%,
+		#e59c24 100%
+	);
+}
+
+.progress-shimmer {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		115deg,
+		transparent 25%,
+		rgba(255, 255, 255, 0.35) 50%,
+		transparent 75%
+	);
+	transform: translateX(-100%);
+	animation: progress-shimmer 3.2s cubic-bezier(0.32, 0.72, 0, 1) infinite;
+}
+
+@keyframes progress-shimmer {
+	55%,
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.progress-shimmer {
+		animation: none;
+		opacity: 0;
+	}
+}
+
+/* ─── Orbes del hero de inmersión (fondo de marca de /reviews) ───────────── */
+/* Deriva lenta con transform puro (composited, sin repintados). Duraciones
+   y sentidos distintos por orbe para que el fondo nunca se sienta en bucle.
+   Las animaciones CSS ganan a la transición universal, así que no pelean. */
+.hero-orb {
+	animation: hero-orb-drift var(--orb-duration, 16s) ease-in-out infinite
+		alternate;
+}
+
+.hero-orb-slow {
+	--orb-duration: 24s;
+}
+
+.hero-orb-reverse {
+	--orb-duration: 19s;
+	animation-direction: alternate-reverse;
+}
+
+@keyframes hero-orb-drift {
+	from {
+		transform: translate3d(-4%, 3%, 0) scale(1);
+	}
+	to {
+		transform: translate3d(6%, -5%, 0) scale(1.18);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.hero-orb {
+		animation: none;
+	}
+}
+
+/* ─── Foco radial de tarjeta (adaptado de UI_prompts/Spotlight.md) ───────── */
+/* Sustituto ligero del borde luminoso: dos capas CSS movidas por las
+   custom properties --spot-x/--spot-y que escribe SpotlightEffect. El halo
+   tiñe el interior y el anillo recorta el mismo gradiente al borde con la
+   pareja de máscaras padding-box/border-box (igual que .gradient-button). */
+.spotlight-halo {
+	background: radial-gradient(
+		280px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+		rgba(229, 156, 36, 0.09),
+		rgba(50, 82, 117, 0.06) 45%,
+		transparent 72%
+	);
+}
+
+.spotlight-border {
+	border: 1.5px solid transparent;
+	background: radial-gradient(
+			240px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+			rgba(229, 156, 36, 0.8),
+			rgba(50, 82, 117, 0.35) 55%,
+			transparent 80%
+		)
+		border-box;
+	mask:
+		linear-gradient(#fff 0 0) padding-box,
+		linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.spotlight-effect {
+		display: none;
+	}
+}
+
+/* ─── CTA con gradiente animado (adaptado de UI_prompts/gradient.md) ─────── */
+/* Radial navy en reposo que desplaza un brillo ámbar desde la esquina
+   inferior al hacer hover. Las custom properties registradas con @property
+   permiten interpolar el gradiente; sin soporte, el cambio es instantáneo. */
+@property --pos-x {
+	syntax: "<percentage>";
+	initial-value: 11%;
+	inherits: false;
+}
+
+@property --pos-y {
+	syntax: "<percentage>";
+	initial-value: 140%;
+	inherits: false;
+}
+
+@property --spread-x {
+	syntax: "<percentage>";
+	initial-value: 150%;
+	inherits: false;
+}
+
+@property --spread-y {
+	syntax: "<percentage>";
+	initial-value: 180%;
+	inherits: false;
+}
+
+@property --gradient-1 {
+	syntax: "<color>";
+	initial-value: #122135;
+	inherits: false;
+}
+
+@property --gradient-2 {
+	syntax: "<color>";
+	initial-value: #16283f;
+	inherits: false;
+}
+
+@property --gradient-3 {
+	syntax: "<color>";
+	initial-value: #1f3653;
+	inherits: false;
+}
+
+@property --gradient-4 {
+	syntax: "<color>";
+	initial-value: #2a4666;
+	inherits: false;
+}
+
+@property --gradient-5 {
+	syntax: "<color>";
+	initial-value: #325275;
+	inherits: false;
+}
+
+@property --border-angle {
+	syntax: "<angle>";
+	initial-value: 20deg;
+	inherits: true;
+}
+
+@property --border-color-1 {
+	syntax: "<color>";
+	initial-value: hsla(213, 30%, 80%, 0.25);
+	inherits: true;
+}
+
+@property --border-color-2 {
+	syntax: "<color>";
+	initial-value: hsla(38, 73%, 52%, 0.45);
+	inherits: true;
+}
+
+@property --stop-1 {
+	syntax: "<percentage>";
+	initial-value: 37%;
+	inherits: false;
+}
+
+@property --stop-2 {
+	syntax: "<percentage>";
+	initial-value: 61%;
+	inherits: false;
+}
+
+@property --stop-3 {
+	syntax: "<percentage>";
+	initial-value: 78%;
+	inherits: false;
+}
+
+@property --stop-4 {
+	syntax: "<percentage>";
+	initial-value: 90%;
+	inherits: false;
+}
+
+@property --stop-5 {
+	syntax: "<percentage>";
+	initial-value: 100%;
+	inherits: false;
+}
+
+.gradient-button {
+	position: relative;
+	appearance: none;
+	cursor: pointer;
+	background: radial-gradient(
+		var(--spread-x) var(--spread-y) at var(--pos-x) var(--pos-y),
+		var(--gradient-1) var(--stop-1),
+		var(--gradient-2) var(--stop-2),
+		var(--gradient-3) var(--stop-3),
+		var(--gradient-4) var(--stop-4),
+		var(--gradient-5) var(--stop-5)
+	);
+	transition:
+		--pos-x 0.5s,
+		--pos-y 0.5s,
+		--spread-x 0.5s,
+		--spread-y 0.5s,
+		--gradient-1 0.5s,
+		--gradient-2 0.5s,
+		--gradient-3 0.5s,
+		--gradient-4 0.5s,
+		--gradient-5 0.5s,
+		--border-angle 0.5s,
+		--border-color-1 0.5s,
+		--border-color-2 0.5s,
+		--stop-1 0.5s,
+		--stop-2 0.5s,
+		--stop-3 0.5s,
+		--stop-4 0.5s,
+		--stop-5 0.5s;
+}
+
+.gradient-button::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	padding: 1px;
+	background: linear-gradient(
+		var(--border-angle),
+		var(--border-color-1),
+		var(--border-color-2)
+	);
+	mask:
+		linear-gradient(#fff 0 0) content-box,
+		linear-gradient(#fff 0 0);
+	mask-composite: exclude;
+	pointer-events: none;
+}
+
+.gradient-button:hover:not(:disabled) {
+	--pos-x: 0%;
+	--pos-y: 92%;
+	--spread-x: 120%;
+	--spread-y: 103%;
+	--gradient-1: #f2b75c;
+	--gradient-2: #e59c24;
+	--gradient-3: #9a6d2c;
+	--gradient-4: #2a4666;
+	--gradient-5: #122135;
+	--border-angle: 190deg;
+	--border-color-1: hsla(38, 85%, 80%, 0.2);
+	--border-color-2: hsla(38, 85%, 70%, 0.7);
+	--stop-1: 0%;
+	--stop-2: 9%;
+	--stop-3: 21%;
+	--stop-4: 71%;
+	--stop-5: 86%;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────────────────── */

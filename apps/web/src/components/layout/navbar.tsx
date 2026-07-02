@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
 	BookOpen,
 	Calendar,
@@ -10,7 +11,7 @@ import {
 } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 import Logo from "@/components/logo";
@@ -25,6 +26,7 @@ const NAV_LINKS = [
 
 function NavbarContent() {
 	const { user, logout } = useAuth();
+	const pathname = usePathname();
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [mobileOpen, setMobileOpen] = useState(false);
@@ -99,12 +101,41 @@ function NavbarContent() {
 										</span>
 									);
 								}
+								const isActive =
+									pathname === href || pathname.startsWith(`${href}/`);
 								return (
 									<Link
 										key={href}
 										href={href}
-										className={`rounded-full px-4 py-1.5 font-medium text-sm transition-all duration-300 hover:bg-white/15 active:scale-95 ${scrolled ? "text-gray-700 hover:bg-primary/8 hover:text-primary" : "text-white/80 hover:text-white"}`}
+										className={`relative rounded-full px-4 py-1.5 font-medium text-sm transition-all duration-300 active:scale-95 ${
+											isActive
+												? scrolled
+													? "text-primary"
+													: "text-white"
+												: scrolled
+													? "text-gray-700 hover:bg-primary/8 hover:text-primary"
+													: "text-white/80 hover:bg-white/15 hover:text-white"
+										}`}
 									>
+										{isActive && (
+											<motion.span
+												layoutId="nav-lamp"
+												initial={false}
+												transition={{
+													type: "tween",
+													duration: 0.4,
+													ease: [0.32, 0.72, 0, 1],
+												}}
+												className={`absolute inset-0 -z-10 rounded-full transition-none ${scrolled ? "bg-primary/8" : "bg-white/15"}`}
+											>
+												{/* Tubo de luz con su destello sobre el borde */}
+												<span className="absolute -top-2.5 left-1/2 h-1 w-8 -translate-x-1/2 rounded-t-full bg-accent">
+													<span className="absolute -top-2 -left-2 h-6 w-12 rounded-full bg-accent/25 blur-md" />
+													<span className="absolute -top-1 h-6 w-8 rounded-full bg-accent/25 blur-md" />
+													<span className="absolute top-0 left-2 h-4 w-4 rounded-full bg-accent/30 blur-sm" />
+												</span>
+											</motion.span>
+										)}
 										{label}
 									</Link>
 								);

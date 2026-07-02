@@ -5,9 +5,9 @@ import {
 	Check,
 	ChevronDown,
 	ClipboardCheck,
+	Lock,
 	MessageSquare,
 	PlusCircle,
-	Star,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -33,6 +33,7 @@ import {
 	isTeacherPickerValid,
 	TeacherPicker,
 } from "@/components/reviews/teacher-picker";
+import { formatRating, StarRatingInput } from "@/components/ui/star-rating";
 import { useAuth } from "@/context/auth-context";
 import { hasProfanity } from "@/lib/profanity";
 
@@ -168,7 +169,7 @@ function SubjectCombobox({
 					placeholder={
 						options.length > 0 ? "Buscar materia cursada..." : "Ej: MAT-1115"
 					}
-					className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-8 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+					className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 pr-8 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 				/>
 				<ChevronDown
 					size={15}
@@ -245,6 +246,21 @@ function SingleReviewForm({
 		onSave(form.id);
 	};
 
+	// Medidor de completitud: los campos clave que exige guardar
+	const completionSteps = [
+		form.subject_code.trim().length > 0,
+		form.period.length > 0,
+		Boolean(
+			form.sectionId ||
+				form.teacherIds.length > 0 ||
+				form.fallbackTeacherId ||
+				form.notFoundTeacherNames,
+		),
+		form.comment.trim().length > 0,
+	];
+	const completedSteps = completionSteps.filter(Boolean).length;
+	const isComplete = completedSteps === completionSteps.length;
+
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -253,11 +269,43 @@ function SingleReviewForm({
 			{/* Form header */}
 			<div className="flex items-center justify-between">
 				<h3 className="flex items-center gap-2 font-bold text-gray-900 text-lg tracking-tight">
-					<span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 font-mono text-primary text-xs">
-						{index + 1}
+					<span
+						className={`flex h-7 w-7 items-center justify-center rounded-full font-mono text-xs transition-colors duration-500 ${
+							isComplete
+								? "bg-green-100 text-green-700"
+								: "bg-primary/10 text-primary"
+						}`}
+					>
+						{isComplete ? <Check size={13} /> : index + 1}
 					</span>
 					Nueva Reseña
 				</h3>
+			</div>
+
+			{/* Medidor de completitud de la reseña */}
+			<div>
+				<div className="mb-1.5 flex items-center justify-between">
+					<span className="font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
+						{completedSteps} de {completionSteps.length} campos clave
+					</span>
+					{isComplete && (
+						<span className="flex items-center gap-1 font-semibold text-[10px] text-green-600 uppercase tracking-widest">
+							<Check size={11} /> Lista para guardar
+						</span>
+					)}
+				</div>
+				<div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-black/5 ring-inset">
+					<div
+						className={`h-full rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+							isComplete
+								? "bg-green-500"
+								: "bg-gradient-to-r from-accent/60 to-accent"
+						}`}
+						style={{
+							width: `${(completedSteps / completionSteps.length) * 100}%`,
+						}}
+					/>
+				</div>
 			</div>
 
 			{form.error && (
@@ -299,7 +347,7 @@ function SingleReviewForm({
 						required
 						value={form.period}
 						onChange={(e) => onUpdate(form.id, { period: e.target.value })}
-						className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+						className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 					>
 						{periods.map((p) => (
 							<option key={p.id} value={p.id}>
@@ -334,41 +382,29 @@ function SingleReviewForm({
 			</div>
 
 			{/* Ratings */}
-			<div className="grid grid-cols-3 gap-4">
+			<div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
 				{[
 					{ label: "Dificultad", key: "difficulty_rating" as const },
 					{ label: "Profesor", key: "professor_rating" as const },
 					{ label: "Carga", key: "workload_rating" as const },
 				].map(({ label, key }) => (
-					<div key={key}>
-						<label
-							htmlFor={`review-rating-${key}-${form.id}`}
-							className="mb-1 block font-medium text-gray-700 text-sm"
-						>
+					<div
+						key={key}
+						className="flex items-center justify-between gap-3 sm:block"
+					>
+						<span className="block font-medium text-gray-700 text-sm sm:mb-1.5">
 							{label}
-						</label>
-						<div className="flex items-center gap-1">
-							{Array.from({ length: 5 }, (_, i) => (
-								<button
-									key={i}
-									type="button"
-									onClick={() => onUpdate(form.id, { [key]: i + 1 })}
-									className="transition-transform hover:scale-110 active:scale-95"
-								>
-									<Star
-										size={20}
-										className={
-											i < form[key]
-												? "fill-amber-400 text-amber-400"
-												: "text-gray-300"
-										}
-									/>
-								</button>
-							))}
+						</span>
+						<div className="flex items-center gap-2">
+							<StarRatingInput
+								value={form[key]}
+								onChange={(v) => onUpdate(form.id, { [key]: v })}
+								label={label}
+							/>
+							<span className="min-w-9 text-right font-semibold text-primary text-xs tabular-nums">
+								{formatRating(form[key])}/5
+							</span>
 						</div>
-						<p className="mt-0.5 text-center font-semibold text-primary text-xs">
-							{form[key]}/5
-						</p>
 					</div>
 				))}
 			</div>
@@ -376,19 +412,20 @@ function SingleReviewForm({
 			{/* Recommend */}
 			<div className="flex items-center gap-3">
 				<span className="font-medium text-gray-700 text-sm">
-					Recomiendas esta materia?
+					¿Recomiendas esta materia?
 				</span>
 				<button
 					type="button"
 					onClick={() =>
 						onUpdate(form.id, { would_recommend: !form.would_recommend })
 					}
-					className={`rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${form.would_recommend
-						? "bg-green-100 text-green-700 hover:bg-green-200"
-						: "bg-red-100 text-red-700 hover:bg-red-200"
-						}`}
+					className={`rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${
+						form.would_recommend
+							? "bg-green-100 text-green-700 hover:bg-green-200"
+							: "bg-red-100 text-red-700 hover:bg-red-200"
+					}`}
 				>
-					{form.would_recommend ? "Si" : "No"}
+					{form.would_recommend ? "Sí" : "No"}
 				</button>
 			</div>
 
@@ -406,13 +443,16 @@ function SingleReviewForm({
 					value={form.comment}
 					onChange={(e) => onUpdate(form.id, { comment: e.target.value })}
 					rows={3}
-					className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+					className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 					placeholder="Comparte tu experiencia con la materia..."
 				/>
-				<p className="mt-1.5 font-medium text-[11px] text-gray-400 leading-normal">
-					🔒 Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita
-					insultar o ser malicioso, ya que dañará la encuesta y podría conllevar
-					la inhabilitación de tu perfil.
+				<p className="mt-1.5 flex items-start gap-1.5 font-medium text-[11px] text-gray-400 leading-normal">
+					<Lock size={12} className="mt-0.5 flex-shrink-0 text-gray-300" />
+					<span>
+						Tu reseña es 100% anónima. Nos ocupamos de tu privacidad. Evita
+						insultar o ser malicioso, ya que dañará la encuesta y podría
+						conllevar la inhabilitación de tu perfil.
+					</span>
 				</p>
 			</div>
 
@@ -440,7 +480,7 @@ function SingleReviewForm({
 							value={form.tips}
 							onChange={(e) => onUpdate(form.id, { tips: e.target.value })}
 							rows={2}
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+							className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 							placeholder="Consejos para quien vaya a cursar esta materia..."
 						/>
 					</div>
@@ -458,8 +498,8 @@ function SingleReviewForm({
 								onUpdate(form.id, { study_strategy: e.target.value })
 							}
 							rows={2}
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-							placeholder="Como estudiaste para pasarla?"
+							className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
+							placeholder="¿Cómo estudiaste para pasarla?"
 						/>
 					</div>
 				</div>
@@ -481,7 +521,7 @@ function SingleReviewForm({
 							notFoundTeacherNames: form.notFoundTeacherNames || "",
 						})
 					}
-					className="group flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+					className="gradient-button group flex w-full items-center justify-center gap-2 rounded-full py-3.5 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.35),0_6px_20px_rgba(229,156,36,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
 					{form.saving ? (
 						<>
@@ -611,7 +651,7 @@ function EncuestaContent() {
 				setAllSubjects(all);
 				setSubjectOptions(approved);
 			})
-			.catch(() => { });
+			.catch(() => {});
 
 		academicProgramsAPI
 			.get(programId)
@@ -619,7 +659,7 @@ function EncuestaContent() {
 				const programData = res.data as { name: string };
 				setAcademicProgramName(programData.name || "");
 			})
-			.catch(() => { });
+			.catch(() => {});
 	}, [user?.academicProgramIds, user?.approvedSubjects]);
 
 	const updateForm = useCallback(
@@ -745,19 +785,19 @@ function EncuestaContent() {
 						<ClipboardCheck className="h-10 w-10 text-green-600" />
 					</div>
 					<h1 className="font-extrabold text-2xl text-gray-900 tracking-tight sm:text-3xl">
-						Gracias por tu contribución!
+						¡Gracias por tu contribución!
 					</h1>
 					<p className="mx-auto mt-4 max-w-md text-gray-500">
 						Tus reseñas ayudaran a otros estudiantes a tomar mejores decisiones.
 						Guardaste {savedCount} reseña{savedCount !== 1 ? "s" : ""} en esta
 						sesión.
 					</p>
-					<a
+					<Link
 						href="/"
-						className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 active:scale-[0.98]"
+						className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98]"
 					>
 						Volver al inicio
-					</a>
+					</Link>
 				</div>
 			</div>
 		);
@@ -807,10 +847,11 @@ function EncuestaContent() {
 						type="button"
 						onClick={handleFinish}
 						disabled={reviewedApprovedCount < 1 || finishing}
-						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${reviewedApprovedCount >= 1
-							? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
-							: "cursor-not-allowed bg-gray-200 text-gray-400"
-							}`}
+						className={`flex items-center gap-2 rounded-full px-5 py-2.5 font-semibold text-sm transition-all active:scale-[0.98] ${
+							reviewedApprovedCount >= 1
+								? "bg-green-600 text-white shadow-[0_4px_14px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 hover:bg-green-700"
+								: "cursor-not-allowed bg-gray-200 text-gray-400"
+						}`}
 					>
 						{finishing ? (
 							<>
@@ -854,7 +895,8 @@ function EncuestaContent() {
 									href="/encuesta/onboarding?edit=true"
 									className="inline-flex items-center gap-1.5 rounded-full bg-amber-600 px-5 py-2 font-semibold text-white text-xs shadow-[0_4px_12px_rgba(217,119,6,0.3)] transition-all hover:bg-amber-700 active:scale-[0.98]"
 								>
-									+ Modificar materias cursadas
+									<PlusCircle size={13} />
+									Modificar materias cursadas
 								</Link>
 							</div>
 						</div>
@@ -880,8 +922,8 @@ function EncuestaContent() {
 						<span className="font-mono text-primary text-xs">
 							{subjectOptions.length > 0
 								? Math.round(
-									(reviewedApprovedCount / subjectOptions.length) * 100,
-								)
+										(reviewedApprovedCount / subjectOptions.length) * 100,
+									)
 								: 0}
 							%
 						</span>
@@ -890,13 +932,14 @@ function EncuestaContent() {
 						<div
 							className="h-full rounded-full bg-primary transition-all duration-500"
 							style={{
-								width: `${subjectOptions.length > 0
-									? Math.min(
-										100,
-										(reviewedApprovedCount / subjectOptions.length) * 100,
-									)
-									: 0
-									}%`,
+								width: `${
+									subjectOptions.length > 0
+										? Math.min(
+												100,
+												(reviewedApprovedCount / subjectOptions.length) * 100,
+											)
+										: 0
+								}%`,
 							}}
 						/>
 					</div>
@@ -920,7 +963,8 @@ function EncuestaContent() {
 						href="/encuesta/onboarding?edit=true"
 						className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2.5 font-semibold text-sm text-white shadow-sm transition-all hover:-translate-y-0.5 active:scale-[0.98]"
 					>
-						+ Modificar materias cursadas
+						<PlusCircle size={14} />
+						Modificar materias cursadas
 					</Link>
 				</div>
 			) : (

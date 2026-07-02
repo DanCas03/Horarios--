@@ -1,18 +1,13 @@
 "use client";
 
-import {
-	BookOpen,
-	Check,
-	ChevronDown,
-	ChevronRight,
-	Loader2,
-} from "lucide-react";
+import { BookOpen, Check, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { parseApiError, subjectsAPI } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
 import ChangeCareerModal from "@/components/encuesta/change-career-modal";
+import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
 interface PensumSubject {
@@ -225,14 +220,16 @@ function OnboardingContent() {
 		<div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
 			{/* Header */}
 			<div className="mb-10 text-center">
-				<div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
-					<BookOpen className="h-7 w-7 text-primary" />
+				<div className="mx-auto mb-6 w-fit rounded-[1.25rem] bg-black/[0.04] p-1.5 ring-1 ring-black/8">
+					<div className="flex h-14 w-14 items-center justify-center rounded-[calc(1.25rem-0.375rem)] bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] ring-1 ring-black/5">
+						<BookOpen className="h-7 w-7 text-primary" />
+					</div>
 				</div>
 				<h1 className="font-extrabold text-2xl text-gray-900 tracking-tight sm:text-3xl">
 					Selecciona tus materias cursadas
 				</h1>
 				<p className="mt-3 text-gray-500 text-sm">
-					Marca las materias que ya aprobaste. Solo podras hacer reseñas de
+					Marca las materias que ya aprobaste. Solo podrás hacer reseñas de
 					estas materias.
 				</p>
 				<button
@@ -265,7 +262,7 @@ function OnboardingContent() {
 						onClick={() => setSelectedIds(new Set())}
 						className="font-medium text-primary text-xs hover:underline"
 					>
-						Limpiar seleccion
+						Limpiar selección
 					</button>
 				)}
 			</div>
@@ -292,11 +289,10 @@ function OnboardingContent() {
 									onClick={() => toggleCollapse(semester)}
 									className="flex items-center gap-2 text-gray-900"
 								>
-									{isCollapsed ? (
-										<ChevronRight size={16} className="text-gray-400" />
-									) : (
-										<ChevronDown size={16} className="text-gray-400" />
-									)}
+									<ChevronRight
+										size={16}
+										className={`text-gray-400 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isCollapsed ? "rotate-0" : "rotate-90"}`}
+									/>
 									<span className="font-bold text-sm">
 										{semester === 0
 											? "Sin semestre asignado"
@@ -311,18 +307,19 @@ function OnboardingContent() {
 								<button
 									type="button"
 									onClick={() => toggleSemester(semSubjects)}
-									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${allSelected
+									className={`ml-auto rounded-lg px-3 py-1 font-medium text-xs transition-all active:scale-95 ${
+										allSelected
 											? "bg-primary/10 text-primary"
 											: "bg-gray-100 text-gray-600 hover:bg-gray-200"
-										}`}
+									}`}
 								>
 									{allSelected ? "Deseleccionar" : "Seleccionar todo"}
 								</button>
 							</div>
 
 							{/* Subject list */}
-							{!isCollapsed && (
-								<div className="border-gray-50 border-t px-3 pb-3">
+							<SmoothAccordion isOpen={!isCollapsed}>
+								<div className="accordion-content border-gray-50 border-t px-3 pb-3">
 									{semSubjects.map((subject) => {
 										const isSelected = selectedIds.has(subject.id);
 										const prereqsMet =
@@ -424,7 +421,7 @@ function OnboardingContent() {
 										);
 									})}
 								</div>
-							)}
+							</SmoothAccordion>
 						</div>
 					);
 				})}
@@ -436,7 +433,7 @@ function OnboardingContent() {
 					type="button"
 					onClick={handleSubmit}
 					disabled={submitting || selectedIds.size === 0}
-					className="group flex items-center gap-3 rounded-full bg-primary px-8 py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+					className="gradient-button group flex items-center gap-3 rounded-full px-8 py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.35),0_6px_20px_rgba(229,156,36,0.25)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 				>
 					{submitting ? (
 						<>

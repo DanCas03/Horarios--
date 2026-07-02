@@ -157,7 +157,7 @@ function ProfileContent() {
 						<div>
 							<label
 								htmlFor="university-select"
-								className="mb-1.5 block font-medium text-gray-700 text-sm"
+								className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider"
 							>
 								Universidad
 							</label>
@@ -168,7 +168,7 @@ function ProfileContent() {
 									setSelectedUni(e.target.value);
 									setSelectedProgram("");
 								}}
-								className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+								className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 							>
 								<option value="">Selecciona tu universidad</option>
 								{universities.map((u) => (
@@ -203,12 +203,12 @@ function ProfileContent() {
 							</div>
 						)}
 
-						{/* Pill save button */}
+						{/* Pill CTA con gradiente animado (UI_prompts/gradient.md) */}
 						<button
 							type="button"
 							onClick={handleSave}
 							disabled={saving}
-							className="group mt-2 flex items-center gap-3 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-[0_4px_16px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:opacity-50 disabled:hover:translate-y-0"
+							className="gradient-button group mt-2 flex items-center gap-3 rounded-full px-6 py-3 font-semibold text-white shadow-[0_4px_16px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.35),0_4px_16px_rgba(229,156,36,0.25)] active:scale-[0.98] disabled:opacity-50 disabled:hover:translate-y-0"
 						>
 							{saved ? (
 								<>
@@ -225,29 +225,40 @@ function ProfileContent() {
 				</div>
 			</div>
 
-			<div className="rounded-2xl bg-white p-6 shadow-md">
-				<h2 className="mb-4 flex items-center gap-2 font-bold text-gray-900 text-lg">
-					<BookOpen size={20} className="text-primary" />
-					Resumen Académico
-				</h2>
-				<div className="grid grid-cols-3 gap-4">
-					<div className="rounded-xl bg-gray-50 p-4 text-center">
-						<p className="font-bold text-3xl text-primary">
-							{user?.approvedSubjects?.length || 0}
-						</p>
-						<p className="text-gray-500 text-sm">Materias Aprobadas</p>
-					</div>
-					<div className="rounded-xl bg-gray-50 p-4 text-center">
-						<p className="font-bold text-3xl text-accent">
-							{user?.totalApprovedCredits || 0}
-						</p>
-						<p className="text-gray-500 text-sm">Créditos Aprobados</p>
-					</div>
-					<div className="rounded-xl bg-gray-50 p-4 text-center">
-						<p className="font-bold text-3xl text-green-600">
-							{currentUni?.shortName || "-"}
-						</p>
-						<p className="text-gray-500 text-sm">Universidad</p>
+			{/* Academic summary — double-bezel */}
+			<div className="rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
+				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+					<h2 className="mb-6 flex items-center gap-3 font-extrabold text-gray-900 text-xl tracking-tight">
+						<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary/[0.06] ring-1 ring-primary/10">
+							<BookOpen className="h-5 w-5 text-primary" />
+						</div>
+						Resumen Académico
+					</h2>
+					<div className="grid grid-cols-3 gap-4">
+						<div className="rounded-xl bg-gray-50 px-4 py-5 text-center ring-1 ring-black/5">
+							<p className="font-extrabold text-3xl text-primary tracking-tighter">
+								{user?.approvedSubjects?.length || 0}
+							</p>
+							<p className="mt-1.5 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
+								Materias Aprobadas
+							</p>
+						</div>
+						<div className="rounded-xl bg-gray-50 px-4 py-5 text-center ring-1 ring-black/5">
+							<p className="font-extrabold text-3xl text-accent tracking-tighter">
+								{user?.totalApprovedCredits || 0}
+							</p>
+							<p className="mt-1.5 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
+								Créditos Aprobados
+							</p>
+						</div>
+						<div className="rounded-xl bg-gray-50 px-4 py-5 text-center ring-1 ring-black/5">
+							<p className="font-extrabold text-3xl text-green-600 tracking-tighter">
+								{currentUni?.shortName || "-"}
+							</p>
+							<p className="mt-1.5 font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
+								Universidad
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>
