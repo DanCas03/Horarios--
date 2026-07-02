@@ -1,18 +1,13 @@
 "use client";
 
-import {
-	BookOpen,
-	Check,
-	ChevronDown,
-	ChevronRight,
-	Loader2,
-} from "lucide-react";
+import { BookOpen, Check, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 
 import { parseApiError, subjectsAPI } from "@/api/client";
 import SurveyGuard from "@/components/auth/survey-guard";
 import ChangeCareerModal from "@/components/encuesta/change-career-modal";
+import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
 interface PensumSubject {
@@ -220,11 +215,10 @@ function OnboardingContent() {
 									onClick={() => toggleCollapse(semester)}
 									className="flex items-center gap-2 text-gray-900"
 								>
-									{isCollapsed ? (
-										<ChevronRight size={16} className="text-gray-400" />
-									) : (
-										<ChevronDown size={16} className="text-gray-400" />
-									)}
+									<ChevronRight
+										size={16}
+										className={`text-gray-400 transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isCollapsed ? "rotate-0" : "rotate-90"}`}
+									/>
 									<span className="font-bold text-sm">
 										{semester === 0
 											? "Sin semestre asignado"
@@ -250,8 +244,8 @@ function OnboardingContent() {
 							</div>
 
 							{/* Subject list */}
-							{!isCollapsed && (
-								<div className="border-gray-50 border-t px-3 pb-3">
+							<SmoothAccordion isOpen={!isCollapsed}>
+								<div className="accordion-content border-gray-50 border-t px-3 pb-3">
 									{semSubjects.map((subject) => {
 										const isSelected = selectedIds.has(subject.id);
 										return (
@@ -297,7 +291,7 @@ function OnboardingContent() {
 										);
 									})}
 								</div>
-							)}
+							</SmoothAccordion>
 						</div>
 					);
 				})}
