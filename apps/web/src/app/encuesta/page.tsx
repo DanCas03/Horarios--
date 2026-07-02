@@ -246,6 +246,21 @@ function SingleReviewForm({
 		onSave(form.id);
 	};
 
+	// Medidor de completitud: los campos clave que exige guardar
+	const completionSteps = [
+		form.subject_code.trim().length > 0,
+		form.period.length > 0,
+		Boolean(
+			form.sectionId ||
+				form.teacherIds.length > 0 ||
+				form.fallbackTeacherId ||
+				form.notFoundTeacherNames,
+		),
+		form.comment.trim().length > 0,
+	];
+	const completedSteps = completionSteps.filter(Boolean).length;
+	const isComplete = completedSteps === completionSteps.length;
+
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -254,11 +269,43 @@ function SingleReviewForm({
 			{/* Form header */}
 			<div className="flex items-center justify-between">
 				<h3 className="flex items-center gap-2 font-bold text-gray-900 text-lg tracking-tight">
-					<span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 font-mono text-primary text-xs">
-						{index + 1}
+					<span
+						className={`flex h-7 w-7 items-center justify-center rounded-full font-mono text-xs transition-colors duration-500 ${
+							isComplete
+								? "bg-green-100 text-green-700"
+								: "bg-primary/10 text-primary"
+						}`}
+					>
+						{isComplete ? <Check size={13} /> : index + 1}
 					</span>
 					Nueva Reseña
 				</h3>
+			</div>
+
+			{/* Medidor de completitud de la reseña */}
+			<div>
+				<div className="mb-1.5 flex items-center justify-between">
+					<span className="font-semibold text-[10px] text-gray-400 uppercase tracking-widest">
+						{completedSteps} de {completionSteps.length} campos clave
+					</span>
+					{isComplete && (
+						<span className="flex items-center gap-1 font-semibold text-[10px] text-green-600 uppercase tracking-widest">
+							<Check size={11} /> Lista para guardar
+						</span>
+					)}
+				</div>
+				<div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-black/5 ring-inset">
+					<div
+						className={`h-full rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] ${
+							isComplete
+								? "bg-green-500"
+								: "bg-gradient-to-r from-accent/60 to-accent"
+						}`}
+						style={{
+							width: `${(completedSteps / completionSteps.length) * 100}%`,
+						}}
+					/>
+				</div>
 			</div>
 
 			{form.error && (
