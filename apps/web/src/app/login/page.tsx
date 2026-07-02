@@ -54,8 +54,8 @@ function LoginContent() {
 			<div className="pointer-events-none absolute inset-0">
 				<div className="absolute top-1/4 left-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-light/20 blur-[100px]" />
 				<div className="absolute right-1/4 bottom-0 h-[300px] w-[300px] rounded-full bg-accent/15 blur-[80px]" />
-				{/* Trazos flotantes sutiles (UI_prompts/background.md) */}
-				<div className="absolute inset-0 text-primary opacity-[0.16]">
+				{/* Trazos flotantes (UI_prompts/background.md) */}
+				<div className="absolute inset-0 text-primary opacity-40">
 					<FloatingPaths position={1} />
 				</div>
 			</div>

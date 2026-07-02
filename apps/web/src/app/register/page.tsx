@@ -124,8 +124,8 @@ export default function RegisterPage() {
 			<div className="pointer-events-none absolute inset-0">
 				<div className="absolute top-1/3 right-1/4 h-[500px] w-[500px] rounded-full bg-accent/15 blur-[100px]" />
 				<div className="absolute bottom-0 left-1/4 h-[400px] w-[400px] rounded-full bg-primary-light/20 blur-[90px]" />
-				{/* Trazos flotantes sutiles (UI_prompts/background.md) */}
-				<div className="absolute inset-0 text-primary opacity-[0.16]">
+				{/* Trazos flotantes (UI_prompts/background.md) */}
+				<div className="absolute inset-0 text-primary opacity-40">
 					<FloatingPaths position={-1} />
 				</div>
 			</div>
