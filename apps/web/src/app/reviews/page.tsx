@@ -3,8 +3,10 @@
 import {
 	BookOpen,
 	Calendar,
+	Check,
 	ChevronDown,
 	ClipboardList,
+	Lightbulb,
 	Loader2,
 	MessageSquare,
 	PlusCircle,
@@ -163,7 +165,7 @@ function SubjectCombobox({
 							? "Buscar por código o nombre..."
 							: "Ej: MAT-1115"
 					}
-					className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-8 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+					className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 pr-8 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 				/>
 				<ChevronDown
 					size={15}
@@ -418,15 +420,17 @@ function ReviewsContent() {
 
 	return (
 		<div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-			<div className="mb-10 flex items-center justify-between">
+			<div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
 				<div>
-					<h1 className="flex items-center gap-4 font-extrabold text-4xl text-gray-900 tracking-tight">
-						<div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
-							<MessageSquare className="h-6 w-6 text-primary" />
-						</div>
+					<div className="mb-4 inline-flex items-center gap-2 rounded-full border border-black/5 bg-white px-4 py-1 shadow-sm ring-1 ring-black/5">
+						<span className="font-semibold text-[10px] text-gray-400 uppercase tracking-[0.2em]">
+							Comunidad Estudiantil
+						</span>
+					</div>
+					<h1 className="mb-2 font-extrabold text-5xl text-gray-900 tracking-tighter">
 						Reseñas
 					</h1>
-					<p className="mt-3 font-medium text-gray-500">
+					<p className="font-medium text-gray-400">
 						Consulta y comparte opiniones de materias y profesores
 					</p>
 				</div>
@@ -437,7 +441,7 @@ function ReviewsContent() {
 							setShowForm(!showForm);
 							setFormError("");
 						}}
-						className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_0_rgba(31,54,83,0.39)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(31,54,83,0.23)] active:scale-95"
+						className="flex flex-shrink-0 items-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-95"
 					>
 						{showForm ? <X size={18} /> : <PlusCircle size={18} />}
 						{showForm ? "Cancelar" : "Escribir Reseña"}
@@ -510,7 +514,7 @@ function ReviewsContent() {
 						type="button"
 						onClick={handleSearch}
 						disabled={loading || !searchQuery.trim()}
-						className="rounded-lg bg-primary px-6 py-2.5 font-medium text-white hover:bg-primary-light disabled:cursor-not-allowed disabled:opacity-50"
+						className="rounded-full bg-primary px-6 py-2.5 font-semibold text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
 					>
 						Buscar
 					</button>
@@ -588,7 +592,7 @@ function ReviewsContent() {
 								required
 								value={form.period}
 								onChange={(e) => setForm({ ...form, period: e.target.value })}
-								className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+								className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 							>
 								{periods.map((p) => (
 									<option key={p.id} value={p.id}>
@@ -665,13 +669,18 @@ function ReviewsContent() {
 							onClick={() =>
 								setForm({ ...form, would_recommend: !form.would_recommend })
 							}
-							className={`rounded-lg px-3 py-1 font-semibold text-sm ${
+							className={`flex items-center gap-1.5 rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${
 								form.would_recommend
 									? "bg-green-100 text-green-700 hover:bg-green-200"
 									: "bg-red-100 text-red-700 hover:bg-red-200"
 							}`}
 						>
-							{form.would_recommend ? "👍 Sí" : "👎 No"}
+							{form.would_recommend ? (
+								<ThumbsUp size={14} />
+							) : (
+								<ThumbsDown size={14} />
+							)}
+							{form.would_recommend ? "Sí" : "No"}
 						</button>
 					</div>
 
@@ -688,7 +697,7 @@ function ReviewsContent() {
 							value={form.comment}
 							onChange={(e) => setForm({ ...form, comment: e.target.value })}
 							rows={3}
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+							className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 							placeholder="Comparte tu experiencia con la materia..."
 						/>
 					</div>
@@ -705,7 +714,7 @@ function ReviewsContent() {
 							value={form.tips}
 							onChange={(e) => setForm({ ...form, tips: e.target.value })}
 							rows={2}
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+							className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 							placeholder="Consejos para quien vaya a cursar esta materia..."
 						/>
 					</div>
@@ -724,7 +733,7 @@ function ReviewsContent() {
 								setForm({ ...form, study_strategy: e.target.value })
 							}
 							rows={2}
-							className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+							className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
 							placeholder="¿Cómo estudiaste para pasarla?"
 						/>
 					</div>
@@ -779,7 +788,10 @@ function ReviewsContent() {
 						{reviews.length} reseña(s) para <strong>{activeCode}</strong>
 					</p>
 					{reviews.map((r) => (
-						<div key={r.id} className="rounded-2xl bg-white p-6 shadow-md">
+						<div
+							key={r.id}
+							className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
+						>
 							<div className="mb-3 flex items-start justify-between">
 								<div>
 									<div className="mb-1 flex items-center gap-2">
@@ -787,8 +799,9 @@ function ReviewsContent() {
 											{r.subjectCode}
 										</span>
 										{r.isVerified && (
-											<span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 text-xs">
-												✓ Verificada
+											<span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 text-xs">
+												<Check size={11} />
+												Verificada
 											</span>
 										)}
 									</div>
@@ -847,17 +860,19 @@ function ReviewsContent() {
 								<p className="mb-3 text-gray-700 text-sm">{r.comment}</p>
 							)}
 							{r.tips && (
-								<div className="mb-2 rounded-lg bg-amber-50 p-3">
-									<p className="mb-1 font-semibold text-amber-700 text-xs">
-										💡 Tips:
+								<div className="mb-2 rounded-xl bg-amber-50 p-3 ring-1 ring-amber-100">
+									<p className="mb-1 flex items-center gap-1.5 font-semibold text-amber-700 text-xs">
+										<Lightbulb size={13} />
+										Tips
 									</p>
 									<p className="text-amber-800 text-sm">{r.tips}</p>
 								</div>
 							)}
 							{r.studyStrategy && (
-								<div className="rounded-lg bg-blue-50 p-3">
-									<p className="mb-1 font-semibold text-blue-700 text-xs">
-										📚 Estrategia:
+								<div className="rounded-xl bg-blue-50 p-3 ring-1 ring-blue-100">
+									<p className="mb-1 flex items-center gap-1.5 font-semibold text-blue-700 text-xs">
+										<BookOpen size={13} />
+										Estrategia de estudio
 									</p>
 									<p className="text-blue-800 text-sm">{r.studyStrategy}</p>
 								</div>
