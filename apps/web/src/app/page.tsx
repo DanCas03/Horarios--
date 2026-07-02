@@ -6,7 +6,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useState } from "react";
 
-import AppPreview from "@/components/landing/app-preview";
+import PreviewCarousel from "@/components/landing/preview-carousel";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { useAuth } from "@/context/auth-context";
 import { useReveal } from "@/hooks/use-reveal";
@@ -150,7 +150,7 @@ export default function Home() {
 							</>
 						}
 					>
-						<AppPreview />
+						<PreviewCarousel />
 					</ContainerScroll>
 				</div>
 			</section>
