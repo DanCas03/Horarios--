@@ -7,7 +7,6 @@ import Link from "next/link";
 import { useState } from "react";
 
 import AppPreview from "@/components/landing/app-preview";
-import { BackgroundPaths } from "@/components/ui/background-paths";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { useAuth } from "@/context/auth-context";
 import { useReveal } from "@/hooks/use-reveal";
@@ -279,32 +278,52 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* ─── CTA final con trazos animados (BackgroundPaths) ──────────── */}
-			<BackgroundPaths
-				title={
-					user ? "Sigue construyendo tu semestre" : "Empieza a planificar hoy"
-				}
-				subtitle={
-					user
-						? "¿Cursaste materias nuevas? Actualiza tu pensum y arma tu próximo horario en minutos."
-						: "Sin costos ocultos. Sin anuncios. Solo una herramienta rápida y confiable para que te concentres en lo que importa."
-				}
-			>
-				<div className="group relative inline-block overflow-hidden rounded-2xl bg-gradient-to-b from-primary/15 to-accent/15 p-px shadow-lg backdrop-blur-lg transition-shadow duration-300 hover:shadow-xl">
-					<Link
-						href={user ? "/pensum" : "/register"}
-						className="flex items-center gap-3 rounded-[calc(1rem-1px)] bg-white/95 px-8 py-4 font-bold text-primary backdrop-blur-md transition-all duration-300 hover:bg-white group-hover:-translate-y-0.5"
-					>
-						{user ? "Ir a Mi Pensum" : "Crear Cuenta Gratis"}
-						<span
-							aria-hidden="true"
-							className="opacity-70 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100"
-						>
-							→
-						</span>
-					</Link>
-				</div>
-			</BackgroundPaths>
+			{/* ─── CTA ──────────────────────────────────────────────────────── */}
+			{!user && (
+				<section className="mx-auto max-w-7xl px-4 pb-40 sm:px-6 lg:px-8">
+					<div className="reveal rounded-[2rem] bg-primary p-2 ring-1 ring-primary/20">
+						<div className="relative overflow-hidden rounded-[calc(2rem-0.5rem)] bg-primary-dark p-16 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.08)]">
+							<div className="pointer-events-none absolute inset-0">
+								<div className="absolute top-0 left-1/2 h-80 w-80 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/20 blur-[60px]" />
+							</div>
+							<div className="relative">
+								<div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5">
+									<span className="font-semibold text-[10px] text-white/50 uppercase tracking-[0.2em]">
+										Completamente Gratis
+									</span>
+								</div>
+								<h2 className="mb-6 text-balance font-extrabold text-4xl text-white tracking-tighter md:text-5xl">
+									Empieza a planificar
+									<br />
+									tu carrera hoy
+								</h2>
+								<p className="mx-auto mb-10 max-w-lg text-white/50 leading-relaxed">
+									Sin costos ocultos. Sin anuncios. Solo una herramienta rápida
+									y confiable para que te concentres en lo que importa.
+								</p>
+								<Link
+									href="/register"
+									className="group inline-flex items-center gap-3 rounded-full bg-accent px-8 py-4 font-bold text-primary-dark shadow-[0_8px_24px_rgba(229,156,36,0.5)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(229,156,36,0.6)] active:scale-[0.98]"
+								>
+									Crear Cuenta Gratis
+									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-black/15 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105">
+										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+											<title>Icono flecha crear cuenta</title>
+											<path
+												d="M2 10L10 2M10 2H4M10 2V8"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											/>
+										</svg>
+									</span>
+								</Link>
+							</div>
+						</div>
+					</div>
+				</section>
+			)}
 
 			{tooltip && (
 				<div
