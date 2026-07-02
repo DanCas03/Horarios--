@@ -1,5 +1,6 @@
 "use client";
 
+import { useReducedMotion } from "framer-motion";
 import {
 	Award,
 	BookOpen,
@@ -15,7 +16,7 @@ import {
 	Target,
 } from "lucide-react";
 import type { Route } from "next";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { academicProgramsAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
@@ -142,6 +143,42 @@ function PensumContent() {
 	const progress =
 		totalCredits > 0 ? Math.round((approvedCredits / totalCredits) * 100) : 0;
 
+	// Barra y contador animados: se llenan al montar y al (des)aprobar materias
+	const reduceMotion = useReducedMotion();
+	const [barMounted, setBarMounted] = useState(false);
+	const [displayProgress, setDisplayProgress] = useState(0);
+	const shownProgressRef = useRef(0);
+
+	useEffect(() => {
+		const id = requestAnimationFrame(() => setBarMounted(true));
+		return () => cancelAnimationFrame(id);
+	}, []);
+
+	useEffect(() => {
+		const from = shownProgressRef.current;
+		if (from === progress) return;
+		if (reduceMotion) {
+			shownProgressRef.current = progress;
+			setDisplayProgress(progress);
+			return;
+		}
+		const start = performance.now();
+		const duration = 1200;
+		let raf = 0;
+		const tick = (now: number) => {
+			const t = Math.min((now - start) / duration, 1);
+			const eased = 1 - (1 - t) ** 3;
+			const value = Math.round(from + (progress - from) * eased);
+			shownProgressRef.current = value;
+			setDisplayProgress(value);
+			if (t < 1) raf = requestAnimationFrame(tick);
+		};
+		raf = requestAnimationFrame(tick);
+		return () => cancelAnimationFrame(raf);
+	}, [progress, reduceMotion]);
+
+	const barWidth = reduceMotion || barMounted ? progress : 0;
+
 	if (!user?.academicProgramIds?.length) {
 		return (
 			<div className="mx-auto max-w-4xl px-4 py-24 text-center">
@@ -191,15 +228,35 @@ function PensumContent() {
 								Progreso Académico
 							</span>
 						</div>
-						<span className="font-bold text-2xl text-gray-900 tracking-tighter">
-							{progress}%
+						<span className="font-extrabold text-3xl text-primary tabular-nums tracking-tighter">
+							{displayProgress}
+							<span className="ml-0.5 font-bold text-accent text-lg">%</span>
 						</span>
 					</div>
-					<div className="h-3 w-full overflow-hidden rounded-full bg-gray-100 ring-1 ring-black/5 ring-inset">
+					{/* Barra con gradiente de la marca, brillo periódico y cabeza luminosa */}
+					<div className="relative h-5 w-full rounded-full bg-primary/[0.06] ring-1 ring-black/5 ring-inset">
+						{[25, 50, 75].map((tick) => (
+							<span
+								key={tick}
+								aria-hidden="true"
+								className="absolute top-1/2 h-2 w-px -translate-y-1/2 rounded-full bg-primary/15"
+								style={{ left: `${tick}%` }}
+							/>
+						))}
 						<div
-							className="h-full rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-[1200ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
-							style={{ width: `${progress}%` }}
-						/>
+							className="absolute inset-y-0 left-0 transition-[width] duration-[1500ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+							style={{ width: `${barWidth}%` }}
+						>
+							<div className="progress-fill relative h-full w-full overflow-hidden rounded-full">
+								<span aria-hidden="true" className="progress-shimmer" />
+							</div>
+							{progress > 0 && (
+								<span
+									aria-hidden="true"
+									className="absolute top-1/2 right-0 h-3 w-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_10px_rgba(229,156,36,0.9)] ring-2 ring-accent"
+								/>
+							)}
+						</div>
 					</div>
 					<div className="mt-3 flex justify-between font-semibold text-[11px] text-gray-400 uppercase tracking-wider">
 						<span>

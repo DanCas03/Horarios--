@@ -208,6 +208,48 @@ body {
 	}
 }
 
+/* ─── Barra de progreso del pensum ───────────────────────────────────────── */
+/* El gradiente vive en el propio relleno: al comprimirse con porcentajes
+   bajos, la punta siempre termina en ámbar. El brillo barre el relleno de
+   forma periódica con una pausa entre pasadas. */
+.progress-fill {
+	background: linear-gradient(
+		90deg,
+		#122135,
+		#1f3653 30%,
+		#325275 55%,
+		#b97a10 82%,
+		#e59c24 100%
+	);
+}
+
+.progress-shimmer {
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		115deg,
+		transparent 25%,
+		rgba(255, 255, 255, 0.35) 50%,
+		transparent 75%
+	);
+	transform: translateX(-100%);
+	animation: progress-shimmer 3.2s cubic-bezier(0.32, 0.72, 0, 1) infinite;
+}
+
+@keyframes progress-shimmer {
+	55%,
+	100% {
+		transform: translateX(100%);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.progress-shimmer {
+		animation: none;
+		opacity: 0;
+	}
+}
+
 /* ─── CTA con gradiente animado (adaptado de UI_prompts/gradient.md) ─────── */
 /* Radial navy en reposo que desplaza un brillo ámbar desde la esquina
    inferior al hacer hover. Las custom properties registradas con @property
