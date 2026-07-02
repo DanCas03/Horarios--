@@ -21,6 +21,7 @@ import { useEffect, useRef, useState } from "react";
 import { academicProgramsAPI, subjectsAPI } from "@/api/client";
 import ProtectedRoute from "@/components/auth/protected-route";
 import FloatingActionMenu from "@/components/ui/floating-action-menu";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
 
@@ -216,9 +217,17 @@ function PensumContent() {
 				</h1>
 				<p className="font-medium text-gray-400">{program?.name}</p>
 			</div>
-			{/* Progress card — double-bezel */}
-			<div className="mb-10 rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
-				<div className="rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+			{/* Progress card — double-bezel con borde luminoso (UI_prompts/Glowing.md) */}
+			<div className="relative mb-10 rounded-[2rem] bg-black/[0.025] p-2 ring-1 ring-black/5">
+				<GlowingEffect
+					spread={40}
+					glow={true}
+					disabled={false}
+					proximity={72}
+					inactiveZone={0.01}
+					borderWidth={2}
+				/>
+				<div className="relative rounded-[calc(2rem-0.5rem)] bg-white p-8 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
 					<div className="mb-5 flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent/[0.08] ring-1 ring-accent/15">
@@ -300,8 +309,16 @@ function PensumContent() {
 				].map((stat) => (
 					<div
 						key={stat.label}
-						className="rounded-[1.5rem] bg-black/[0.02] p-1.5 ring-1 ring-black/5"
+						className="relative rounded-[1.5rem] bg-black/[0.02] p-1.5 ring-1 ring-black/5"
 					>
+						<GlowingEffect
+							spread={32}
+							glow={true}
+							disabled={false}
+							proximity={48}
+							inactiveZone={0.01}
+							borderWidth={2}
+						/>
 						<div
 							className={`rounded-[calc(1.5rem-0.375rem)] ${stat.bg} p-5 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] ring-1 transition-transform duration-300 hover:-translate-y-0.5`}
 						>
