@@ -57,6 +57,35 @@ body {
 	transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+/* ─── Focus visible — ámbar oscurecido: legible sobre blanco y sobre navy ── */
+:focus-visible {
+	outline: 2px solid #b97a10;
+	outline-offset: 2px;
+}
+
+/* ─── Selección de texto con el acento de la marca ───────────────────────── */
+::selection {
+	background-color: rgba(229, 156, 36, 0.3);
+}
+
+/* ─── Reduced motion: contenido visible al instante, sin desplazamientos ── */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		scroll-behavior: auto !important;
+	}
+
+	.reveal {
+		opacity: 1;
+		transform: none;
+		filter: none;
+	}
+}
+
 /* ─── Scroll entry animation system ─────────────────────────────────────── */
 @keyframes fade-up {
 	from {
