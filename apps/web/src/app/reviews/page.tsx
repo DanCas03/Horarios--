@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import {
 	BookOpen,
 	Calendar,
@@ -45,6 +46,9 @@ import {
 	StarRatingInput,
 } from "@/components/ui/star-rating";
 import { useAuth } from "@/context/auth-context";
+
+/** Curva de resorte de la marca para las transiciones de escena del dive. */
+const BRAND_EASE: [number, number, number, number] = [0.32, 0.72, 0, 1];
 
 interface Period {
 	id: string;
@@ -219,6 +223,13 @@ function ReviewsContent() {
 	const [loading, setLoading] = useState(false);
 	const [hasSearched, setHasSearched] = useState(false);
 
+	// Escenas del dive: qué muestra el marco (buscador o formulario) y si ya
+	// se compactó a barra (escena 4); la inmersión la reporta el componente
+	const [frameView, setFrameView] = useState<"search" | "form">("search");
+	const [compacted, setCompacted] = useState(false);
+	const [diveExpanded, setDiveExpanded] = useState(false);
+	const prevLoadingRef = useRef(false);
+
 	// Form state
 	const [showForm, setShowForm] = useState(false);
 	const [subjectOptions, setSubjectOptions] = useState<SubjectOption[]>([]);
@@ -370,6 +381,54 @@ function ReviewsContent() {
 		fetchReviews(searchQuery);
 	};
 
+	// Escena 4: cuando una búsqueda termina de resolver (con o sin
+	// resultados) el marco se compacta a barra; nunca mientras el formulario
+	// siga abierto dentro del marco
+	useEffect(() => {
+		if (
+			prevLoadingRef.current &&
+			!loading &&
+			hasSearched &&
+			frameView !== "form"
+		) {
+			setCompacted(true);
+		}
+		prevLoadingRef.current = loading;
+	}, [loading, hasSearched, frameView]);
+
+	// Al salir de la inmersión se restaura la escena que toca al reentrar:
+	// directamente la barra compacta si hay búsqueda activa, buscador si no
+	useEffect(() => {
+		if (!diveExpanded) {
+			setFrameView("search");
+			if (!activeCode) setCompacted(false);
+		}
+	}, [diveExpanded, activeCode]);
+
+	const handleDiveExpandedChange = useCallback((expanded: boolean) => {
+		setDiveExpanded(expanded);
+	}, []);
+
+	// "Escribir Reseña" cambia de destino según la escena: formulario dentro
+	// del marco (escena 3) o panel en el flujo de la página (escena 4)
+	const handleWriteToggle = () => {
+		setFormError("");
+		if (compacted) {
+			setShowForm((prev) => !prev);
+		} else {
+			if (debounceRef.current) clearTimeout(debounceRef.current);
+			setSearchOpen(false);
+			setFrameView("form");
+		}
+	};
+
+	const handleClearSearch = () => {
+		setSearchQuery("");
+		setActiveCode("");
+		setReviews([]);
+		setHasSearched(false);
+	};
+
 	const handleSubmitReview = async (e: SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setFormError("");
@@ -396,6 +455,7 @@ function ReviewsContent() {
 						: undefined,
 			});
 			setShowForm(false);
+			setFrameView("search");
 			setForm({
 				subject_code: "",
 				university_id: "",
@@ -420,360 +480,396 @@ function ReviewsContent() {
 		}
 	};
 
+	// El mismo formulario sirve para la escena 3 (dentro del marco) y para el
+	// panel del flujo normal en la escena 4; solo cambian el envoltorio y los
+	// ids, porque ambas instancias conviven montadas
+	const renderReviewForm = (variant: "frame" | "flow") => {
+		const isFrame = variant === "frame";
+		return (
+			<form
+				onSubmit={handleSubmitReview}
+				className={
+					isFrame
+						? "space-y-6"
+						: "panel-enter mb-8 space-y-6 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5"
+				}
+			>
+				<div className="flex items-center justify-between">
+					<h3 className="font-bold text-gray-900 text-xl tracking-tight">
+						Nueva Reseña
+					</h3>
+					<button
+						type="button"
+						aria-label="Cancelar y cerrar el formulario"
+						onClick={() => {
+							setFormError("");
+							if (isFrame) {
+								setFrameView("search");
+							} else {
+								setShowForm(false);
+							}
+						}}
+						className="flex h-9 w-9 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+					>
+						<X size={18} />
+					</button>
+				</div>
+
+				{formError && (
+					<div className="rounded-xl bg-red-50 px-4 py-3 text-red-700 text-sm">
+						{formError}
+					</div>
+				)}
+
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+					<div>
+						<label
+							htmlFor={`${variant}-review-subject`}
+							className="mb-1 block font-medium text-gray-700 text-sm"
+						>
+							Materia *
+							{subjectOptions.length > 0 && (
+								<span className="ml-1 font-normal text-gray-400 text-xs">
+									({subjectOptions.length} cursadas)
+								</span>
+							)}
+						</label>
+						<SubjectCombobox
+							id={`${variant}-review-subject`}
+							value={form.subject_code}
+							onChange={(code) => setForm({ ...form, subject_code: code })}
+							options={subjectOptions}
+						/>
+					</div>
+					<div>
+						<label
+							htmlFor={`${variant}-review-period`}
+							className="mb-1 block font-medium text-gray-700 text-sm"
+						>
+							Periodo *
+						</label>
+						<select
+							id={`${variant}-review-period`}
+							required
+							value={form.period}
+							onChange={(e) => setForm({ ...form, period: e.target.value })}
+							className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
+						>
+							{periods.map((p) => (
+								<option key={p.id} value={p.id}>
+									{formatPeriod(p)}
+								</option>
+							))}
+							{periods.length === 0 && (
+								<option value={form.period}>
+									{form.period || "Sin periodos"}
+								</option>
+							)}
+						</select>
+					</div>
+					<div>
+						<label
+							htmlFor={`${variant}-review-teacher`}
+							className="mb-1 block font-medium text-gray-700 text-sm"
+						>
+							Profesor *
+						</label>
+						<TeacherPicker
+							id={`${variant}-review-teacher`}
+							subjectId={
+								allSubjects.find((s) => s.code === form.subject_code)?.id
+							}
+							periodId={form.period}
+							allTeachers={allTeachers}
+							value={{
+								sectionId: form.sectionId,
+								teacherIds: form.teacherIds,
+								fallbackTeacherId: form.fallbackTeacherId || "",
+								notFoundTeacherNames: form.notFoundTeacherNames || "",
+							}}
+							onChange={(updates) =>
+								setForm((prev) => ({ ...prev, ...updates }))
+							}
+						/>
+					</div>
+				</div>
+
+				<div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+					{[
+						{ label: "Dificultad", key: "difficulty_rating" as const },
+						{ label: "Profesor", key: "professor_rating" as const },
+						{ label: "Carga de trabajo", key: "workload_rating" as const },
+					].map(({ label, key }) => (
+						<div
+							key={key}
+							className="flex items-center justify-between gap-3 sm:block"
+						>
+							<span className="block font-medium text-gray-700 text-sm sm:mb-1.5">
+								{label}
+							</span>
+							<div className="flex items-center gap-2">
+								<StarRatingInput
+									value={form[key]}
+									onChange={(v) => setForm({ ...form, [key]: v })}
+									label={label}
+								/>
+								<span className="min-w-9 text-right font-semibold text-primary text-xs tabular-nums">
+									{formatRating(form[key])}/5
+								</span>
+							</div>
+						</div>
+					))}
+				</div>
+
+				<div className="flex items-center gap-3">
+					<span className="font-medium text-gray-700 text-sm">
+						¿Recomiendas esta materia?
+					</span>
+					<button
+						type="button"
+						onClick={() =>
+							setForm({ ...form, would_recommend: !form.would_recommend })
+						}
+						className={`flex items-center gap-1.5 rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${
+							form.would_recommend
+								? "bg-green-100 text-green-700 hover:bg-green-200"
+								: "bg-red-100 text-red-700 hover:bg-red-200"
+						}`}
+					>
+						{form.would_recommend ? (
+							<ThumbsUp size={14} />
+						) : (
+							<ThumbsDown size={14} />
+						)}
+						{form.would_recommend ? "Sí" : "No"}
+					</button>
+				</div>
+
+				<div>
+					<label
+						htmlFor={`${variant}-review-comment`}
+						className="mb-1 block font-medium text-gray-700 text-sm"
+					>
+						Comentario *
+					</label>
+					<textarea
+						id={`${variant}-review-comment`}
+						required
+						value={form.comment}
+						onChange={(e) => setForm({ ...form, comment: e.target.value })}
+						rows={3}
+						className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
+						placeholder="Comparte tu experiencia con la materia..."
+					/>
+				</div>
+
+				<div>
+					<label
+						htmlFor={`${variant}-review-tips`}
+						className="mb-1 block font-medium text-gray-700 text-sm"
+					>
+						Tips / Consejos
+					</label>
+					<textarea
+						id={`${variant}-review-tips`}
+						value={form.tips}
+						onChange={(e) => setForm({ ...form, tips: e.target.value })}
+						rows={2}
+						className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
+						placeholder="Consejos para quien vaya a cursar esta materia..."
+					/>
+				</div>
+
+				<div>
+					<label
+						htmlFor={`${variant}-review-study-strategy`}
+						className="mb-1 block font-medium text-gray-700 text-sm"
+					>
+						Estrategia de estudio
+					</label>
+					<textarea
+						id={`${variant}-review-study-strategy`}
+						value={form.study_strategy}
+						onChange={(e) =>
+							setForm({ ...form, study_strategy: e.target.value })
+						}
+						rows={2}
+						className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
+						placeholder="¿Cómo estudiaste para pasarla?"
+					/>
+				</div>
+
+				<button
+					type="submit"
+					disabled={
+						submitting ||
+						!isTeacherPickerValid({
+							sectionId: form.sectionId,
+							teacherIds: form.teacherIds,
+							fallbackTeacherId: form.fallbackTeacherId || "",
+							notFoundTeacherNames: form.notFoundTeacherNames || "",
+						})
+					}
+					className="group flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
+				>
+					{submitting ? (
+						<>
+							<span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />{" "}
+							Publicando...
+						</>
+					) : (
+						<>
+							Publicar Reseña (Anónima)
+							<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
+								<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+									<title>Flecha de publicación</title>
+									<path
+										d="M2 10L10 2M10 2H4M10 2V8"
+										stroke="currentColor"
+										strokeWidth="2"
+										strokeLinecap="round"
+										strokeLinejoin="round"
+									/>
+								</svg>
+							</span>
+						</>
+					)}
+				</button>
+			</form>
+		);
+	};
+
+	// Escenas 2 y 4: el buscador vive dentro del marco del dive; la barra
+	// compacta es esta misma capa (mismo input, mismos manejadores y
+	// sugerencias), solo que el texto de apoyo se oculta y el marco encoge
+	const searchPanel = (
+		<div className="flex h-full w-full flex-col items-center justify-center gap-6 px-4 sm:px-8">
+			<motion.p
+				className="max-w-md text-center font-medium text-gray-400 text-sm transition-none sm:text-base"
+				initial={false}
+				animate={
+					compacted
+						? { opacity: 0, transitionEnd: { display: "none" } }
+						: { display: "block", opacity: 1 }
+				}
+				transition={{ type: "tween", duration: 0.4, ease: BRAND_EASE }}
+			>
+				Consulta y comparte opiniones de materias y profesores
+			</motion.p>
+
+			<div className="flex w-full max-w-2xl items-center gap-2 sm:gap-3">
+				<div ref={searchRef} className="relative min-w-0 flex-1">
+					<label htmlFor="search-reviews" className="sr-only">
+						Buscar reseñas por materia
+					</label>
+					<Search className="pointer-events-none absolute top-1/2 left-3 z-10 h-5 w-5 -translate-y-1/2 text-gray-400" />
+					{loading && (
+						<Loader2 className="absolute top-1/2 right-3 z-10 h-4 w-4 -translate-y-1/2 animate-spin text-primary" />
+					)}
+					{!loading && activeCode && (
+						<button
+							type="button"
+							aria-label="Limpiar búsqueda"
+							onClick={handleClearSearch}
+							className="absolute top-1/2 right-2 z-10 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition-colors hover:bg-gray-100 hover:text-red-500"
+						>
+							<X size={13} />
+						</button>
+					)}
+					<input
+						id="search-reviews"
+						type="text"
+						value={searchQuery}
+						onChange={handleSearchInput}
+						onFocus={() => setSearchOpen(true)}
+						onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+						placeholder={
+							allSubjects.length > 0
+								? "Buscar por código o nombre de materia..."
+								: "Ej: MAT-1115"
+						}
+						className="w-full rounded-xl border border-gray-200 bg-white/50 py-3 pr-9 pl-11 outline-none transition-all duration-300 hover:border-gray-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
+					/>
+
+					{/* Suggestions dropdown */}
+					{searchOpen && searchSuggestions.length > 0 && (
+						<ul className="absolute right-0 left-0 z-30 mt-2 max-h-64 overflow-y-auto rounded-xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.1)]">
+							{searchSuggestions.map((s) => (
+								<li key={s.code}>
+									<button
+										type="button"
+										onMouseDown={() => handleSelectSuggestion(s.code)}
+										className="flex w-full items-center gap-3 border-gray-50 border-b px-4 py-2.5 text-left text-sm last:border-0 hover:bg-primary/5"
+									>
+										<span className="flex-shrink-0 rounded bg-primary/10 px-2 py-0.5 font-bold font-mono text-primary text-xs">
+											{s.code}
+										</span>
+										<span className="truncate text-gray-600">{s.name}</span>
+									</button>
+								</li>
+							))}
+						</ul>
+					)}
+
+					{/* No results hint */}
+					{searchOpen &&
+						searchQuery.trim().length >= 2 &&
+						searchSuggestions.length === 0 &&
+						allSubjects.length > 0 && (
+							<div className="absolute right-0 left-0 z-30 mt-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-400 text-sm shadow-xl">
+								Sin coincidencias en tu pensum — puedes buscar igual presionando
+								Buscar
+							</div>
+						)}
+				</div>
+
+				<button
+					type="button"
+					onClick={handleSearch}
+					disabled={loading || !searchQuery.trim()}
+					className="rounded-full bg-primary px-4 py-2.5 font-semibold text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:px-6"
+				>
+					Buscar
+				</button>
+
+				{user && (
+					<button
+						type="button"
+						onClick={handleWriteToggle}
+						className="flex flex-shrink-0 items-center gap-2 rounded-full bg-white px-4 py-2.5 font-semibold text-primary shadow-sm ring-1 ring-primary/15 transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:bg-primary/5 hover:shadow-md active:scale-95 sm:px-5"
+					>
+						{compacted && showForm ? <X size={18} /> : <PlusCircle size={18} />}
+						<span className="hidden md:inline">
+							{compacted && showForm ? "Cancelar" : "Escribir Reseña"}
+						</span>
+					</button>
+				)}
+			</div>
+		</div>
+	);
+
+	// Escena 3: el formulario completo dentro del marco, bajo el título
+	const formPanel = (
+		<div className="mx-auto w-full max-w-3xl px-5 pt-20 pb-10 sm:px-8 md:pt-24">
+			{renderReviewForm("frame")}
+		</div>
+	);
+
 	return (
 		<ScrollExpandMedia
 			media={<ReviewsHeroBackdrop />}
 			title="Reseñas de Estudiantes"
 			subtitle="Comunidad Estudiantil"
 			scrollHint="Desliza para sumergirte"
+			panel={searchPanel}
+			altPanel={formPanel}
+			showAltPanel={frameView === "form"}
+			compact={compacted}
+			onExpandedChange={handleDiveExpandedChange}
 		>
-			<div className="mx-auto max-w-4xl px-4 pb-12 sm:px-6 lg:px-8">
-				<div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
-					<p className="font-medium text-gray-400">
-						Consulta y comparte opiniones de materias y profesores
-					</p>
-					{user && (
-						<button
-							type="button"
-							onClick={() => {
-								setShowForm(!showForm);
-								setFormError("");
-							}}
-							className="flex flex-shrink-0 items-center gap-2 rounded-full bg-primary px-5 py-3 font-semibold text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-95"
-						>
-							{showForm ? <X size={18} /> : <PlusCircle size={18} />}
-							{showForm ? "Cancelar" : "Escribir Reseña"}
-						</button>
-					)}
-				</div>
-
-				{/* Search */}
-				<div className="mb-8 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
-					<label
-						htmlFor="search-reviews"
-						className="mb-3 block font-semibold text-gray-900 text-sm tracking-tight"
-					>
-						Buscar reseñas por materia
-					</label>
-					<div className="flex gap-3">
-						<div ref={searchRef} className="relative flex-1">
-							<Search className="pointer-events-none absolute top-1/2 left-3 z-10 h-5 w-5 -translate-y-1/2 text-gray-400" />
-							{loading && (
-								<Loader2 className="absolute top-1/2 right-3 z-10 h-4 w-4 -translate-y-1/2 animate-spin text-primary" />
-							)}
-							<input
-								id="search-reviews"
-								type="text"
-								value={searchQuery}
-								onChange={handleSearchInput}
-								onFocus={() => setSearchOpen(true)}
-								onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-								placeholder={
-									allSubjects.length > 0
-										? "Buscar por código o nombre de materia..."
-										: "Ej: MAT-1115"
-								}
-								className="w-full rounded-xl border border-gray-200 bg-white/50 py-3 pr-9 pl-11 outline-none transition-all duration-300 hover:border-gray-300 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/10"
-							/>
-
-							{/* Suggestions dropdown */}
-							{searchOpen && searchSuggestions.length > 0 && (
-								<ul className="absolute right-0 left-0 z-30 mt-2 max-h-64 overflow-y-auto rounded-xl border border-gray-100 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.1)]">
-									{searchSuggestions.map((s) => (
-										<li key={s.code}>
-											<button
-												type="button"
-												onMouseDown={() => handleSelectSuggestion(s.code)}
-												className="flex w-full items-center gap-3 border-gray-50 border-b px-4 py-2.5 text-left text-sm last:border-0 hover:bg-primary/5"
-											>
-												<span className="flex-shrink-0 rounded bg-primary/10 px-2 py-0.5 font-bold font-mono text-primary text-xs">
-													{s.code}
-												</span>
-												<span className="truncate text-gray-600">{s.name}</span>
-											</button>
-										</li>
-									))}
-								</ul>
-							)}
-
-							{/* No results hint */}
-							{searchOpen &&
-								searchQuery.trim().length >= 2 &&
-								searchSuggestions.length === 0 &&
-								allSubjects.length > 0 && (
-									<div className="absolute right-0 left-0 z-30 mt-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-gray-400 text-sm shadow-xl">
-										Sin coincidencias en tu pensum — puedes buscar igual
-										presionando Buscar
-									</div>
-								)}
-						</div>
-
-						<button
-							type="button"
-							onClick={handleSearch}
-							disabled={loading || !searchQuery.trim()}
-							className="rounded-full bg-primary px-6 py-2.5 font-semibold text-white shadow-[0_4px_14px_rgba(31,54,83,0.35)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(31,54,83,0.45)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-						>
-							Buscar
-						</button>
-					</div>
-
-					{/* Active search label */}
-					{activeCode && !loading && (
-						<p className="mt-3 flex items-center gap-1.5 text-gray-400 text-xs">
-							Mostrando resultados para
-							<span className="rounded bg-primary/10 px-1.5 py-0.5 font-mono font-semibold text-primary">
-								{activeCode}
-							</span>
-							<button
-								type="button"
-								aria-label="Limpiar búsqueda"
-								onClick={() => {
-									setSearchQuery("");
-									setActiveCode("");
-									setReviews([]);
-									setHasSearched(false);
-								}}
-								className="ml-1 text-gray-400 hover:text-red-500"
-							>
-								<X size={12} />
-							</button>
-						</p>
-					)}
-				</div>
-
-				{/* Review Form */}
-				{showForm && (
-					<form
-						onSubmit={handleSubmitReview}
-						className="panel-enter mb-8 space-y-6 rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5"
-					>
-						<h3 className="font-bold text-gray-900 text-xl tracking-tight">
-							Nueva Reseña
-						</h3>
-
-						{formError && (
-							<div className="rounded-xl bg-red-50 px-4 py-3 text-red-700 text-sm">
-								{formError}
-							</div>
-						)}
-
-						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-							<div>
-								<label
-									htmlFor="review-subject"
-									className="mb-1 block font-medium text-gray-700 text-sm"
-								>
-									Materia *
-									{subjectOptions.length > 0 && (
-										<span className="ml-1 font-normal text-gray-400 text-xs">
-											({subjectOptions.length} cursadas)
-										</span>
-									)}
-								</label>
-								<SubjectCombobox
-									id="review-subject"
-									value={form.subject_code}
-									onChange={(code) => setForm({ ...form, subject_code: code })}
-									options={subjectOptions}
-								/>
-							</div>
-							<div>
-								<label
-									htmlFor="review-period"
-									className="mb-1 block font-medium text-gray-700 text-sm"
-								>
-									Periodo *
-								</label>
-								<select
-									id="review-period"
-									required
-									value={form.period}
-									onChange={(e) => setForm({ ...form, period: e.target.value })}
-									className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
-								>
-									{periods.map((p) => (
-										<option key={p.id} value={p.id}>
-											{formatPeriod(p)}
-										</option>
-									))}
-									{periods.length === 0 && (
-										<option value={form.period}>
-											{form.period || "Sin periodos"}
-										</option>
-									)}
-								</select>
-							</div>
-							<div>
-								<label
-									htmlFor="review-teacher"
-									className="mb-1 block font-medium text-gray-700 text-sm"
-								>
-									Profesor *
-								</label>
-								<TeacherPicker
-									id="review-teacher"
-									subjectId={
-										allSubjects.find((s) => s.code === form.subject_code)?.id
-									}
-									periodId={form.period}
-									allTeachers={allTeachers}
-									value={{
-										sectionId: form.sectionId,
-										teacherIds: form.teacherIds,
-										fallbackTeacherId: form.fallbackTeacherId || "",
-										notFoundTeacherNames: form.notFoundTeacherNames || "",
-									}}
-									onChange={(updates) =>
-										setForm((prev) => ({ ...prev, ...updates }))
-									}
-								/>
-							</div>
-						</div>
-
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-							{[
-								{ label: "Dificultad", key: "difficulty_rating" as const },
-								{ label: "Profesor", key: "professor_rating" as const },
-								{ label: "Carga de trabajo", key: "workload_rating" as const },
-							].map(({ label, key }) => (
-								<div
-									key={key}
-									className="flex items-center justify-between gap-3 sm:block"
-								>
-									<span className="block font-medium text-gray-700 text-sm sm:mb-1.5">
-										{label}
-									</span>
-									<div className="flex items-center gap-2">
-										<StarRatingInput
-											value={form[key]}
-											onChange={(v) => setForm({ ...form, [key]: v })}
-											label={label}
-										/>
-										<span className="min-w-9 text-right font-semibold text-primary text-xs tabular-nums">
-											{formatRating(form[key])}/5
-										</span>
-									</div>
-								</div>
-							))}
-						</div>
-
-						<div className="flex items-center gap-3">
-							<span className="font-medium text-gray-700 text-sm">
-								¿Recomiendas esta materia?
-							</span>
-							<button
-								type="button"
-								onClick={() =>
-									setForm({ ...form, would_recommend: !form.would_recommend })
-								}
-								className={`flex items-center gap-1.5 rounded-lg px-3 py-1 font-semibold text-sm transition-all active:scale-95 ${
-									form.would_recommend
-										? "bg-green-100 text-green-700 hover:bg-green-200"
-										: "bg-red-100 text-red-700 hover:bg-red-200"
-								}`}
-							>
-								{form.would_recommend ? (
-									<ThumbsUp size={14} />
-								) : (
-									<ThumbsDown size={14} />
-								)}
-								{form.would_recommend ? "Sí" : "No"}
-							</button>
-						</div>
-
-						<div>
-							<label
-								htmlFor="review-comment"
-								className="mb-1 block font-medium text-gray-700 text-sm"
-							>
-								Comentario *
-							</label>
-							<textarea
-								id="review-comment"
-								required
-								value={form.comment}
-								onChange={(e) => setForm({ ...form, comment: e.target.value })}
-								rows={3}
-								className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
-								placeholder="Comparte tu experiencia con la materia..."
-							/>
-						</div>
-
-						<div>
-							<label
-								htmlFor="review-tips"
-								className="mb-1 block font-medium text-gray-700 text-sm"
-							>
-								Tips / Consejos
-							</label>
-							<textarea
-								id="review-tips"
-								value={form.tips}
-								onChange={(e) => setForm({ ...form, tips: e.target.value })}
-								rows={2}
-								className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
-								placeholder="Consejos para quien vaya a cursar esta materia..."
-							/>
-						</div>
-
-						<div>
-							<label
-								htmlFor="review-study-strategy"
-								className="mb-1 block font-medium text-gray-700 text-sm"
-							>
-								Estrategia de estudio
-							</label>
-							<textarea
-								id="review-study-strategy"
-								value={form.study_strategy}
-								onChange={(e) =>
-									setForm({ ...form, study_strategy: e.target.value })
-								}
-								rows={2}
-								className="w-full rounded-xl border border-gray-100 bg-gray-50/50 px-3.5 py-2.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] placeholder:text-gray-300 hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
-								placeholder="¿Cómo estudiaste para pasarla?"
-							/>
-						</div>
-
-						<button
-							type="submit"
-							disabled={
-								submitting ||
-								!isTeacherPickerValid({
-									sectionId: form.sectionId,
-									teacherIds: form.teacherIds,
-									fallbackTeacherId: form.fallbackTeacherId || "",
-									notFoundTeacherNames: form.notFoundTeacherNames || "",
-								})
-							}
-							className="group flex w-full items-center justify-center gap-3 rounded-full bg-primary py-4 font-semibold text-white shadow-[0_6px_20px_rgba(31,54,83,0.35)] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(31,54,83,0.45)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0"
-						>
-							{submitting ? (
-								<>
-									<span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />{" "}
-									Publicando...
-								</>
-							) : (
-								<>
-									Publicar Reseña (Anónima)
-									<span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-[1px] group-hover:scale-105 group-hover:bg-white/15">
-										<svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-											<title>Flecha de publicación</title>
-											<path
-												d="M2 10L10 2M10 2H4M10 2V8"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											/>
-										</svg>
-									</span>
-								</>
-							)}
-						</button>
-					</form>
-				)}
+			<div className="mx-auto w-full max-w-4xl px-4 pt-4 pb-12 sm:px-6 lg:px-8">
+				{/* Formulario como panel del flujo normal (solo escena 4) */}
+				{compacted && showForm && renderReviewForm("flow")}
 
 				{/* Results */}
 				{loading ? (
