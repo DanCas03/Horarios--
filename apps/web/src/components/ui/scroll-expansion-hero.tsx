@@ -164,17 +164,21 @@ export default function ScrollExpandMedia({
 						</div>
 					</button>
 
-					{/* Título que se abre hacia los lados durante la inmersión */}
-					<div className="pointer-events-none relative z-10 flex flex-col items-center gap-3 px-4 text-center">
+					{/* Título que se abre hacia los lados durante la inmersión. El
+					    wrapper NO puede posicionarse ni llevar z-index: crearía un
+					    stacking context que aísla el mix-blend-difference del h1 y
+					    lo anula (letras planas). Son los hijos quienes suben con
+					    z-10; el blend vive en el propio h1, como en diveImage.md. */}
+					<div className="pointer-events-none flex flex-col items-center gap-3 px-4 text-center">
 						{subtitle && (
 							<span
-								className="font-semibold text-[11px] text-accent uppercase tracking-[0.25em] transition-none"
+								className="relative z-10 font-semibold text-[11px] text-accent uppercase tracking-[0.25em] transition-none"
 								style={{ transform: `translateX(-${textTranslateX}vw)` }}
 							>
 								{subtitle}
 							</span>
 						)}
-						<h1 className="flex flex-col items-center gap-1 font-extrabold text-5xl text-white tracking-tighter mix-blend-difference md:text-7xl">
+						<h1 className="relative z-10 flex flex-col items-center gap-1 font-extrabold text-5xl text-blue-200 tracking-tighter mix-blend-difference md:text-7xl">
 							<span
 								className="transition-none"
 								style={{ transform: `translateX(-${textTranslateX}vw)` }}
