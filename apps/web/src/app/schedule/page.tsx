@@ -423,8 +423,12 @@ function ScheduleContent() {
 						{activeTab === tab && (
 							<motion.span
 								layoutId="schedule-tab-pill"
-								className="absolute inset-0 rounded-xl bg-white shadow-sm ring-1 ring-black/5"
-								transition={{ type: "spring", stiffness: 400, damping: 32 }}
+								className="absolute inset-0 rounded-xl bg-white shadow-sm ring-1 ring-black/5 transition-none"
+								transition={{
+									type: "tween",
+									duration: 0.4,
+									ease: [0.32, 0.72, 0, 1],
+								}}
 							/>
 						)}
 						<span className="relative z-10 flex items-center gap-2">
