@@ -1,125 +1,161 @@
-# horaios
+# Guía Estudiantil
 
-This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, and more.
+Herramienta de planificación académica para estudiantes universitarios en Venezuela (UCAB y UNIMET). Permite hacer seguimiento del pensum, armar horarios por período y consultar reseñas anónimas de materias y profesores.
 
-## Features
+## El problema
 
-- **TypeScript** - For type safety and improved developer experience
-- **Next.js** - Full-stack React framework
-- **TailwindCSS** - Utility-first CSS for rapid UI development
-- **Shared UI package** - shadcn/ui primitives live in `packages/ui`
-- **Prisma** - TypeScript-first ORM
-- **MongoDB** - Database engine
-- **Authentication** - Better-Auth
-- **Biome** - Linting and formatting
-- **PWA** - Progressive Web App support
-- **Turborepo** - Optimized monorepo build system
+Cada semestre, los estudiantes pasan horas tratando de averiguar qué materias pueden inscribir, cuáles son prelación de cuáles, si hay conflictos de horario entre secciones, y qué profesores valen la pena. Esa información existe dispersa entre PDFs de mallas curriculares, grupos de WhatsApp y rumores de pasillo.
 
-## Getting Started
+Guía Estudiantil centraliza todo eso en una sola app: el pensum con sus prelaciones, las secciones disponibles por período, y reseñas verificadas de la comunidad.
 
-First, install the dependencies:
+## Qué hace
+
+### Seguimiento de pensum
+
+Carga la malla curricular de tu carrera, marca las materias que ya aprobaste y el sistema calcula automáticamente cuáles puedes inscribir el próximo semestre según las prelaciones. Muestra tu progreso en créditos aprobados vs. totales.
+
+### Planificación de horarios
+
+Selecciona un período académico y arma tu horario eligiendo secciones de las materias disponibles. Ve los bloques de horario en una grilla visual (día/hora), detecta choques entre secciones y guarda borradores para comparar opciones.
+
+### Reseñas anónimas
+
+Califica materias y profesores con ratings por categoría (dificultad, carga de trabajo, calidad del profesor), deja comentarios, tips de estudio y estrategias. Todo anónimo, con filtro de profanidad.
+
+### Panel de administración
+
+Los usuarios con rol `admin` pueden gestionar la data académica: universidades, unidades académicas, programas, planes de estudio, materias y sus asignaciones a semestres con prelaciones y correquisitos.
+
+### Encuesta de onboarding
+
+Al registrarse, los estudiantes completan una encuesta donde seleccionan su universidad, carrera, y materias ya aprobadas. Esto alimenta el tracking de pensum desde el día uno.
+
+## Stack técnico
+
+El proyecto es un monorepo manejado con Turborepo y Bun como package manager.
+
+### App (`apps/web`)
+
+Next.js con App Router, React 19, TailwindCSS v4. Usa typed routes y React Compiler. El output es `standalone` para facilitar el deploy con Docker. La autenticación se maneja con Better Auth (email/password + Google OAuth) a través de cookies, no tokens en headers.
+
+### Paquetes compartidos (`packages/`)
+
+El monorepo separa concerns en paquetes internos para que la app web no mezcle todo en un solo lugar:
+
+- **`db`**: Prisma con MongoDB. El schema está dividido en archivos por dominio (`domain.prisma`, `auth.prisma`, `user_profile.prisma`) en vez de un solo `schema.prisma` monolítico.
+- **`auth`**: Configuración de Better Auth con el adapter de Prisma. Incluye el plugin de admin para roles.
+- **`ui`**: Componentes compartidos de shadcn/ui (botones, inputs, etc.) con su propio `globals.css`.
+- **`env`**: Validación de variables de entorno con `@t3-oss/env-core` y Zod. Falla en build si falta algo.
+- **`config`**: `tsconfig.base.json` compartido.
+
+### API
+
+Las rutas de API viven dentro de Next.js en `apps/web/src/app/api/`. Hay 12 grupos de endpoints: `auth`, `universities`, `academic-programs`, `academic-units`, `periods`, `subjects`, `sections`, `teachers`, `reviews`, `schedules`, `study-plans` y `study-plan-subjects`.
+
+### PWA
+
+La app se puede instalar como Progressive Web App. El manifest y los íconos se sirven desde `public/favicon/`.
+
+## Modelo de datos
+
+El dominio gira alrededor de estas entidades principales:
+
+- **University** → tiene muchas **AcademicUnit** (facultades/escuelas)
+- **AcademicUnit** → tiene muchos **AcademicProgram** (carreras)
+- **AcademicProgram** → tiene **StudyPlan** → con **StudyPlanSubject** (materias asignadas a semestres, con prelaciones y correquisitos)
+- **Subject** → tiene **Section** por período (con bloques de horario, profesores, aula)
+- **Period** → semestre o trimestre activo
+- **Review** → vinculada a materia, con ratings por categoría y texto libre
+- **Schedule** → colección de secciones elegidas por un usuario para un período
+- **UserProfile** → materias aprobadas, créditos, universidad y carrera del estudiante
+
+Todas las relaciones en MongoDB se manejan con IDs referenciados (no `@relation`), excepto User↔UserProfile y User↔Session que sí tienen relación explícita.
+
+## Requisitos previos
+
+- [Bun](https://bun.sh/) v1.3.14+
+- MongoDB (Atlas o local)
+- Credenciales de Google OAuth (para login con Google)
+
+## Setup
+
+1. Clona el repo e instala dependencias:
 
 ```bash
+git clone <repo-url>
+cd horaios
 bun install
 ```
 
-## Database Setup
+2. Copia el archivo de ejemplo y completa las variables:
 
-This project uses MongoDB with Prisma.
+```bash
+cp apps/web/.env.example apps/web/.env
+```
 
-1. Make sure you have MongoDB set up.
-2. Update your `apps/web/.env` file with your MongoDB connection URI.
+Las variables requeridas:
 
-3. Apply the schema to your database:
+| Variable | Qué es |
+| --- | --- |
+| `DATABASE_URL` | Connection string de MongoDB |
+| `BETTER_AUTH_SECRET` | String de al menos 32 caracteres para firmar tokens de sesión |
+| `BETTER_AUTH_URL` | URL base de la app (en dev: `http://localhost:3000`) |
+| `CORS_ORIGIN` | Mismo valor que `BETTER_AUTH_URL` |
+| `GOOGLE_CLIENT_ID` | Client ID de Google OAuth |
+| `GOOGLE_CLIENT_SECRET` | Client secret de Google OAuth |
+
+3. Empuja el schema a la base de datos:
 
 ```bash
 bun run db:push
 ```
 
-Then, run the development server:
+4. Arranca el servidor de desarrollo:
 
 ```bash
 bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the fullstack application.
+La app estará en `http://localhost:3000`.
 
-## UI Customization
+## Scripts disponibles
 
-React web apps in this stack share shadcn/ui primitives through `packages/ui`.
+| Script | Qué hace |
+| --- | --- |
+| `bun run dev` | Arranca todos los paquetes en modo desarrollo |
+| `bun run dev:web` | Arranca solo la app web |
+| `bun run build` | Build de producción |
+| `bun run check-types` | Verifica tipos TypeScript en todo el monorepo |
+| `bun run check` | Linting y formato con Biome |
+| `bun run db:push` | Aplica el schema de Prisma a MongoDB |
+| `bun run db:generate` | Regenera el Prisma Client |
+| `bun run db:studio` | Abre Prisma Studio para explorar la base de datos |
+| `bun run db:migrate` | Ejecuta migraciones |
 
-- Change design tokens and global styles in `packages/ui/src/styles/globals.css`
-- Update shared primitives in `packages/ui/src/components/*`
-- Adjust shadcn aliases or style config in `packages/ui/components.json` and `apps/web/components.json`
+## Docker
 
-### Add more shared components
-
-Run this from the project root to add more primitives to the shared UI package:
+El proyecto incluye un `docker-compose.yaml` que construye la app web como imagen standalone:
 
 ```bash
-npx shadcn@latest add accordion dialog popover sheet table -c packages/ui
+docker compose up --build
 ```
 
-Import shared components like this:
+La imagen usa multi-stage build (prepare → builder → runner) y corre como usuario no-root en producción. Necesita las variables de entorno en un `.env` en la raíz del proyecto.
 
-```tsx
-import { Button } from "@horaios/ui/components/button";
-```
+## Componentes UI personalizados
 
-### Add app-specific blocks
+Además de los primitivos de shadcn/ui, la app tiene componentes de UI propios con animaciones avanzadas (Framer Motion):
 
-If you want to add app-specific blocks instead of shared primitives, run the shadcn CLI from `apps/web`.
+- **ContainerScroll**: animación de scroll 3D en el hero de la landing
+- **GlowingEffect**: borde con efecto de brillo que sigue el cursor
+- **ScrollExpandMedia**: hero de reseñas con expansión al hacer scroll
+- **SpotlightEffect**: iluminación que sigue el mouse
+- **FloatingActionMenu**: menú flotante de navegación tipo dock
+- **SmoothAccordion**: acordeón con animación suave de altura
 
-## Git Hooks and Formatting
+## Limitaciones actuales
 
-- Format and lint fix: `bun run check`
-
-## Project Structure
-
-```
-horaios/
-├── apps/
-│   └── web/         # Fullstack application (Next.js)
-├── packages/
-│   ├── ui/          # Shared shadcn/ui components and styles
-│   ├── auth/        # Authentication configuration & logic
-│   └── db/          # Database schema & queries
-```
-
-## Available Scripts
-
-- `bun run dev`: Start all applications in development mode
-- `bun run build`: Build all applications
-- `bun run dev:web`: Start only the web application
-- `bun run check-types`: Check TypeScript types across all apps
-- `bun run db:push`: Push schema changes to database
-- `bun run db:generate`: Generate database client/types
-- `bun run db:migrate`: Run database migrations
-- `bun run db:studio`: Open database studio UI
-- `bun run check`: Run Biome formatting and linting
-- `cd apps/web && bun run generate-pwa-assets`: Generate PWA assets
-
- ╭────────────────────────────────────────────────────────────────────╮
- │                                                                    │
- │  Next steps                                                        │
- │  1. cd horaios                                                     │
- │  2. bun run dev                                                    │
- │  Your project will be available at:                                │
- │  • Frontend: http://localhost:3001                                 │
- │                                                                    │
- │  Database commands:                                                │
- │  • Generate Prisma Client: bun run db:generate                     │
- │  • Apply schema: bun run db:push                                   │
- │  • Database UI: bun run db:studio                                  │
- │                                                                    │
- │  Linting and formatting:                                           │
- │  • Format and lint fix: bun run check                              │
- │                                                                    │
- │  Special sponsors                                                  │
- │  • neondatabase   • Guillermo Rauch   • Clerk   • Novu   • Convex  │
- │                                                                    │
- │  Like Better-T-Stack? Please consider giving us a star             │
- │     on GitHub:                                                     │
- │  https://github.com/AmanVarshney01/create-better-t-stack           │
- │                                                                    │
- ╰────────────────────────────────────────────────────────────────────╯
+- Solo soporta UCAB y UNIMET. Agregar otra universidad requiere cargar su data académica manualmente vía el panel de admin.
+- No hay generación automática de horarios óptimos; el estudiante arma el horario manualmente eligiendo secciones.
+- La funcionalidad de "Análisis Inteligente" (sugerencias basadas en progreso) está marcada como "Coming Soon".
+- Las reseñas no tienen sistema de moderación más allá del filtro de profanidad.
