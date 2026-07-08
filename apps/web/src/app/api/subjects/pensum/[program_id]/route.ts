@@ -49,6 +49,7 @@ export async function GET(
 			semesterSuggested: planSubject?.suggestedTerm || null,
 			prerequisites: planSubject?.prerequisiteIds || [],
 			corequisites: planSubject?.corequisiteIds || [],
+			prerequisiteCredits: planSubject?.prerequisiteCredits || 0,
 		};
 	});
 

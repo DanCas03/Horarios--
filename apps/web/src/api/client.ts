@@ -183,6 +183,7 @@ export const studyPlanSubjectsAPI = {
 		suggestedTerm: number;
 		prerequisiteIds?: string[];
 		corequisiteIds?: string[];
+		prerequisiteCredits?: number;
 	}) => api.post("/study-plan-subjects", data),
 	update: (
 		id: string,
@@ -190,6 +191,7 @@ export const studyPlanSubjectsAPI = {
 			suggestedTerm?: number;
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
+			prerequisiteCredits?: number;
 		},
 	) => api.put(`/study-plan-subjects/${id}`, data),
 	delete: (id: string) => api.delete(`/study-plan-subjects/${id}`),

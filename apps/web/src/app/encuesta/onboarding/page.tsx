@@ -17,6 +17,7 @@ interface PensumSubject {
 	credits: number;
 	semesterSuggested: number | null;
 	prerequisites: string[];
+	prerequisiteCredits: number;
 }
 
 function OnboardingContent() {
@@ -85,6 +86,13 @@ function OnboardingContent() {
 		return Array.from(map.entries()).sort(([a], [b]) => a - b);
 	}, [subjects]);
 
+	const currentApprovedCredits = useMemo(() => {
+		return Array.from(selectedIds).reduce((sum, id) => {
+			const s = subjects.find((sub) => sub.id === id);
+			return sum + (s?.credits ?? 0);
+		}, 0);
+	}, [selectedIds, subjects]);
+
 	const toggleSubject = useCallback(
 		(id: string) => {
 			setSelectedIds((prev) => {
@@ -95,12 +103,24 @@ function OnboardingContent() {
 					let addedAny = true;
 					while (addedAny) {
 						addedAny = false;
+						const remainingIds = new Set(
+							Array.from(next).filter((x) => !toRemove.has(x)),
+						);
+						const remainingCredits = Array.from(remainingIds).reduce(
+							(sum, subId) => {
+								const s = subjects.find((sub) => sub.id === subId);
+								return sum + (s?.credits ?? 0);
+							},
+							0,
+						);
+
 						for (const s of subjects) {
 							if (next.has(s.id) && !toRemove.has(s.id)) {
-								const hasPrereqInToRemove = s.prerequisites?.some((p) =>
-									toRemove.has(p),
-								);
-								if (hasPrereqInToRemove) {
+								const subjectPrereqsMet =
+									s.prerequisites?.every((p) => remainingIds.has(p)) ?? true;
+								const creditPrereqsMet =
+									remainingCredits >= (s.prerequisiteCredits ?? 0);
+								if (!subjectPrereqsMet || !creditPrereqsMet) {
 									toRemove.add(s.id);
 									addedAny = true;
 								}
@@ -113,10 +133,18 @@ function OnboardingContent() {
 				} else {
 					// We are selecting. We only allow it if prerequisites are met.
 					const subject = subjects.find((s) => s.id === id);
-					const prereqsMet =
-						subject?.prerequisites?.every((pId) => next.has(pId)) ?? true;
-					if (prereqsMet) {
-						next.add(id);
+					if (subject) {
+						const currentCredits = Array.from(next).reduce((sum, subId) => {
+							const s = subjects.find((sub) => sub.id === subId);
+							return sum + (s?.credits ?? 0);
+						}, 0);
+						const subjectPrereqsMet =
+							subject.prerequisites?.every((pId) => next.has(pId)) ?? true;
+						const creditPrereqsMet =
+							currentCredits >= (subject.prerequisiteCredits ?? 0);
+						if (subjectPrereqsMet && creditPrereqsMet) {
+							next.add(id);
+						}
 					}
 				}
 				return next;
@@ -129,12 +157,21 @@ function OnboardingContent() {
 		(semesterSubjects: PensumSubject[]) => {
 			setSelectedIds((prev) => {
 				const next = new Set(prev);
+				const currentCredits = Array.from(next).reduce((sum, subId) => {
+					const s = subjects.find((sub) => sub.id === subId);
+					return sum + (s?.credits ?? 0);
+				}, 0);
+
 				// Check if all selectable subjects in the semester are currently selected
-				const selectableSubjects = semesterSubjects.filter(
-					(s) =>
-						next.has(s.id) ||
-						(s.prerequisites?.every((pId) => next.has(pId)) ?? true),
-				);
+				const selectableSubjects = semesterSubjects.filter((s) => {
+					if (next.has(s.id)) return true;
+					const subjectPrereqsMet =
+						s.prerequisites?.every((pId) => next.has(pId)) ?? true;
+					const creditPrereqsMet =
+						currentCredits >= (s.prerequisiteCredits ?? 0);
+					return subjectPrereqsMet && creditPrereqsMet;
+				});
+
 				const allSelectableSelected = selectableSubjects.every((s) =>
 					next.has(s.id),
 				);
@@ -145,9 +182,24 @@ function OnboardingContent() {
 					let addedAny = true;
 					while (addedAny) {
 						addedAny = false;
+						const remainingIds = new Set(
+							Array.from(next).filter((x) => !toRemove.has(x)),
+						);
+						const remainingCredits = Array.from(remainingIds).reduce(
+							(sum, subId) => {
+								const s = subjects.find((sub) => sub.id === subId);
+								return sum + (s?.credits ?? 0);
+							},
+							0,
+						);
+
 						for (const s of subjects) {
 							if (next.has(s.id) && !toRemove.has(s.id)) {
-								if (s.prerequisites?.some((p) => toRemove.has(p))) {
+								const subjectPrereqsMet =
+									s.prerequisites?.every((p) => remainingIds.has(p)) ?? true;
+								const creditPrereqsMet =
+									remainingCredits >= (s.prerequisiteCredits ?? 0);
+								if (!subjectPrereqsMet || !creditPrereqsMet) {
 									toRemove.add(s.id);
 									addedAny = true;
 								}
@@ -162,11 +214,18 @@ function OnboardingContent() {
 					let addedAny = true;
 					while (addedAny) {
 						addedAny = false;
+						const loopCredits = Array.from(next).reduce((sum, subId) => {
+							const s = subjects.find((sub) => sub.id === subId);
+							return sum + (s?.credits ?? 0);
+						}, 0);
+
 						for (const s of semesterSubjects) {
 							if (!next.has(s.id)) {
-								const prereqsMet =
+								const subjectPrereqsMet =
 									s.prerequisites?.every((pId) => next.has(pId)) ?? true;
-								if (prereqsMet) {
+								const creditPrereqsMet =
+									loopCredits >= (s.prerequisiteCredits ?? 0);
+								if (subjectPrereqsMet && creditPrereqsMet) {
 									next.add(s.id);
 									addedAny = true;
 								}
@@ -251,16 +310,22 @@ function OnboardingContent() {
 			)}
 
 			{/* Counter */}
-			<div className="mb-6 flex items-center justify-between rounded-xl bg-primary/5 px-4 py-3">
-				<span className="font-medium text-gray-700 text-sm">
-					{selectedIds.size} materia{selectedIds.size !== 1 ? "s" : ""}{" "}
-					seleccionada{selectedIds.size !== 1 ? "s" : ""}
-				</span>
+			<div className="mb-6 flex flex-col gap-2.5 rounded-xl bg-primary/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+				<div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+					<span className="font-semibold text-gray-700 text-sm">
+						{selectedIds.size} materia{selectedIds.size !== 1 ? "s" : ""}{" "}
+						seleccionada{selectedIds.size !== 1 ? "s" : ""}
+					</span>
+					<span className="hidden text-gray-300 sm:inline">|</span>
+					<span className="font-bold text-primary text-sm">
+						Total de UC seleccionadas: {currentApprovedCredits} UC
+					</span>
+				</div>
 				{selectedIds.size > 0 && (
 					<button
 						type="button"
 						onClick={() => setSelectedIds(new Set())}
-						className="font-medium text-primary text-xs hover:underline"
+						className="text-left font-medium text-primary text-xs hover:underline sm:text-right"
 					>
 						Limpiar selección
 					</button>
@@ -322,10 +387,14 @@ function OnboardingContent() {
 								<div className="accordion-content border-gray-50 border-t px-3 pb-3">
 									{semSubjects.map((subject) => {
 										const isSelected = selectedIds.has(subject.id);
-										const prereqsMet =
+										const subjectPrereqsMet =
 											subject.prerequisites?.every((pId) =>
 												selectedIds.has(pId),
 											) ?? true;
+										const creditPrereqsMet =
+											currentApprovedCredits >=
+											(subject.prerequisiteCredits ?? 0);
+										const prereqsMet = subjectPrereqsMet && creditPrereqsMet;
 										const isDisabled = !isSelected && !prereqsMet;
 
 										return (
@@ -343,7 +412,9 @@ function OnboardingContent() {
 												}`}
 												title={
 													isDisabled
-														? "Faltan materias prerrequisito por aprobar"
+														? !subjectPrereqsMet
+															? "Faltan materias prerrequisito por aprobar"
+															: `Faltan Unidades de Crédito por aprobar (requiere ${subject.prerequisiteCredits} UC)`
 														: isSelected
 															? "Desmarcar materia"
 															: "Marcar materia como aprobada"
@@ -387,32 +458,45 @@ function OnboardingContent() {
 															{subject.name}
 														</span>
 													</div>
-													{subject.prerequisites &&
-														subject.prerequisites.length > 0 && (
-															<div className="mt-1.5 flex flex-wrap items-center gap-1">
-																<span className="font-medium text-[10px] text-gray-400">
-																	Requisitos:
+													{((subject.prerequisites &&
+														subject.prerequisites.length > 0) ||
+														(subject.prerequisiteCredits &&
+															subject.prerequisiteCredits > 0)) && (
+														<div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+															<span className="font-medium text-[10px] text-gray-400">
+																Requisitos:
+															</span>
+															{subject.prerequisites?.map((pId) => {
+																const pCode =
+																	subjects.find((s) => s.id === pId)?.code ??
+																	pId;
+																const met = selectedIds.has(pId);
+																return (
+																	<span
+																		key={pId}
+																		className={`inline-flex items-center rounded px-1.5 py-0.5 font-semibold text-[9px] ${
+																			met
+																				? "bg-green-100 text-green-700"
+																				: "bg-amber-100 text-amber-700"
+																		}`}
+																	>
+																		{pCode}
+																	</span>
+																);
+															})}
+															{subject.prerequisiteCredits > 0 && (
+																<span
+																	className={`inline-flex items-center rounded px-1.5 py-0.5 font-semibold text-[9px] ${
+																		creditPrereqsMet
+																			? "bg-green-100 text-green-700"
+																			: "bg-amber-100 text-amber-700"
+																	}`}
+																>
+																	Mín. {subject.prerequisiteCredits} UC
 																</span>
-																{subject.prerequisites.map((pId) => {
-																	const pCode =
-																		subjects.find((s) => s.id === pId)?.code ??
-																		pId;
-																	const met = selectedIds.has(pId);
-																	return (
-																		<span
-																			key={pId}
-																			className={`inline-flex items-center rounded px-1.5 py-0.5 font-semibold text-[9px] ${
-																				met
-																					? "bg-green-100 text-green-700"
-																					: "bg-amber-100 text-amber-700"
-																			}`}
-																		>
-																			{pCode}
-																		</span>
-																	);
-																})}
-															</div>
-														)}
+															)}
+														</div>
+													)}
 												</div>
 												<span className="mt-0.5 flex-shrink-0 text-gray-400 text-xs">
 													{subject.credits} cr

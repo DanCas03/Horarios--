@@ -12,10 +12,16 @@ export async function PUT(
 	try {
 		const { id } = await params;
 		const body = await request.json();
-		const { suggestedTerm, prerequisiteIds, corequisiteIds } = body as {
+		const {
+			suggestedTerm,
+			prerequisiteIds,
+			corequisiteIds,
+			prerequisiteCredits,
+		} = body as {
 			suggestedTerm?: number;
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
+			prerequisiteCredits?: number;
 		};
 
 		const updated = await prisma.studyPlanSubject.update({
@@ -24,6 +30,7 @@ export async function PUT(
 				...(suggestedTerm !== undefined && { suggestedTerm }),
 				...(prerequisiteIds !== undefined && { prerequisiteIds }),
 				...(corequisiteIds !== undefined && { corequisiteIds }),
+				...(prerequisiteCredits !== undefined && { prerequisiteCredits }),
 			},
 		});
 

@@ -147,12 +147,13 @@ model StudyPlan {
 // Study Plan Subject
 // =============================================================================
 model StudyPlanSubject {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  studyPlanId     String?  @map("study_plan_id") @db.ObjectId
-  subjectId       String?  @map("subject_id") @db.ObjectId
-  suggestedTerm   Int?     @map("suggested_term")
-  prerequisiteIds String[] @map("prerequisite_ids") @db.ObjectId
-  corequisiteIds  String[] @map("corequisite_ids") @db.ObjectId
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  studyPlanId         String?  @map("study_plan_id") @db.ObjectId
+  subjectId           String?  @map("subject_id") @db.ObjectId
+  suggestedTerm       Int?     @map("suggested_term")
+  prerequisiteIds     String[] @map("prerequisite_ids") @db.ObjectId
+  corequisiteIds      String[] @map("corequisite_ids") @db.ObjectId
+  prerequisiteCredits Int      @default(0) @map("prerequisite_credits")
 
   @@map("study_plan_subjects")
 }

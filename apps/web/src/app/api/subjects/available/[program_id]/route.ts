@@ -47,11 +47,23 @@ export async function GET(
 		where: { studyPlanId: activePlan.id },
 	});
 
+	const totalCredits = profile?.totalApprovedCredits ?? 0;
+
 	// Filtrar las materias que NO están aprobadas y que cumplen prerrequisitos
 	const availablePlanSubjects = planSubjects.filter((ps) => {
 		if (!ps.subjectId || approvedIds.has(ps.subjectId)) return false;
-		// Tiene que tener aprobados todos los prerrequisitos (identificados por subjectId)
-		return ps.prerequisiteIds.every((prereqId) => approvedIds.has(prereqId));
+
+		// 1. Prerrequisitos de materias
+		const hasSubjectPrereqs = ps.prerequisiteIds.every((prereqId: string) =>
+			approvedIds.has(prereqId),
+		);
+		if (!hasSubjectPrereqs) return false;
+
+		// 2. Prerrequisito de créditos
+		const reqCredits = ps.prerequisiteCredits ?? 0;
+		if (totalCredits < reqCredits) return false;
+
+		return true;
 	});
 
 	const availableSubjectIds = availablePlanSubjects
@@ -77,6 +89,7 @@ export async function GET(
 			semesterSuggested: planSubject?.suggestedTerm || null,
 			prerequisites: planSubject?.prerequisiteIds || [],
 			corequisites: planSubject?.corequisiteIds || [],
+			prerequisiteCredits: planSubject?.prerequisiteCredits || 0,
 		};
 	});
 

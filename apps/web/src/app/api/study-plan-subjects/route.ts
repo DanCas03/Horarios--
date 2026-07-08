@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
 			suggestedTerm: ps.suggestedTerm,
 			prerequisiteIds: ps.prerequisiteIds || [],
 			corequisiteIds: ps.corequisiteIds || [],
+			prerequisiteCredits: ps.prerequisiteCredits || 0,
 			// Datos de la materia
 			code: subDetail?.code || "",
 			name: subDetail?.name || "",
@@ -68,12 +69,14 @@ export async function POST(request: Request) {
 			suggestedTerm,
 			prerequisiteIds,
 			corequisiteIds,
+			prerequisiteCredits,
 		} = body as {
 			studyPlanId: string;
 			subjectId: string;
 			suggestedTerm: number;
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
+			prerequisiteCredits?: number;
 		};
 
 		if (!studyPlanId || !subjectId || suggestedTerm === undefined) {
@@ -102,6 +105,7 @@ export async function POST(request: Request) {
 				suggestedTerm,
 				prerequisiteIds: prerequisiteIds || [],
 				corequisiteIds: corequisiteIds || [],
+				prerequisiteCredits: prerequisiteCredits || 0,
 			},
 		});
 
