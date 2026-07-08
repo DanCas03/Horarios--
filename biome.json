@@ -1,9 +1,9 @@
 {
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"vcs": {
-		"enabled": false,
+		"enabled": true,
 		"clientKind": "git",
-		"useIgnoreFile": false
+		"useIgnoreFile": true
 	},
 	"files": {
 		"ignoreUnknown": false,
@@ -26,7 +26,9 @@
 			"!**/.svelte-kit",
 			"!**/wrangler.jsonc",
 			"!**/.source",
-			"!**/convex/_generated"
+			"!**/convex/_generated",
+			"!**/.agents",
+			"!**/.claude"
 		]
 	},
 	"formatter": {
@@ -82,5 +84,6 @@
 		"parser": {
 			"tailwindDirectives": true
 		}
-	}
+	},
+	"extends": ["ultracite/biome/next"]
 }

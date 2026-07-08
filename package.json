@@ -24,15 +24,17 @@
 	},
 	"type": "module",
 	"scripts": {
-		"dev": "turbo dev",
-		"build": "turbo build",
-		"check-types": "turbo check-types",
+		"dev": "turbo run dev",
+		"build": "turbo run build",
+		"check-types": "turbo run check-types",
 		"postinstall": "turbo db:generate",
-		"dev:web": "turbo -F web dev",
-		"db:push": "turbo -F @horaios/db db:push",
-		"db:studio": "turbo -F @horaios/db db:studio",
-		"db:generate": "turbo -F @horaios/db db:generate",
-		"db:migrate": "turbo -F @horaios/db db:migrate"
+		"dev:web": "turbo run dev -F web",
+		"db:push": "turbo run db:push -F @horaios/db",
+		"db:studio": "turbo run db:studio -F @horaios/db",
+		"db:generate": "turbo run db:generate -F @horaios/db",
+		"db:migrate": "turbo run db:migrate -F @horaios/db",
+		"check": "ultracite check",
+		"fix": "ultracite fix"
 	},
 	"dependencies": {
 		"@horaios/env": "workspace:*",
@@ -40,11 +42,12 @@
 		"zod": "catalog:"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.15",
+		"@biomejs/biome": "2.5.2",
 		"@horaios/config": "workspace:*",
 		"@types/node": "^22.13.14",
 		"turbo": "^2.8.12",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"ultracite": "7.9.2"
 	},
 	"packageManager": "bun@1.3.14"
 }
