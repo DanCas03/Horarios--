@@ -152,7 +152,7 @@ export const schedulesAPI = {
 	update: (id: string, data: unknown) => api.put(`/schedules/${id}`, data),
 	createTentative: (
 		periodId: string,
-		data: { sectionIds?: string[]; customBlocks?: any[] },
+		data: { sectionIds?: string[]; customBlocks?: unknown[] },
 	) => api.post(`/schedules/tentative?periodId=${periodId}`, data),
 	delete: (id: string) => api.delete(`/schedules/${id}`),
 };
@@ -183,6 +183,7 @@ export const studyPlanSubjectsAPI = {
 		suggestedTerm: number;
 		prerequisiteIds?: string[];
 		corequisiteIds?: string[];
+		prerequisiteCredits?: number;
 	}) => api.post("/study-plan-subjects", data),
 	update: (
 		id: string,
@@ -190,6 +191,7 @@ export const studyPlanSubjectsAPI = {
 			suggestedTerm?: number;
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
+			prerequisiteCredits?: number;
 		},
 	) => api.put(`/study-plan-subjects/${id}`, data),
 	delete: (id: string) => api.delete(`/study-plan-subjects/${id}`),
@@ -200,26 +202,27 @@ export const surveyAPI = {
 };
 
 export function parseApiError(err: unknown, defaultMsg: string): string {
-	const data = (err as { response?: { data?: any } })?.response?.data;
+	const data = (err as { response?: { data?: unknown } })?.response?.data;
 	if (data && typeof data === "object") {
-		if (data.detail) {
-			const detail = data.detail;
+		const obj = data as Record<string, unknown>;
+		if (obj.detail) {
+			const detail = obj.detail;
 			if (Array.isArray(detail)) {
 				return detail
 					.map((d) =>
 						typeof d === "object" && d !== null && "msg" in d
-							? String((d as { msg: any }).msg)
+							? String((d as { msg: unknown }).msg)
 							: JSON.stringify(d),
 					)
 					.join(". ");
 			}
 			if (typeof detail === "string") return detail;
 		}
-		if (typeof data.error === "string") {
-			return data.error;
+		if (typeof obj.error === "string") {
+			return obj.error;
 		}
-		if (typeof data.message === "string") {
-			return data.message;
+		if (typeof obj.message === "string") {
+			return obj.message;
 		}
 	}
 	return defaultMsg;

@@ -1,4 +1,5 @@
 import prisma from "@horaios/db";
+import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
 			periodId?: string;
 			scheduleType: string;
 			sectionIds?: string[];
-			customBlocks?: any[];
+			customBlocks?: Prisma.InputJsonValue[];
 		};
 
 	if (!scheduleType) {

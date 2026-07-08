@@ -33,8 +33,8 @@ export async function GET(
 	}
 
 	const subjectIds = planSubjects
-		.map((ps: any) => ps.subjectId)
-		.filter((id: any) => id !== null) as string[];
+		.map((ps) => ps.subjectId)
+		.filter((id): id is string => id !== null);
 
 	// 3. Obtener el detalle de las materias
 	const subjects = await prisma.subject.findMany({
@@ -42,20 +42,19 @@ export async function GET(
 	});
 
 	// 4. Mapear la respuesta para incluir el semestre sugerido
-	const result = subjects.map((subject: any) => {
-		const planSubject = planSubjects.find(
-			(ps: any) => ps.subjectId === subject.id,
-		);
+	const result = subjects.map((subject) => {
+		const planSubject = planSubjects.find((ps) => ps.subjectId === subject.id);
 		return {
 			...subject,
 			semesterSuggested: planSubject?.suggestedTerm || null,
 			prerequisites: planSubject?.prerequisiteIds || [],
 			corequisites: planSubject?.corequisiteIds || [],
+			prerequisiteCredits: planSubject?.prerequisiteCredits || 0,
 		};
 	});
 
 	// Ordenar por semestre
-	result.sort((a: any, b: any) => {
+	result.sort((a, b) => {
 		const semA = a.semesterSuggested || 99;
 		const semB = b.semesterSuggested || 99;
 		return semA - semB;

@@ -51,6 +51,7 @@ interface PlanSubject {
 	suggestedTerm: number;
 	prerequisiteIds: string[];
 	corequisiteIds: string[];
+	prerequisiteCredits: number;
 	code: string;
 	name: string;
 	credits: number;
@@ -125,6 +126,7 @@ function AdminContent() {
 	const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
 	const [suggestedTerm, setSuggestedTerm] = useState<number>(1);
 	const [prereqIds, setPrereqIds] = useState<string[]>([]);
+	const [prereqCredits, setPrereqCredits] = useState<number>(0);
 	const [savingAssign, setSavingAssign] = useState(false);
 
 	// 3. Modal CRUD de Materia (General)
@@ -335,6 +337,7 @@ function AdminContent() {
 		setSelectedSubject(null);
 		setSuggestedTerm(term);
 		setPrereqIds([]);
+		setPrereqCredits(0);
 		setSearchSubjectTerm("");
 		setShowAssignModal(true);
 	};
@@ -345,6 +348,7 @@ function AdminContent() {
 		setSelectedSubject(baseSub || null);
 		setSuggestedTerm(ps.suggestedTerm);
 		setPrereqIds(ps.prerequisiteIds || []);
+		setPrereqCredits(ps.prerequisiteCredits || 0);
 		setSearchSubjectTerm("");
 		setShowAssignModal(true);
 	};
@@ -357,6 +361,7 @@ function AdminContent() {
 				await studyPlanSubjectsAPI.update(editingAssign.id, {
 					suggestedTerm,
 					prerequisiteIds: prereqIds,
+					prerequisiteCredits: prereqCredits,
 				});
 			} else {
 				await studyPlanSubjectsAPI.assign({
@@ -364,6 +369,7 @@ function AdminContent() {
 					subjectId: selectedSubject.id,
 					suggestedTerm,
 					prerequisiteIds: prereqIds,
+					prerequisiteCredits: prereqCredits,
 				});
 			}
 			const res = await studyPlanSubjectsAPI.list(selectedPlanId);
@@ -892,7 +898,9 @@ function AdminContent() {
 																			{ps.name}
 																		</p>
 
-																		{ps.prerequisiteIds.length > 0 && (
+																		{(ps.prerequisiteIds.length > 0 ||
+																			(ps.prerequisiteCredits &&
+																				ps.prerequisiteCredits > 0)) && (
 																			<div className="mt-3 flex flex-wrap items-center gap-1">
 																				<span className="font-bold text-[9px] text-gray-400 uppercase">
 																					Prereq:
@@ -911,6 +919,14 @@ function AdminContent() {
 																						</span>
 																					);
 																				})}
+																				{ps.prerequisiteCredits > 0 && (
+																					<span
+																						className="rounded-md bg-blue-50 px-1.5 py-0.5 font-bold text-[9px] text-blue-700 ring-1 ring-blue-600/10"
+																						title={`Requiere tener al menos ${ps.prerequisiteCredits} UC aprobadas`}
+																					>
+																						{ps.prerequisiteCredits} UC
+																					</span>
+																				)}
 																			</div>
 																		)}
 																	</div>
@@ -1403,6 +1419,27 @@ function AdminContent() {
 										className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 									/>
 								</div>
+							</div>
+
+							<div className="space-y-1.5">
+								<label
+									htmlFor="prereq-credits-input"
+									className="block font-bold text-gray-400 text-xs uppercase tracking-wider"
+								>
+									Mínimo de UC Requeridas (Prerrequisito)
+								</label>
+								<input
+									id="prereq-credits-input"
+									type="number"
+									min={0}
+									value={prereqCredits}
+									onChange={(e) => {
+										const v = e.currentTarget.valueAsNumber;
+										setPrereqCredits(Number.isNaN(v) ? 0 : Math.max(0, v));
+									}}
+									className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+									placeholder="Ej. 80"
+								/>
 							</div>
 
 							<div className="space-y-1.5">

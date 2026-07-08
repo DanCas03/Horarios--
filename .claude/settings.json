@@ -1,0 +1,14 @@
+{
+	"hooks": {
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"command": "bun run fix --skip=correctness/noUnusedImports",
+						"type": "command"
+					}
+				]
+			}
+		]
+	}
+}
