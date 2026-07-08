@@ -1433,9 +1433,10 @@ function AdminContent() {
 									type="number"
 									min={0}
 									value={prereqCredits}
-									onChange={(e) =>
-										setPrereqCredits(Math.max(0, Number(e.target.value)))
-									}
+									onChange={(e) => {
+										const v = e.currentTarget.valueAsNumber;
+										setPrereqCredits(Number.isNaN(v) ? 0 : Math.max(0, v));
+									}}
 									className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 									placeholder="Ej. 80"
 								/>
