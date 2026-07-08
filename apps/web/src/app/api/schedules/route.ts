@@ -2,6 +2,7 @@ import prisma from "@horaios/db";
 import type { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
+import { validateSectionsMentions } from "@/lib/mentions-validation";
 
 /**
  * POST /api/schedules
@@ -37,6 +38,14 @@ export async function POST(request: Request) {
 			{ error: "Perfil no encontrado" },
 			{ status: 404 },
 		);
+	}
+
+	// Validar que las materias seleccionadas correspondan a menciones cursadas por el usuario
+	if (sectionIds && sectionIds.length > 0) {
+		const validation = await validateSectionsMentions(profile.id, sectionIds);
+		if (!validation.valid) {
+			return NextResponse.json({ error: validation.error }, { status: 400 });
+		}
 	}
 
 	let resolvedPeriodId = periodId;

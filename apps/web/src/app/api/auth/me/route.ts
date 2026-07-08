@@ -57,6 +57,7 @@ export async function GET() {
 		role: session.user.role,
 		universityIds: profile.universityIds,
 		academicProgramIds: profile.academicProgramIds,
+		activeMentionIds: profile.activeMentionIds,
 		approvedSubjects: profile.approvedSubjects,
 		totalApprovedCredits: profile.totalApprovedCredits,
 		surveyCompleted: profile.surveyCompleted,
@@ -72,16 +73,17 @@ export async function PUT(request: Request) {
 	if (errorResponse) return errorResponse;
 
 	const body = await request.json();
-	const { universityIds, academicProgramIds } = body as {
+	const { universityIds, academicProgramIds, activeMentionIds } = body as {
 		universityIds?: string[];
 		academicProgramIds?: string[];
+		activeMentionIds?: string[];
 	};
 
 	// Detectar cambio de carrera para invalidar las materias aprobadas del
 	// pensum anterior (las reseñas se conservan, están atadas a subjectCode).
 	const existing = await prisma.userProfile.findUnique({
 		where: { userId: session.user.id },
-		select: { academicProgramIds: true },
+		select: { academicProgramIds: true, activeMentionIds: true },
 	});
 
 	const programChanged =
@@ -89,20 +91,69 @@ export async function PUT(request: Request) {
 		JSON.stringify([...academicProgramIds].sort()) !==
 			JSON.stringify([...(existing?.academicProgramIds ?? [])].sort());
 
+	// Validar que las menciones seleccionadas no superen el límite maxMentions y pertenezcan a los programas
+	if (activeMentionIds !== undefined && !programChanged) {
+		const targetPrograms =
+			academicProgramIds ?? existing?.academicProgramIds ?? [];
+
+		const programs = await prisma.academicProgram.findMany({
+			where: { id: { in: targetPrograms } },
+			select: { id: true, name: true, maxMentions: true },
+		});
+
+		const mentions = await prisma.mention.findMany({
+			where: { id: { in: activeMentionIds } },
+			select: { id: true, name: true, academicProgramId: true },
+		});
+
+		const programIdsSet = new Set(programs.map((p) => p.id));
+		const invalidMention = mentions.find(
+			(m) => m.academicProgramId && !programIdsSet.has(m.academicProgramId),
+		);
+
+		if (invalidMention) {
+			return NextResponse.json(
+				{
+					error: `La mención "${invalidMention.name}" no pertenece a tus programas académicos activos.`,
+				},
+				{ status: 400 },
+			);
+		}
+
+		for (const program of programs) {
+			const count = mentions.filter(
+				(m) => m.academicProgramId === program.id,
+			).length;
+			const max = program.maxMentions ?? 1;
+			if (count > max) {
+				return NextResponse.json(
+					{
+						error: `No puedes seleccionar más de ${max} mención(es) para el programa "${program.name}".`,
+					},
+					{ status: 400 },
+				);
+			}
+		}
+	}
+
 	const profile = await prisma.userProfile.upsert({
 		where: { userId: session.user.id },
 		update: {
 			...(universityIds !== undefined && { universityIds }),
 			...(academicProgramIds !== undefined && { academicProgramIds }),
+			...(activeMentionIds !== undefined &&
+				!programChanged && { activeMentionIds }),
 			...(programChanged && {
 				approvedSubjects: [],
 				totalApprovedCredits: 0,
+				activeMentionIds: [],
 			}),
 		},
 		create: {
 			userId: session.user.id,
 			universityIds: universityIds ?? [],
 			academicProgramIds: academicProgramIds ?? [],
+			activeMentionIds: activeMentionIds ?? [],
 			approvedSubjects: [],
 			totalApprovedCredits: 0,
 		},
@@ -115,6 +166,7 @@ export async function PUT(request: Request) {
 		role: session.user.role,
 		universityIds: profile.universityIds,
 		academicProgramIds: profile.academicProgramIds,
+		activeMentionIds: profile.activeMentionIds,
 		approvedSubjects: profile.approvedSubjects,
 		totalApprovedCredits: profile.totalApprovedCredits,
 	});

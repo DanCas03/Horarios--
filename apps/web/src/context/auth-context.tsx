@@ -27,6 +27,7 @@ export interface UserProfile {
 	role?: string | null;
 	universityIds: string[];
 	academicProgramIds: string[];
+	activeMentionIds?: string[];
 	approvedSubjects: ApprovedSubject[];
 	totalApprovedCredits: number;
 	surveyCompleted: boolean;

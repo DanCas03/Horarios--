@@ -41,6 +41,8 @@ export async function GET(request: NextRequest) {
 			prerequisiteIds: ps.prerequisiteIds || [],
 			corequisiteIds: ps.corequisiteIds || [],
 			prerequisiteCredits: ps.prerequisiteCredits || 0,
+			subjectRole: ps.subjectRole,
+			mentionIds: ps.mentionIds || [],
 			// Datos de la materia
 			code: subDetail?.code || "",
 			name: subDetail?.name || "",
@@ -70,6 +72,8 @@ export async function POST(request: Request) {
 			prerequisiteIds,
 			corequisiteIds,
 			prerequisiteCredits,
+			subjectRole,
+			mentionIds,
 		} = body as {
 			studyPlanId: string;
 			subjectId: string;
@@ -77,6 +81,8 @@ export async function POST(request: Request) {
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
 			prerequisiteCredits?: number;
+			subjectRole?: string;
+			mentionIds?: string[];
 		};
 
 		if (!studyPlanId || !subjectId || suggestedTerm === undefined) {
@@ -118,6 +124,8 @@ export async function POST(request: Request) {
 				prerequisiteIds: prerequisiteIds ?? [],
 				corequisiteIds: corequisiteIds ?? [],
 				prerequisiteCredits: prerequisiteCredits ?? 0,
+				subjectRole: subjectRole ?? "CORE",
+				mentionIds: mentionIds ?? [],
 			},
 		});
 

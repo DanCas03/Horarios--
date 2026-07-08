@@ -17,11 +17,15 @@ export async function PUT(
 			prerequisiteIds,
 			corequisiteIds,
 			prerequisiteCredits,
+			subjectRole,
+			mentionIds,
 		} = body as {
 			suggestedTerm?: number;
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
 			prerequisiteCredits?: number;
+			subjectRole?: string | null;
+			mentionIds?: string[];
 		};
 
 		if (
@@ -43,6 +47,8 @@ export async function PUT(
 				...(prerequisiteIds !== undefined && { prerequisiteIds }),
 				...(corequisiteIds !== undefined && { corequisiteIds }),
 				...(prerequisiteCredits !== undefined && { prerequisiteCredits }),
+				...(subjectRole !== undefined && { subjectRole }),
+				...(mentionIds !== undefined && { mentionIds }),
 			},
 		});
 

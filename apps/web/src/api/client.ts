@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-const api = axios.create({
+export const api = axios.create({
 	baseURL: "/api",
 	withCredentials: true,
 	headers: {
@@ -62,6 +62,7 @@ export const academicUnitsAPI = {
 		data: {
 			name?: string;
 			code?: string | null;
+			universityId?: string;
 			isExtracurricular?: boolean;
 			parentId?: string | null;
 		},
@@ -184,6 +185,8 @@ export const studyPlanSubjectsAPI = {
 		prerequisiteIds?: string[];
 		corequisiteIds?: string[];
 		prerequisiteCredits?: number;
+		subjectRole?: string;
+		mentionIds?: string[];
 	}) => api.post("/study-plan-subjects", data),
 	update: (
 		id: string,
@@ -192,6 +195,8 @@ export const studyPlanSubjectsAPI = {
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
 			prerequisiteCredits?: number;
+			subjectRole?: string | null;
+			mentionIds?: string[];
 		},
 	) => api.put(`/study-plan-subjects/${id}`, data),
 	delete: (id: string) => api.delete(`/study-plan-subjects/${id}`),

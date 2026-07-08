@@ -79,17 +79,35 @@ export async function GET(
 		where: { id: { in: availableSubjectIds } },
 	});
 
+	// Obtener las menciones del programa académico para cruzar nombres y códigos
+	const mentions = await prisma.mention.findMany({
+		where: { academicProgramId: program_id },
+		select: { id: true, name: true, code: true },
+	});
+
 	// Mapear con información de prerrequisitos/semestre
 	const result = availableSubjects.map((subject) => {
 		const planSubject = availablePlanSubjects.find(
 			(ps) => ps.subjectId === subject.id,
 		);
+		const subjectMentions = (planSubject?.mentionIds || []).map((mId) => {
+			const m = mentions.find((men) => men.id === mId);
+			return {
+				id: mId,
+				name: m?.name ?? "Mención",
+				code: m?.code ?? null,
+			};
+		});
+
 		return {
 			...subject,
 			semesterSuggested: planSubject?.suggestedTerm || null,
 			prerequisites: planSubject?.prerequisiteIds || [],
 			corequisites: planSubject?.corequisiteIds || [],
 			prerequisiteCredits: planSubject?.prerequisiteCredits || 0,
+			subjectRole: planSubject?.subjectRole || null,
+			mentionIds: planSubject?.mentionIds || [],
+			mentions: subjectMentions,
 		};
 	});
 

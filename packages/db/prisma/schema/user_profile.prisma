@@ -29,6 +29,8 @@ model UserProfile {
   surveyCompleted      Boolean               @default(false) @map("survey_completed")
   createdAt            DateTime              @default(now()) @map("created_at")
   updatedAt            DateTime              @updatedAt @map("updated_at")
+  // Mentions the student is currently enrolled in (capped by AcademicProgram.maxMentions)
+  activeMentionIds     String[]              @map("active_mention_ids") @db.ObjectId
 
   @@map("user_profiles")
 }
