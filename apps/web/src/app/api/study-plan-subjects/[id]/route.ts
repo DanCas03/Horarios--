@@ -12,11 +12,29 @@ export async function PUT(
 	try {
 		const { id } = await params;
 		const body = await request.json();
-		const { suggestedTerm, prerequisiteIds, corequisiteIds } = body as {
+		const {
+			suggestedTerm,
+			prerequisiteIds,
+			corequisiteIds,
+			prerequisiteCredits,
+		} = body as {
 			suggestedTerm?: number;
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
+			prerequisiteCredits?: number;
 		};
+
+		if (
+			prerequisiteCredits !== undefined &&
+			(!Number.isFinite(prerequisiteCredits) ||
+				!Number.isInteger(prerequisiteCredits) ||
+				prerequisiteCredits < 0)
+		) {
+			return NextResponse.json(
+				{ error: "prerequisiteCredits debe ser un entero ≥ 0" },
+				{ status: 400 },
+			);
+		}
 
 		const updated = await prisma.studyPlanSubject.update({
 			where: { id },
@@ -24,6 +42,7 @@ export async function PUT(
 				...(suggestedTerm !== undefined && { suggestedTerm }),
 				...(prerequisiteIds !== undefined && { prerequisiteIds }),
 				...(corequisiteIds !== undefined && { corequisiteIds }),
+				...(prerequisiteCredits !== undefined && { prerequisiteCredits }),
 			},
 		});
 

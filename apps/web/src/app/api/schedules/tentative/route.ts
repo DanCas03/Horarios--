@@ -1,4 +1,5 @@
 import prisma from "@horaios/db";
+import type { Prisma } from "@prisma/client";
 import { type NextRequest, NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
 
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
 	const body = await request.json();
 	const { sectionIds, customBlocks } = body as {
 		sectionIds?: string[];
-		customBlocks?: any[];
+		customBlocks?: Prisma.InputJsonValue[];
 	};
 
 	const profile = await prisma.userProfile.findUnique({

@@ -26,10 +26,8 @@ export async function GET(request: NextRequest) {
 
 	// Obtener los nombres de los profesores asociados
 	const teacherIds = Array.from(
-		new Set(
-			sections.flatMap((s: any) => s.teacherIds).filter((id: any) => !!id),
-		),
-	) as string[];
+		new Set(sections.flatMap((s) => s.teacherIds).filter(Boolean)),
+	);
 
 	const teachers = teacherIds.length
 		? await prisma.teacher.findMany({
@@ -37,8 +35,8 @@ export async function GET(request: NextRequest) {
 			})
 		: [];
 
-	const teacherNameById = new Map(
-		teachers.map((t: any) => {
+	const teacherNameById = new Map<string, string>(
+		teachers.map((t) => {
 			const name = [t.name1, t.name2, t.surname1, t.surname2]
 				.filter(Boolean)
 				.join(" ");
@@ -46,16 +44,16 @@ export async function GET(request: NextRequest) {
 		}),
 	);
 
-	const populatedSections = sections.map((s: any) => ({
+	const populatedSections = sections.map((s) => ({
 		id: s.id,
 		code: s.code,
 		teacherIds: s.teacherIds,
 		teachers: s.teacherIds
-			.map((id: string) => teacherNameById.get(id))
-			.filter(Boolean),
+			.map((id) => teacherNameById.get(id))
+			.filter((name): name is string => !!name),
 		teacherOptions: s.teacherIds
-			.filter((id: string) => teacherNameById.has(id))
-			.map((id: string) => ({ id, name: teacherNameById.get(id) })),
+			.filter((id) => teacherNameById.has(id))
+			.map((id) => ({ id, name: teacherNameById.get(id) as string })),
 	}));
 
 	return NextResponse.json(populatedSections);

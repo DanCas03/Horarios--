@@ -170,6 +170,7 @@ function NavbarContent() {
 										</Link>
 									))}
 								<button
+									type="button"
 									onClick={handleLogout}
 									disabled={isNavDisabled}
 									className="flex h-8 w-8 items-center justify-center rounded-full text-red-400 transition-all hover:bg-red-50 hover:text-red-600 active:scale-90 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
@@ -229,6 +230,7 @@ function NavbarContent() {
 
 					{/* Mobile hamburger */}
 					<button
+						type="button"
 						className={`relative ml-1 flex h-9 w-9 items-center justify-center rounded-full transition-all hover:bg-white/15 active:scale-90 md:hidden ${scrolled ? "text-gray-700" : "text-white"}`}
 						onClick={() => !isNavDisabled && setMobileOpen(!mobileOpen)}
 						disabled={isNavDisabled}
@@ -289,6 +291,7 @@ function NavbarContent() {
 								</>
 							)}
 							<button
+								type="button"
 								onClick={handleLogout}
 								className={`reveal reveal-delay-4 mt-4 flex items-center gap-2 rounded-full px-6 py-3 font-semibold text-base text-red-500 transition-all hover:bg-red-50 active:scale-95 ${mobileOpen ? "is-visible" : ""}`}
 							>

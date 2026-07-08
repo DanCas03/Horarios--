@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
 			suggestedTerm: ps.suggestedTerm,
 			prerequisiteIds: ps.prerequisiteIds || [],
 			corequisiteIds: ps.corequisiteIds || [],
+			prerequisiteCredits: ps.prerequisiteCredits || 0,
 			// Datos de la materia
 			code: subDetail?.code || "",
 			name: subDetail?.name || "",
@@ -68,17 +69,31 @@ export async function POST(request: Request) {
 			suggestedTerm,
 			prerequisiteIds,
 			corequisiteIds,
+			prerequisiteCredits,
 		} = body as {
 			studyPlanId: string;
 			subjectId: string;
 			suggestedTerm: number;
 			prerequisiteIds?: string[];
 			corequisiteIds?: string[];
+			prerequisiteCredits?: number;
 		};
 
 		if (!studyPlanId || !subjectId || suggestedTerm === undefined) {
 			return NextResponse.json(
 				{ error: "studyPlanId, subjectId y suggestedTerm son requeridos" },
+				{ status: 400 },
+			);
+		}
+
+		if (
+			prerequisiteCredits !== undefined &&
+			(!Number.isFinite(prerequisiteCredits) ||
+				!Number.isInteger(prerequisiteCredits) ||
+				prerequisiteCredits < 0)
+		) {
+			return NextResponse.json(
+				{ error: "prerequisiteCredits debe ser un entero ≥ 0" },
 				{ status: 400 },
 			);
 		}
@@ -100,8 +115,9 @@ export async function POST(request: Request) {
 				studyPlanId,
 				subjectId,
 				suggestedTerm,
-				prerequisiteIds: prerequisiteIds || [],
-				corequisiteIds: corequisiteIds || [],
+				prerequisiteIds: prerequisiteIds ?? [],
+				corequisiteIds: corequisiteIds ?? [],
+				prerequisiteCredits: prerequisiteCredits ?? 0,
 			},
 		});
 

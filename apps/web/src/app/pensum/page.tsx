@@ -32,6 +32,7 @@ interface Subject {
 	credits: number;
 	semesterSuggested: number;
 	prerequisites: string[];
+	prerequisiteCredits: number;
 }
 
 interface AcademicProgram {
@@ -111,10 +112,13 @@ function PensumContent() {
 		const currentApprovedIds = new Set(
 			user?.approvedSubjects?.map((s) => s.subjectId) || [],
 		);
+		let currentCredits = user?.totalApprovedCredits || 0;
+
 		const toApprove = semSubjects.filter(
 			(s) =>
 				!currentApprovedIds.has(s.id) &&
-				s.prerequisites.every((p) => currentApprovedIds.has(p)),
+				s.prerequisites.every((p) => currentApprovedIds.has(p)) &&
+				currentCredits >= (s.prerequisiteCredits || 0),
 		);
 		if (toApprove.length === 0) return;
 
@@ -123,6 +127,7 @@ function PensumContent() {
 			try {
 				await subjectsAPI.approve({ subjectId: subject.id });
 				currentApprovedIds.add(subject.id);
+				currentCredits += subject.credits;
 			} catch {}
 		}
 		await refreshUser();
@@ -347,7 +352,8 @@ function PensumContent() {
 							semSubjects.some(
 								(s) =>
 									!approvedIds.has(s.id) &&
-									s.prerequisites.every((p) => approvedIds.has(p)),
+									s.prerequisites.every((p) => approvedIds.has(p)) &&
+									approvedCredits >= (s.prerequisiteCredits || 0),
 							);
 						const isSemesterLoading = approvingSemester === semNum;
 
@@ -423,9 +429,13 @@ function PensumContent() {
 										<div className="divide-y divide-gray-50">
 											{semSubjects.map((subject) => {
 												const isApproved = approvedIds.has(subject.id);
-												const prereqsMet = subject.prerequisites.every((p) =>
-													approvedIds.has(p),
+												const subjectPrereqsMet = subject.prerequisites.every(
+													(p) => approvedIds.has(p),
 												);
+												const creditPrereqsMet =
+													approvedCredits >= (subject.prerequisiteCredits || 0);
+												const prereqsMet =
+													subjectPrereqsMet && creditPrereqsMet;
 												const canApprove = !isApproved && prereqsMet;
 												const isUnapproving = unapprovingCode === subject.id;
 
@@ -452,17 +462,26 @@ function PensumContent() {
 																	</span>{" "}
 																	• {subject.credits} crédito
 																	{subject.credits !== 1 ? "s" : ""}
-																	{subject.prerequisites.length > 0 && (
-																		<span className="ml-2 inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600 text-xs">
+																	{((subject.prerequisites &&
+																		subject.prerequisites.length > 0) ||
+																		(subject.prerequisiteCredits &&
+																			subject.prerequisiteCredits > 0)) && (
+																		<span className="ml-2 inline-flex flex-wrap items-center gap-1 rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-600 text-xs">
 																			Pre:{" "}
-																			{subject.prerequisites
-																				.map(
-																					(pId) =>
-																						subjects.find(
-																							(sub) => sub.id === pId,
-																						)?.code ?? pId,
-																				)
-																				.join(", ")}
+																			{subject.prerequisites.length > 0 &&
+																				subject.prerequisites
+																					.map(
+																						(pId) =>
+																							subjects.find(
+																								(sub) => sub.id === pId,
+																							)?.code ?? pId,
+																					)
+																					.join(", ")}
+																			{subject.prerequisites.length > 0 &&
+																				subject.prerequisiteCredits > 0 &&
+																				" + "}
+																			{subject.prerequisiteCredits > 0 &&
+																				`${subject.prerequisiteCredits} UC`}
 																		</span>
 																	)}
 																</p>
