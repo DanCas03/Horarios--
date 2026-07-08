@@ -86,19 +86,35 @@ function OnboardingContent() {
 		return Array.from(map.entries()).sort(([a], [b]) => a - b);
 	}, [subjects]);
 
-	const currentApprovedCredits = useMemo(() => {
-		return Array.from(selectedIds).reduce((sum, id) => {
-			const s = subjects.find((sub) => sub.id === id);
-			return sum + (s?.credits ?? 0);
-		}, 0);
-	}, [selectedIds, subjects]);
+	// Mapa id → materia para evitar O(n²) con subjects.find en los handlers
+	const subjectMap = useMemo(
+		() => new Map(subjects.map((s) => [s.id, s])),
+		[subjects],
+	);
+
+	// Utilidad: sumar créditos de un conjunto de IDs usando el mapa precalculado
+	const sumCredits = useCallback(
+		(ids: Iterable<string>): number => {
+			let total = 0;
+			for (const id of ids) {
+				total += subjectMap.get(id)?.credits ?? 0;
+			}
+			return total;
+		},
+		[subjectMap],
+	);
+
+	const currentApprovedCredits = useMemo(
+		() => sumCredits(selectedIds),
+		[selectedIds, sumCredits],
+	);
 
 	const toggleSubject = useCallback(
 		(id: string) => {
 			setSelectedIds((prev) => {
 				const next = new Set(prev);
 				if (next.has(id)) {
-					// We are deselecting. We must recursively remove all subjects that depend on this one.
+					// Deselecting: recursively remove dependents
 					const toRemove = new Set<string>([id]);
 					let addedAny = true;
 					while (addedAny) {
@@ -106,14 +122,7 @@ function OnboardingContent() {
 						const remainingIds = new Set(
 							Array.from(next).filter((x) => !toRemove.has(x)),
 						);
-						const remainingCredits = Array.from(remainingIds).reduce(
-							(sum, subId) => {
-								const s = subjects.find((sub) => sub.id === subId);
-								return sum + (s?.credits ?? 0);
-							},
-							0,
-						);
-
+						const remainingCredits = sumCredits(remainingIds);
 						for (const s of subjects) {
 							if (next.has(s.id) && !toRemove.has(s.id)) {
 								const subjectPrereqsMet =
@@ -131,13 +140,10 @@ function OnboardingContent() {
 						next.delete(rId);
 					}
 				} else {
-					// We are selecting. We only allow it if prerequisites are met.
-					const subject = subjects.find((s) => s.id === id);
+					// Selecting: allow only if all prerequisites are met
+					const subject = subjectMap.get(id);
 					if (subject) {
-						const currentCredits = Array.from(next).reduce((sum, subId) => {
-							const s = subjects.find((sub) => sub.id === subId);
-							return sum + (s?.credits ?? 0);
-						}, 0);
+						const currentCredits = sumCredits(next);
 						const subjectPrereqsMet =
 							subject.prerequisites?.every((pId) => next.has(pId)) ?? true;
 						const creditPrereqsMet =
@@ -150,19 +156,15 @@ function OnboardingContent() {
 				return next;
 			});
 		},
-		[subjects],
+		[subjects, sumCredits, subjectMap],
 	);
 
 	const toggleSemester = useCallback(
 		(semesterSubjects: PensumSubject[]) => {
 			setSelectedIds((prev) => {
 				const next = new Set(prev);
-				const currentCredits = Array.from(next).reduce((sum, subId) => {
-					const s = subjects.find((sub) => sub.id === subId);
-					return sum + (s?.credits ?? 0);
-				}, 0);
+				const currentCredits = sumCredits(next);
 
-				// Check if all selectable subjects in the semester are currently selected
 				const selectableSubjects = semesterSubjects.filter((s) => {
 					if (next.has(s.id)) return true;
 					const subjectPrereqsMet =
@@ -177,7 +179,7 @@ function OnboardingContent() {
 				);
 
 				if (allSelectableSelected) {
-					// Deselect all subjects in this semester and recursively deselect dependents
+					// Deselect all in this semester and recursively remove dependents
 					const toRemove = new Set<string>(semesterSubjects.map((s) => s.id));
 					let addedAny = true;
 					while (addedAny) {
@@ -185,14 +187,7 @@ function OnboardingContent() {
 						const remainingIds = new Set(
 							Array.from(next).filter((x) => !toRemove.has(x)),
 						);
-						const remainingCredits = Array.from(remainingIds).reduce(
-							(sum, subId) => {
-								const s = subjects.find((sub) => sub.id === subId);
-								return sum + (s?.credits ?? 0);
-							},
-							0,
-						);
-
+						const remainingCredits = sumCredits(remainingIds);
 						for (const s of subjects) {
 							if (next.has(s.id) && !toRemove.has(s.id)) {
 								const subjectPrereqsMet =
@@ -210,15 +205,11 @@ function OnboardingContent() {
 						next.delete(rId);
 					}
 				} else {
-					// Select all selectable subjects in this semester, repeating to handle same-semester dependencies
+					// Select all selectable, iterating until no more can be added
 					let addedAny = true;
 					while (addedAny) {
 						addedAny = false;
-						const loopCredits = Array.from(next).reduce((sum, subId) => {
-							const s = subjects.find((sub) => sub.id === subId);
-							return sum + (s?.credits ?? 0);
-						}, 0);
-
+						const loopCredits = sumCredits(next);
 						for (const s of semesterSubjects) {
 							if (!next.has(s.id)) {
 								const subjectPrereqsMet =
@@ -236,7 +227,7 @@ function OnboardingContent() {
 				return next;
 			});
 		},
-		[subjects],
+		[subjects, sumCredits],
 	);
 
 	const toggleCollapse = useCallback((sem: number) => {

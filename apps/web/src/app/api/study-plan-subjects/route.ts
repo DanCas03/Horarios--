@@ -86,6 +86,18 @@ export async function POST(request: Request) {
 			);
 		}
 
+		if (
+			prerequisiteCredits !== undefined &&
+			(!Number.isFinite(prerequisiteCredits) ||
+				!Number.isInteger(prerequisiteCredits) ||
+				prerequisiteCredits < 0)
+		) {
+			return NextResponse.json(
+				{ error: "prerequisiteCredits debe ser un entero ≥ 0" },
+				{ status: 400 },
+			);
+		}
+
 		// Evitar duplicación
 		const existing = await prisma.studyPlanSubject.findFirst({
 			where: { studyPlanId, subjectId },
@@ -103,9 +115,9 @@ export async function POST(request: Request) {
 				studyPlanId,
 				subjectId,
 				suggestedTerm,
-				prerequisiteIds: prerequisiteIds || [],
-				corequisiteIds: corequisiteIds || [],
-				prerequisiteCredits: prerequisiteCredits || 0,
+				prerequisiteIds: prerequisiteIds ?? [],
+				corequisiteIds: corequisiteIds ?? [],
+				prerequisiteCredits: prerequisiteCredits ?? 0,
 			},
 		});
 

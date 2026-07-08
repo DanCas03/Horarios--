@@ -24,6 +24,18 @@ export async function PUT(
 			prerequisiteCredits?: number;
 		};
 
+		if (
+			prerequisiteCredits !== undefined &&
+			(!Number.isFinite(prerequisiteCredits) ||
+				!Number.isInteger(prerequisiteCredits) ||
+				prerequisiteCredits < 0)
+		) {
+			return NextResponse.json(
+				{ error: "prerequisiteCredits debe ser un entero ≥ 0" },
+				{ status: 400 },
+			);
+		}
+
 		const updated = await prisma.studyPlanSubject.update({
 			where: { id },
 			data: {
