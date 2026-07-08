@@ -54,8 +54,9 @@ export async function POST(request: Request) {
 
 		const newApprovedSubjects: ApprovedSubjectItem[] = [];
 		for (const id of targetIds) {
-			if (currentApprovedMap.has(id)) {
-				newApprovedSubjects.push(currentApprovedMap.get(id)!);
+			const existingItem = currentApprovedMap.get(id);
+			if (existingItem) {
+				newApprovedSubjects.push(existingItem);
 			} else {
 				newApprovedSubjects.push({
 					subjectId: id,

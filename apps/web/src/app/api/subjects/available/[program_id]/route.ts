@@ -5,7 +5,7 @@ import { requireSession } from "@/lib/auth-session";
 type ApprovedSubjectItem = {
 	subjectId?: string | null;
 	grade?: number | null;
-	period?: any | null;
+	period?: unknown | null;
 };
 
 /**
@@ -29,8 +29,8 @@ export async function GET(
 
 	const approvedIds = new Set(
 		(profile?.approvedSubjects ?? [])
-			.map((s: any) => (s as ApprovedSubjectItem).subjectId)
-			.filter((id: any) => !!id),
+			.map((s) => (s as ApprovedSubjectItem).subjectId)
+			.filter((id): id is string => !!id),
 	);
 
 	// Obtener el plan de estudios activo
@@ -48,17 +48,15 @@ export async function GET(
 	});
 
 	// Filtrar las materias que NO están aprobadas y que cumplen prerrequisitos
-	const availablePlanSubjects = planSubjects.filter((ps: any) => {
+	const availablePlanSubjects = planSubjects.filter((ps) => {
 		if (!ps.subjectId || approvedIds.has(ps.subjectId)) return false;
 		// Tiene que tener aprobados todos los prerrequisitos (identificados por subjectId)
-		return ps.prerequisiteIds.every((prereqId: any) =>
-			approvedIds.has(prereqId),
-		);
+		return ps.prerequisiteIds.every((prereqId) => approvedIds.has(prereqId));
 	});
 
 	const availableSubjectIds = availablePlanSubjects
-		.map((ps: any) => ps.subjectId)
-		.filter((id: any) => id !== null) as string[];
+		.map((ps) => ps.subjectId)
+		.filter((id): id is string => id !== null);
 
 	if (availableSubjectIds.length === 0) {
 		return NextResponse.json([]);
@@ -70,9 +68,9 @@ export async function GET(
 	});
 
 	// Mapear con información de prerrequisitos/semestre
-	const result = availableSubjects.map((subject: any) => {
+	const result = availableSubjects.map((subject) => {
 		const planSubject = availablePlanSubjects.find(
-			(ps: any) => ps.subjectId === subject.id,
+			(ps) => ps.subjectId === subject.id,
 		);
 		return {
 			...subject,

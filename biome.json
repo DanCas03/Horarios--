@@ -28,7 +28,8 @@
 			"!**/.source",
 			"!**/convex/_generated",
 			"!**/.agents",
-			"!**/.claude"
+			"!**/.claude",
+			"!packages/ui"
 		]
 	},
 	"formatter": {
@@ -45,7 +46,7 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true,
+			"preset": "recommended",
 			"correctness": {
 				"useExhaustiveDependencies": "info"
 			},
