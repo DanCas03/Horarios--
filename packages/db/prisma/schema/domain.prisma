@@ -127,8 +127,23 @@ model AcademicProgram {
   academicLevel  String? @map("academic_level")
   totalTerms     Int?    @map("total_terms")
   totalCredits   Int?    @map("total_credits")
+  maxMentions    Int?    @default(1) @map("max_mentions")
 
   @@map("academic_programs")
+}
+
+// =============================================================================
+// Mention
+// =============================================================================
+model Mention {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  academicProgramId String?  @map("academic_program_id") @db.ObjectId
+  name              String
+  code              String?
+  description       String?
+  isActive          Boolean? @map("is_active")
+
+  @@map("mentions")
 }
 
 // =============================================================================
@@ -154,6 +169,10 @@ model StudyPlanSubject {
   prerequisiteIds     String[] @map("prerequisite_ids") @db.ObjectId
   corequisiteIds      String[] @map("corequisite_ids") @db.ObjectId
   prerequisiteCredits Int?     @default(0) @map("prerequisite_credits")
+  // "CORE" | "ELECTIVE" — whether the subject is required or optional in the plan
+  subjectRole         String?  @map("subject_role")
+  // IDs of mentions this subject belongs to; empty array = general career subject
+  mentionIds          String[] @map("mention_ids") @db.ObjectId
 
   @@map("study_plan_subjects")
 }

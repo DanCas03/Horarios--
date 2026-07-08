@@ -9,6 +9,7 @@ import {
 	ChevronDown,
 	ClipboardList,
 	Loader2,
+	Lock,
 	MapPin,
 	MessageSquare,
 	Plus,
@@ -91,6 +92,9 @@ interface AvailableSubject {
 	name: string;
 	credits: number;
 	semester_suggested: number;
+	subjectRole?: string | null;
+	mentionIds?: string[];
+	mentions?: { id: string; name: string; code?: string | null }[];
 }
 
 interface RawCustomBlock {
@@ -227,6 +231,9 @@ function ScheduleContent() {
 							name: string;
 							credits: number;
 							semesterSuggested?: number;
+							subjectRole?: string | null;
+							mentionIds?: string[];
+							mentions?: { id: string; name: string; code?: string | null }[];
 						}[]
 					).map((s) => ({
 						_id: s.id,
@@ -234,6 +241,9 @@ function ScheduleContent() {
 						name: s.name,
 						credits: s.credits,
 						semester_suggested: s.semesterSuggested ?? 0,
+						subjectRole: s.subjectRole ?? null,
+						mentionIds: s.mentionIds ?? [],
+						mentions: s.mentions ?? [],
 					})),
 				);
 			}
@@ -492,37 +502,84 @@ function ScheduleContent() {
 										<div className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4">
 											{semSubjects.map((s) => {
 												const isSelected = selected.has(s.code);
+												const isMentionSubject =
+													s.mentionIds && s.mentionIds.length > 0;
+												const hasRequiredMention =
+													isMentionSubject &&
+													s.mentionIds?.some((mId) =>
+														user?.activeMentionIds?.includes(mId),
+													);
+												const isBlocked =
+													isMentionSubject && !hasRequiredMention;
+
 												return (
 													<button
 														key={s._id}
 														type="button"
-														onClick={() => toggleSubject(s.code)}
-														className={`rounded-xl border-2 p-3 text-left transition-all ${
-															isSelected
-																? "border-primary bg-primary/5 shadow-sm"
-																: "border-gray-200 hover:border-primary/40 hover:bg-gray-50"
+														onClick={() => {
+															if (isBlocked) return;
+															toggleSubject(s.code);
+														}}
+														className={`relative rounded-xl border-2 p-3 text-left transition-all ${
+															isBlocked
+																? "cursor-not-allowed border-gray-200 bg-gray-50/50 opacity-60"
+																: isSelected
+																	? "border-primary bg-primary/5 shadow-sm"
+																	: "border-gray-200 hover:border-primary/40 hover:bg-gray-50"
 														}`}
 													>
 														<div className="flex items-start justify-between gap-1">
 															<p
 																className={`font-medium text-sm leading-snug ${
-																	isSelected ? "text-primary" : "text-gray-900"
+																	isBlocked
+																		? "text-gray-400"
+																		: isSelected
+																			? "text-primary"
+																			: "text-gray-900"
 																}`}
 															>
 																{s.name}
 															</p>
-															{isSelected && (
+															{isSelected && !isBlocked && (
 																<CheckCircle2
 																	size={16}
 																	className="mt-0.5 flex-shrink-0 text-primary"
 																/>
 															)}
+															{isBlocked && (
+																<Lock
+																	size={14}
+																	className="mt-0.5 flex-shrink-0 text-gray-400"
+																/>
+															)}
 														</div>
 														<p
-															className={`mt-1 text-xs ${isSelected ? "text-primary/70" : "text-gray-400"}`}
+															className={`mt-1 text-xs ${
+																isBlocked
+																	? "text-gray-400"
+																	: isSelected
+																		? "text-primary/70"
+																		: "text-gray-400"
+															}`}
 														>
 															{s.code} · {s.credits} cr.
 														</p>
+														{isMentionSubject && (
+															<div className="mt-2 flex flex-wrap gap-1">
+																{s.mentions?.map((m) => (
+																	<span
+																		key={m.id}
+																		className={`rounded px-1.5 py-0.5 font-semibold text-[9px] uppercase tracking-wider ${
+																			user?.activeMentionIds?.includes(m.id)
+																				? "bg-primary/10 text-primary"
+																				: "bg-gray-200/60 text-gray-500"
+																		}`}
+																	>
+																		Mención: {m.code || m.name}
+																	</span>
+																))}
+															</div>
+														)}
 													</button>
 												);
 											})}

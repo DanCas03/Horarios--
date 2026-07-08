@@ -38,6 +38,16 @@ function ProfileContent() {
 	const [saving, setSaving] = useState(false);
 	const [saved, setSaved] = useState(false);
 
+	// Mentions states
+	interface Mention {
+		id: string;
+		name: string;
+		code?: string;
+	}
+	const [mentions, setMentions] = useState<Mention[]>([]);
+	const [selectedMentions, setSelectedMentions] = useState<string[]>([]);
+	const [maxMentions, setMaxMentions] = useState(1);
+
 	useEffect(() => {
 		universitiesAPI
 			.list()
@@ -55,6 +65,30 @@ function ProfileContent() {
 			setAcademicPrograms([]);
 		}
 	}, [selectedUni]);
+
+	useEffect(() => {
+		if (user?.activeMentionIds) {
+			setSelectedMentions(user.activeMentionIds);
+		}
+	}, [user]);
+
+	useEffect(() => {
+		if (selectedProgram) {
+			api
+				.get<Mention[]>(`/academic-programs/${selectedProgram}/mentions`)
+				.then((res) => setMentions(res.data))
+				.catch(() => setMentions([]));
+
+			api
+				.get<{ maxMentions?: number }>(`/academic-programs/${selectedProgram}`)
+				.then((res) => setMaxMentions(res.data.maxMentions ?? 1))
+				.catch(() => setMaxMentions(1));
+		} else {
+			setMentions([]);
+			setSelectedMentions([]);
+			setMaxMentions(1);
+		}
+	}, [selectedProgram]);
 
 	useEffect(() => {
 		if (
@@ -76,6 +110,7 @@ function ProfileContent() {
 			await api.put("/auth/me", {
 				universityIds: selectedUni ? [selectedUni] : [],
 				academicProgramIds: selectedProgram ? [selectedProgram] : [],
+				activeMentionIds: selectedMentions,
 			});
 			await refreshUser();
 			setSaved(true);
@@ -83,8 +118,16 @@ function ProfileContent() {
 			if (isFirstTime) {
 				router.push("/encuesta/onboarding");
 			}
-		} catch {
-			alert("Error al guardar perfil");
+		} catch (err) {
+			let errMsg = "Error al guardar perfil";
+			if (err && typeof err === "object" && "response" in err) {
+				const response = (err as { response?: { data?: { error?: string } } })
+					.response;
+				if (response?.data?.error) {
+					errMsg = response.data.error;
+				}
+			}
+			alert(errMsg);
 		} finally {
 			setSaving(false);
 		}
@@ -180,26 +223,77 @@ function ProfileContent() {
 						</div>
 
 						{selectedUni && (
-							<div>
-								<label
-									htmlFor="program-select"
-									className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider"
-								>
-									Programa Académico
-								</label>
-								<select
-									id="program-select"
-									value={selectedProgram}
-									onChange={(e) => setSelectedProgram(e.target.value)}
-									className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
-								>
-									<option value="">Selecciona tu programa</option>
-									{academicPrograms.map((p) => (
-										<option key={p.id} value={p.id}>
-											{p.name}
-										</option>
-									))}
-								</select>
+							<div className="space-y-4">
+								<div>
+									<label
+										htmlFor="program-select"
+										className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider"
+									>
+										Programa Académico
+									</label>
+									<select
+										id="program-select"
+										value={selectedProgram}
+										onChange={(e) => setSelectedProgram(e.target.value)}
+										className="w-full appearance-none rounded-xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-gray-900 text-sm outline-none transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] hover:border-gray-200 focus:border-primary/30 focus:bg-white focus:ring-4 focus:ring-primary/[0.08]"
+									>
+										<option value="">Selecciona tu programa</option>
+										{academicPrograms.map((p) => (
+											<option key={p.id} value={p.id}>
+												{p.name}
+											</option>
+										))}
+									</select>
+								</div>
+
+								{selectedProgram && mentions.length > 0 && (
+									<div>
+										<span className="mb-2 block font-semibold text-gray-400 text-xs uppercase tracking-wider">
+											Menciones Cursando (Máximo {maxMentions})
+										</span>
+										<div className="space-y-3 rounded-xl border border-gray-100 bg-gray-50/50 p-4">
+											{mentions.map((mention) => {
+												const isChecked = selectedMentions.includes(mention.id);
+												return (
+													<label
+														key={mention.id}
+														className="flex cursor-pointer select-none items-center gap-3"
+													>
+														<input
+															type="checkbox"
+															checked={isChecked}
+															disabled={
+																!isChecked &&
+																selectedMentions.length >= maxMentions
+															}
+															onChange={() => {
+																if (isChecked) {
+																	setSelectedMentions(
+																		selectedMentions.filter(
+																			(id) => id !== mention.id,
+																		),
+																	);
+																} else {
+																	if (selectedMentions.length < maxMentions) {
+																		setSelectedMentions([
+																			...selectedMentions,
+																			mention.id,
+																		]);
+																	}
+																}
+															}}
+															className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+														/>
+														<span className="font-medium text-gray-700 text-sm">
+															{mention.name}{" "}
+															{mention.code ? `(${mention.code})` : ""}
+														</span>
+													</label>
+												);
+											})}
+										</div>
+									</div>
+								)}
 							</div>
 						)}
 

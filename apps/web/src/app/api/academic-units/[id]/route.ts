@@ -12,9 +12,10 @@ export async function PUT(
 	try {
 		const { id } = await params;
 		const body = await request.json();
-		const { name, code, isExtracurricular, parentId } = body as {
+		const { name, code, universityId, isExtracurricular, parentId } = body as {
 			name?: string;
 			code?: string;
+			universityId?: string;
 			isExtracurricular?: boolean;
 			parentId?: string | null;
 		};
@@ -35,6 +36,7 @@ export async function PUT(
 			data: {
 				...(name !== undefined && { name }),
 				...(code !== undefined && { code }),
+				...(universityId !== undefined && { universityId }),
 				...(isExtracurricular !== undefined && { isExtracurricular }),
 				...(parentId !== undefined && { parentId: parentId || null }),
 			},

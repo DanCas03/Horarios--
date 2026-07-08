@@ -1,6 +1,7 @@
 import prisma from "@horaios/db";
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth-session";
+import { validateSectionsMentions } from "@/lib/mentions-validation";
 
 /**
  * PUT /api/schedules/[id]
@@ -45,6 +46,14 @@ export async function PUT(
 		scheduleType?: string;
 		sectionIds?: string[];
 	};
+
+	// Validar que las materias seleccionadas correspondan a menciones cursadas por el usuario
+	if (sectionIds && sectionIds.length > 0) {
+		const validation = await validateSectionsMentions(profile.id, sectionIds);
+		if (!validation.valid) {
+			return NextResponse.json({ error: validation.error }, { status: 400 });
+		}
+	}
 
 	const updated = await prisma.schedule.update({
 		where: { id },

@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
 	academicProgramsAPI,
 	academicUnitsAPI,
+	api,
 	parseApiError,
 	studyPlanSubjectsAPI,
 	studyPlansAPI,
@@ -52,6 +53,8 @@ interface PlanSubject {
 	prerequisiteIds: string[];
 	corequisiteIds: string[];
 	prerequisiteCredits: number;
+	subjectRole?: string | null;
+	mentionIds?: string[];
 	code: string;
 	name: string;
 	credits: number;
@@ -80,6 +83,13 @@ interface AcademicUnit {
 	universityId: string;
 }
 
+interface Mention {
+	id: string;
+	name: string;
+	code?: string | null;
+	academicProgramId?: string | null;
+}
+
 type TabType = "plans" | "subjects" | "units";
 
 function AdminContent() {
@@ -99,6 +109,14 @@ function AdminContent() {
 	const [planSubjects, setPlanSubjects] = useState<PlanSubject[]>([]);
 	const [allSubjects, setAllSubjects] = useState<Subject[]>([]);
 	const [academicUnits, setAcademicUnits] = useState<AcademicUnit[]>([]);
+
+	// Mentions and role states for assignment
+	const [programMentions, setProgramMentions] = useState<Mention[]>([]);
+	const [assignRole, setAssignRole] = useState<string>("CORE");
+	const [assignMentionIds, setAssignMentionIds] = useState<string[]>([]);
+
+	// University selection state for academic units
+	const [unitUniId, setUnitUniId] = useState<string>("");
 
 	// --- Estados de carga y error ---
 	const [loadingUnis, setLoadingUnis] = useState(true);
@@ -215,6 +233,7 @@ function AdminContent() {
 		if (!selectedProgId) {
 			setPlans([]);
 			setSelectedPlanId("");
+			setProgramMentions([]);
 			return;
 		}
 		setLoadingPlans(true);
@@ -231,6 +250,11 @@ function AdminContent() {
 			})
 			.catch((err) => alert(parseApiError(err, "Error al cargar planes")))
 			.finally(() => setLoadingPlans(false));
+
+		api
+			.get<Mention[]>(`/academic-programs/${selectedProgId}/mentions`)
+			.then((res) => setProgramMentions(res.data))
+			.catch(() => setProgramMentions([]));
 	}, [selectedProgId]);
 
 	// --- Cargar Materias del Plan y materias generales ---
@@ -339,6 +363,8 @@ function AdminContent() {
 		setPrereqIds([]);
 		setPrereqCredits(0);
 		setSearchSubjectTerm("");
+		setAssignRole("CORE");
+		setAssignMentionIds([]);
 		setShowAssignModal(true);
 	};
 
@@ -350,6 +376,8 @@ function AdminContent() {
 		setPrereqIds(ps.prerequisiteIds || []);
 		setPrereqCredits(ps.prerequisiteCredits || 0);
 		setSearchSubjectTerm("");
+		setAssignRole(ps.subjectRole || "CORE");
+		setAssignMentionIds(ps.mentionIds || []);
 		setShowAssignModal(true);
 	};
 
@@ -362,6 +390,8 @@ function AdminContent() {
 					suggestedTerm,
 					prerequisiteIds: prereqIds,
 					prerequisiteCredits: prereqCredits,
+					subjectRole: assignRole,
+					mentionIds: assignMentionIds,
 				});
 			} else {
 				await studyPlanSubjectsAPI.assign({
@@ -370,6 +400,8 @@ function AdminContent() {
 					suggestedTerm,
 					prerequisiteIds: prereqIds,
 					prerequisiteCredits: prereqCredits,
+					subjectRole: assignRole,
+					mentionIds: assignMentionIds,
 				});
 			}
 			const res = await studyPlanSubjectsAPI.list(selectedPlanId);
@@ -478,6 +510,7 @@ function AdminContent() {
 		setUnitCode("");
 		setUnitParentId("");
 		setUnitIsExtra(false);
+		setUnitUniId(selectedUniId);
 		setShowUnitModal(true);
 	};
 
@@ -487,17 +520,19 @@ function AdminContent() {
 		setUnitCode(unit.code || "");
 		setUnitParentId(unit.parentId || "");
 		setUnitIsExtra(unit.isExtracurricular);
+		setUnitUniId(unit.universityId || "");
 		setShowUnitModal(true);
 	};
 
 	const handleSaveUnit = async () => {
-		if (!unitName.trim()) return;
+		if (!unitName.trim() || !unitUniId) return;
 		setSavingUnit(true);
 		try {
 			if (editingUnit) {
 				await academicUnitsAPI.update(editingUnit.id, {
 					name: unitName,
 					code: unitCode || null,
+					universityId: unitUniId,
 					parentId: unitParentId || null,
 					isExtracurricular: unitIsExtra,
 				});
@@ -505,7 +540,7 @@ function AdminContent() {
 				await academicUnitsAPI.create({
 					name: unitName,
 					code: unitCode || undefined,
-					universityId: selectedUniId,
+					universityId: unitUniId,
 					parentId: unitParentId || null,
 					isExtracurricular: unitIsExtra,
 				});
@@ -929,6 +964,46 @@ function AdminContent() {
 																				)}
 																			</div>
 																		)}
+
+																		<div className="mt-3 flex flex-wrap gap-1">
+																			<span
+																				className={`rounded px-1.5 py-0.5 font-bold text-[9px] uppercase tracking-wider ${
+																					ps.subjectRole === "ELECTIVE"
+																						? "bg-purple-50 text-purple-700 ring-1 ring-purple-600/10"
+																						: "bg-green-50 text-green-700 ring-1 ring-green-600/10"
+																				}`}
+																			>
+																				{ps.subjectRole === "ELECTIVE"
+																					? "Electiva"
+																					: "Obligatoria"}
+																			</span>
+
+																			{ps.mentionIds &&
+																				ps.mentionIds.length > 0 && (
+																					<span className="rounded bg-indigo-50 px-1.5 py-0.5 font-bold text-[9px] text-indigo-700 uppercase tracking-wider ring-1 ring-indigo-600/10">
+																						Mención
+																					</span>
+																				)}
+																		</div>
+
+																		{ps.mentionIds &&
+																			ps.mentionIds.length > 0 && (
+																				<div className="mt-1 flex flex-wrap gap-1">
+																					{ps.mentionIds.map((mId) => {
+																						const m = programMentions.find(
+																							(men) => men.id === mId,
+																						);
+																						return (
+																							<span
+																								key={mId}
+																								className="rounded bg-indigo-50 px-1.5 py-0.5 font-semibold text-[9px] text-indigo-700 ring-1 ring-indigo-600/10"
+																							>
+																								Mención: {m?.name || mId}
+																							</span>
+																						);
+																					})}
+																				</div>
+																			)}
 																	</div>
 
 																	<div className="mt-4 flex items-center justify-end gap-1.5 border-gray-50 border-t pt-2.5">
@@ -1142,6 +1217,7 @@ function AdminContent() {
 										<tr className="border-gray-100 border-b font-bold text-[11px] text-gray-400 uppercase tracking-wider">
 											<th className="px-4 py-3">Código</th>
 											<th className="px-4 py-3">Nombre</th>
+											<th className="px-4 py-3">Universidad</th>
 											<th className="px-4 py-3">Unidad Padre</th>
 											<th className="px-4 py-3">Tipo</th>
 											<th className="px-4 py-3 text-right">Acciones</th>
@@ -1151,6 +1227,9 @@ function AdminContent() {
 										{unitsFilteredList.map((unit) => {
 											const parent = academicUnits.find(
 												(u) => u.id === unit.parentId,
+											);
+											const uni = universities.find(
+												(u) => u.id === unit.universityId,
 											);
 											return (
 												<tr
@@ -1164,6 +1243,15 @@ function AdminContent() {
 													</td>
 													<td className="px-4 py-3.5 font-semibold text-gray-700">
 														{unit.name}
+													</td>
+													<td className="px-4 py-3.5 font-medium text-gray-500">
+														{uni ? (
+															uni.name
+														) : (
+															<span className="text-gray-300 italic">
+																Ninguna
+															</span>
+														)}
 													</td>
 													<td className="px-4 py-3.5 text-gray-500">
 														{parent ? (
@@ -1419,7 +1507,72 @@ function AdminContent() {
 										className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 									/>
 								</div>
+
+								<div className="space-y-1.5">
+									<label
+										htmlFor="assign-role-select"
+										className="block font-bold text-gray-400 text-xs uppercase tracking-wider"
+									>
+										Tipo de Materia
+									</label>
+									<select
+										id="assign-role-select"
+										value={assignRole}
+										onChange={(e) => setAssignRole(e.target.value)}
+										className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 font-semibold text-gray-700 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
+									>
+										<option value="CORE">CORE (Obligatoria)</option>
+										<option value="ELECTIVE">ELECTIVE (Electiva)</option>
+									</select>
+								</div>
 							</div>
+
+							{programMentions.length > 0 && (
+								<div className="space-y-1.5">
+									<span className="block font-bold text-gray-400 text-xs uppercase tracking-wider">
+										Asociar a Menciones
+									</span>
+									<div className="max-h-36 space-y-2 overflow-y-auto rounded-xl border border-gray-100 p-3.5">
+										{programMentions.map((mention) => {
+											const checked = assignMentionIds.includes(mention.id);
+											return (
+												<label
+													key={mention.id}
+													className="flex cursor-pointer select-none items-center gap-2.5 font-semibold text-gray-700 text-sm hover:text-gray-900"
+												>
+													<input
+														type="checkbox"
+														checked={checked}
+														onChange={() => {
+															if (checked) {
+																setAssignMentionIds(
+																	assignMentionIds.filter(
+																		(id) => id !== mention.id,
+																	),
+																);
+															} else {
+																setAssignMentionIds([
+																	...assignMentionIds,
+																	mention.id,
+																]);
+															}
+														}}
+														className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+													/>
+													<span>
+														{mention.name}{" "}
+														{mention.code && (
+															<span className="text-gray-400">
+																({mention.code})
+															</span>
+														)}
+													</span>
+												</label>
+											);
+										})}
+									</div>
+								</div>
+							)}
 
 							<div className="space-y-1.5">
 								<label
@@ -1755,6 +1908,28 @@ function AdminContent() {
 									placeholder="Ej. INGSIS"
 									className="w-full rounded-xl border border-gray-200 px-3.5 py-2 font-semibold text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
 								/>
+							</div>
+
+							<div className="space-y-1.5">
+								<label
+									htmlFor="unit-uni-select"
+									className="block font-bold text-gray-400 text-xs uppercase tracking-wider"
+								>
+									Universidad
+								</label>
+								<select
+									id="unit-uni-select"
+									value={unitUniId}
+									onChange={(e) => setUnitUniId(e.target.value)}
+									className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-2.5 font-semibold text-gray-700 text-sm outline-none focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/10"
+								>
+									<option value="">Selecciona una universidad</option>
+									{universities.map((uni) => (
+										<option key={uni.id} value={uni.id}>
+											{uni.name}
+										</option>
+									))}
+								</select>
 							</div>
 
 							<div className="space-y-1.5">
