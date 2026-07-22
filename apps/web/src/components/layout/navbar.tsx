@@ -16,6 +16,7 @@ import { Suspense, useEffect, useState } from "react";
 
 import Logo from "@/components/logo";
 import { useAuth } from "@/context/auth-context";
+import { canAccessReviews } from "@/lib/feature-flags";
 
 const NAV_LINKS = [
 	{ href: "/pensum" as Route, label: "Pensum", Icon: BookOpen },
@@ -35,6 +36,16 @@ function NavbarContent() {
 	const isNavDisabled =
 		searchParams.get("firstTime") === "true" ||
 		searchParams.get("disableNav") === "true";
+
+	// Los admins siempre ven el menú (no completan la encuesta de onboarding);
+	// los usuarios normales lo ven solo tras completar la encuesta.
+	const isAdmin = user?.role === "admin";
+	const showNavLinks = Boolean(user && (isAdmin || user.surveyCompleted));
+	const visibleLinks = NAV_LINKS.filter(({ href }) => {
+		if (href === "/admin") return isAdmin;
+		if (href === "/reviews") return canAccessReviews(user?.role);
+		return true;
+	});
 
 	useEffect(() => {
 		const onScroll = () => setScrolled(window.scrollY > 12);
@@ -87,10 +98,8 @@ function NavbarContent() {
 
 					{/* Desktop links */}
 					<div className="hidden items-center gap-1 md:flex">
-						{user?.surveyCompleted &&
-							NAV_LINKS.filter(
-								({ href }) => href !== "/admin" || user?.role === "admin",
-							).map(({ href, label }) => {
+						{showNavLinks &&
+							visibleLinks.map(({ href, label }) => {
 								if (isNavDisabled) {
 									return (
 										<span
@@ -148,7 +157,7 @@ function NavbarContent() {
 					>
 						{user ? (
 							<>
-								{user.surveyCompleted &&
+								{showNavLinks &&
 									(isNavDisabled ? (
 										<span
 											className={`flex cursor-not-allowed items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-sm opacity-40 ${scrolled ? "text-gray-400" : "text-white/40"}`}
@@ -265,11 +274,9 @@ function NavbarContent() {
 				<div className="flex flex-col items-center gap-2">
 					{user ? (
 						<>
-							{user.surveyCompleted && (
+							{showNavLinks && (
 								<>
-									{NAV_LINKS.filter(
-										({ href }) => href !== "/admin" || user?.role === "admin",
-									).map(({ href, label, Icon }, i) => (
+									{visibleLinks.map(({ href, label, Icon }, i) => (
 										<Link
 											key={href}
 											href={href}

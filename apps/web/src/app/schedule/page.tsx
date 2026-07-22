@@ -29,6 +29,7 @@ import FloatingActionMenu from "@/components/ui/floating-action-menu";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import SpotlightEffect from "@/components/ui/spotlight-effect";
 import { useAuth } from "@/context/auth-context";
+import { canAccessReviews } from "@/lib/feature-flags";
 
 interface Period {
 	id: string;
@@ -766,11 +767,15 @@ function ScheduleContent() {
 			<FloatingActionMenu
 				actions={[
 					{ label: "Ver pensum", href: "/pensum" as Route, Icon: BookOpen },
-					{
-						label: "Ver reseñas",
-						href: "/reviews" as Route,
-						Icon: MessageSquare,
-					},
+					...(canAccessReviews(user?.role)
+						? [
+								{
+									label: "Ver reseñas",
+									href: "/reviews" as Route,
+									Icon: MessageSquare,
+								},
+							]
+						: []),
 					{
 						label: "Actualizar encuesta",
 						href: "/encuesta" as Route,

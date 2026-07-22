@@ -10,6 +10,7 @@ import PreviewCarousel from "@/components/landing/preview-carousel";
 import { ContainerScroll } from "@/components/ui/container-scroll-animation";
 import { useAuth } from "@/context/auth-context";
 import { useReveal } from "@/hooks/use-reveal";
+import { REVIEWS_ENABLED } from "@/lib/feature-flags";
 
 type Feature = {
 	icon: LucideIcon;
@@ -36,7 +37,7 @@ const features: Feature[] = [
 		icon: MessageSquare,
 		title: "Reseñas Anónimas",
 		desc: "Comparte y consulta opiniones sobre materias y profesores de forma completamente anónima.",
-		href: "/reviews",
+		...(REVIEWS_ENABLED ? { href: "/reviews" as Route } : { comingSoon: true }),
 	},
 	{
 		icon: TrendingUp,

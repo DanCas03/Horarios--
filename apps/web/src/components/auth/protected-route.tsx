@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { useAuth } from "@/context/auth-context";
+import { canAccessReviews } from "@/lib/feature-flags";
 
 const Spinner = () => (
 	<div className="flex min-h-screen items-center justify-center">
@@ -26,12 +27,21 @@ export default function ProtectedRoute({
 				router.replace(`/login?next=${encodeURIComponent(pathname || "/")}`);
 			} else if (pathname?.startsWith("/admin") && user.role !== "admin") {
 				router.replace("/dashboard");
+			} else if (
+				pathname?.startsWith("/reviews") &&
+				!canAccessReviews(user.role)
+			) {
+				router.replace("/dashboard");
 			}
 		}
 	}, [loading, pathname, router, user]);
 
 	if (loading) return <Spinner />;
-	if (!user || (pathname?.startsWith("/admin") && user.role !== "admin"))
+	if (
+		!user ||
+		(pathname?.startsWith("/admin") && user.role !== "admin") ||
+		(pathname?.startsWith("/reviews") && !canAccessReviews(user.role))
+	)
 		return null;
 
 	return <>{children}</>;
