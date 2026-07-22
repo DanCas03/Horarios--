@@ -2,6 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { REVIEWS_ENABLED } from "@/lib/feature-flags";
 import AppPreview from "./app-preview";
 import PensumPreview from "./pensum-preview";
 import ReviewPreview from "./review-preview";
@@ -17,7 +18,7 @@ const SLIDES = [
 	{ key: "horario", label: "vista de horarios", Component: AppPreview },
 	{ key: "resenas", label: "vista de reseñas", Component: ReviewPreview },
 	{ key: "pensum", label: "vista de pensum", Component: PensumPreview },
-];
+].filter(({ key }) => REVIEWS_ENABLED || key !== "resenas");
 
 export default function PreviewCarousel() {
 	const [index, setIndex] = useState(0);

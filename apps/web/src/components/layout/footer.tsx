@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Logo from "@/components/logo";
+import { REVIEWS_ENABLED } from "@/lib/feature-flags";
 
 function FooterContent() {
 	const searchParams = useSearchParams();
@@ -60,12 +61,14 @@ function FooterContent() {
 							>
 								Horarios
 							</Link>
-							<Link
-								href="/reviews"
-								className="transition-colors hover:text-gray-900"
-							>
-								Reseñas
-							</Link>
+							{REVIEWS_ENABLED && (
+								<Link
+									href="/reviews"
+									className="transition-colors hover:text-gray-900"
+								>
+									Reseñas
+								</Link>
+							)}
 						</div>
 						<div className="flex flex-col gap-3">
 							<span className="font-bold text-[10px] text-gray-300 uppercase tracking-[0.2em]">

@@ -24,6 +24,7 @@ import FloatingActionMenu from "@/components/ui/floating-action-menu";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { SmoothAccordion } from "@/components/ui/smooth-accordion";
 import { useAuth } from "@/context/auth-context";
+import { canAccessReviews } from "@/lib/feature-flags";
 
 interface Subject {
 	id: string;
@@ -558,11 +559,15 @@ function PensumContent() {
 						href: "/schedule" as Route,
 						Icon: Calendar,
 					},
-					{
-						label: "Ver reseñas",
-						href: "/reviews" as Route,
-						Icon: MessageSquare,
-					},
+					...(canAccessReviews(user?.role)
+						? [
+								{
+									label: "Ver reseñas",
+									href: "/reviews" as Route,
+									Icon: MessageSquare,
+								},
+							]
+						: []),
 					{
 						label: "Actualizar encuesta",
 						href: "/encuesta" as Route,
